@@ -1,10 +1,15 @@
-'use client';
-
 import { Button } from "@/components/ui/button"
+import { signOut } from "@/auth";
 
 
 export default function Test() {
+    const logout = async () => {
+        "use server"
+        await signOut()
+    }
     return (
-        <Button onClick={() => alert("Hi There")}>Click me</Button>
+        <form action={logout}>
+        <Button type="submit" onClick={logout}>Click me</Button>
+        </form>
     )
 }
