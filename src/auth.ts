@@ -2,7 +2,6 @@ import type { NextAuthConfig } from "next-auth";
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import PostgresAdapter from "@auth/pg-adapter";
-
 import { Pool } from "pg";
 
 const pool = new Pool({
@@ -26,10 +25,18 @@ const credentialsConfig = CredentialsProvider({
         },
     },
     async authorize(credentials, request) {
-        return {
-            id: "1",
-            email: "rs.rupesh95@gmail.com",
-        };
+        const res = await fetch(`${process.env.API_URL}/users/verify`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email: credentials.email, password: credentials.password }),
+        });
+        if (res.ok) {
+            const resJson = await res.json();
+            return resJson;
+        }
+        return null;
     },
 });
 
