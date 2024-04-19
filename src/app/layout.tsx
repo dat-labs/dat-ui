@@ -18,7 +18,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={clsx(inter.className, "dark")}>
+            <body className={clsx(inter.className, "light")}>
                 <div className="flex">
                     <div className="w-24">
                         <NavBar />
