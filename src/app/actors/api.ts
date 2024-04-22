@@ -55,3 +55,19 @@ export const getActorsData = async (actorType : string): Promise<ActorInstanceDa
     // );
     // return data;
 };
+
+export const getActorData = async (actorType: string, actorId: string): Promise<ActorInstanceData> => {
+    const response = await fetch(`http://localhost:8002/actor_instances/${actorId}`);
+    const data = await response.json();
+    return {
+        id: data.id,
+        actor_id: data.actor_id,
+        actor_type: data.actor_type,
+        user_id: data.user_id,
+        workspace_id: data.workspace_id,
+        name: data.name,
+        status: data.status,
+        configuration: data.configuration,
+        actor: data.actor,
+    };
+};

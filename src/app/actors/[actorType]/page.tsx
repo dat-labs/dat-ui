@@ -1,9 +1,12 @@
+// "use server";
+
 import { Suspense } from "react";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
 
 import Loading from "../loading";
 import ActorsTable from "../actors-table";
 import { capitalizeFirstLetter } from "@/lib/utils";
+import NotFound from "./not-found";
 
 
 interface pageProps {
@@ -12,8 +15,18 @@ interface pageProps {
     }
 }
 
+// Create an array of actors
+const actors = [
+    "source",
+    "generator",
+    "destination",
+]
+
 export default function ActorsPage({ params }: pageProps){
     const {actorType} = params;
+    if (!actors.includes(actorType)) {
+        return <NotFound />;
+    }
     const title = capitalizeFirstLetter(actorType);
 
     return (
