@@ -261,16 +261,22 @@ export const getFormDataForSource = async (selectedActor: string) => {
     const response = await fetch(`http://localhost:8000/actors/${selectedActor}/specs`);
     const data = await response.json();
     return data;
-    // const data = await new Promise((resolve) =>
-    //     setTimeout(() => {
-    //         resolve(jsonData);
-    //     }, 4000)
-    // );
-    // return data;
 };
 
 export const getActors = async (actorType: string) => {
     const response = await fetch(`http://localhost:8000/actors/${actorType}/list`);
     const data = await response.json();
     return data;
+};
+
+export const createActorInstance = async (data: any) => {
+    const response = await fetch(`http://localhost:8000/actor_instances/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    });
+    const responseData = await response.json();
+    return responseData;
 };
