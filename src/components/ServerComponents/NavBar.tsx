@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ImageIcon, SunIcon, HomeIcon } from "@radix-ui/react-icons";
 import { buttonVariants } from "@/components/ui/button";
 import clsx from "clsx";
+import { ModeToggle } from "../ClientComponents/theme-toggle";
 
 const Sidebar = () => {
     return (
@@ -27,9 +28,12 @@ const Sidebar = () => {
                 </nav>
             </div>
             <div className="pt-8">
+            <nav className="flex flex-col space-y-4">
+                <ModeToggle />
                 <Button variant="outline" size="sm">
                     Log out
                 </Button>
+            </nav>
             </div>
         </div>
     );

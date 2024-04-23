@@ -11,7 +11,7 @@ export default function CreatePage({ params }: { params: { actorType: string } }
     const [formData, setFormData] = React.useState<any>(null);
 
     const handleSubmit = async (data: any) => {
-        const res = await 
+        const res = await 1;
     }
 
     React.useEffect(() => {

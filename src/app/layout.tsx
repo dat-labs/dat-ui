@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import NavBar from "@/components/ServerComponents/NavBar";
 import clsx from "clsx";
+import { ThemeProvider } from "@/components/ClientComponents/theme-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,13 +19,19 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={clsx(inter.className, "dark")}>
-                <div className="flex">
-                    <div className="w-24">
-                        <NavBar />
+            <body>
+                <ThemeProvider 
+                attribute="class"
+                defaultTheme="system"
+                enableSystem disableTransitionOnChange
+                >
+                    <div className="flex">
+                        <div className="w-24">
+                            <NavBar />
+                        </div>
+                        <div className="flex-1 p-6">{children}</div>
                     </div>
-                    <div className="flex-1 p-6">{children}</div>
-                </div>
+                </ThemeProvider>
             </body>
         </html>
     );
