@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ImageIcon, SunIcon, HomeIcon } from "@radix-ui/react-icons";
+import { ImageIcon, SunIcon, HomeIcon, GearIcon } from "@radix-ui/react-icons";
 import { buttonVariants } from "@/components/ui/button";
 import clsx from "clsx";
 
@@ -12,17 +12,20 @@ const Sidebar = () => {
             </div>
             <div className="flex-grow pt-8">
                 <nav className="flex flex-col space-y-4">
-                    <Link className={clsx(buttonVariants({ variant: "ghost" }))} href="/dashboard">
+                    <Link className={clsx(buttonVariants({ variant: "ghost" }))} href="/actors/source">
                         <HomeIcon className={"w-5 h-5 "} />
                     </Link>
-                    <Link className={clsx(buttonVariants({ variant: "ghost" }))} href="/orders">
+                    <Link className={clsx(buttonVariants({ variant: "ghost" }))} href="/actors/generator">
                         <SunIcon className={"w-5 h-5 "} />
                     </Link>
-                    <Link className={clsx(buttonVariants({ variant: "ghost" }))} href="/products">
+                    <Link className={clsx(buttonVariants({ variant: "ghost" }))} href="/actors/destination">
                         <SunIcon className={"w-5 h-5 "} />
+                    </Link>
+                    <Link className={clsx(buttonVariants({ variant: "ghost" }))} href="/connections">
+                        <ImageIcon className={"w-5 h-5 "} />
                     </Link>
                     <Link className={clsx(buttonVariants({ variant: "ghost" }))} href="/settings">
-                        <ImageIcon className={"w-5 h-5 "} />
+                        <GearIcon className={"w-5 h-5 "} />
                     </Link>
                 </nav>
             </div>

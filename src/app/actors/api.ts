@@ -1,7 +1,7 @@
 import { ActorInstanceData } from "./actors-table";
 
-export const getActorsData = async (actorType : string): Promise<ActorInstanceData[]> => {
-    const response = await fetch(`http://localhost:8002/actor_instances/${actorType}/list`);
+export const getActorsData = async (actorType: string): Promise<ActorInstanceData[]> => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/actor_instances/${actorType}/list`);
     const data = await response.json();
     // // wrap data in an array of ActorInstanceData
 
@@ -17,8 +17,7 @@ export const getActorsData = async (actorType : string): Promise<ActorInstanceDa
             configuration: actor.configuration,
             actor: actor.actor,
         };
-    }
-    );
+    });
     return actorData;
     // return data;
     // const data: ActorInstanceData[] = await new Promise((resolve) =>
@@ -57,7 +56,7 @@ export const getActorsData = async (actorType : string): Promise<ActorInstanceDa
 };
 
 export const getActorData = async (actorType: string, actorId: string): Promise<ActorInstanceData> => {
-    const response = await fetch(`http://localhost:8002/actor_instances/${actorId}`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/actor_instances/${actorId}`);
     const data = await response.json();
     return {
         id: data.id,

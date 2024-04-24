@@ -258,19 +258,19 @@ const jsonData = {
 };
 
 export const getFormDataForSource = async (selectedActor: string) => {
-    const response = await fetch(`http://localhost:8000/actors/${selectedActor}/specs`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/actors/${selectedActor}/spec`);
     const data = await response.json();
     return data;
 };
 
 export const getActors = async (actorType: string) => {
-    const response = await fetch(`http://localhost:8000/actors/${actorType}/list`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/actors/${actorType}/list`);
     const data = await response.json();
     return data;
 };
 
 export const createActorInstance = async (data: any) => {
-    const response = await fetch(`http://localhost:8000/actor_instances/`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/actor_instances/`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

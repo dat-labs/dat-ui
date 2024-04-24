@@ -1,6 +1,6 @@
 import React from "react";
 import { getFormDataForSource } from "./api";
-import FormGenerator from "@/components/ClientComponents/FormGenerator";
+import FormGenerator from "@/components/ClientComponents/FormGenerator/FormGenerator";
 
 export default async function CreatePage() {
     const formData: any = await getFormDataForSource("sourceId");
