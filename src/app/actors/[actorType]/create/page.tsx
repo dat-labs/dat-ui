@@ -14,8 +14,11 @@ import {
 } from "@/components/ui/breadcrumb";
 import { redirect } from "next/navigation";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function CreatePage({ params }: { params: { actorType: string } }) {
+    const router = useRouter();
+
     const [actors, setActors] = React.useState<any>(null);
     const [selectedActor, setSelectedActor] = React.useState<any>(null);
     const [formData, setFormData] = React.useState<any>(null);
@@ -25,17 +28,16 @@ export default function CreatePage({ params }: { params: { actorType: string } }
             workspace_id: "wkspc-uuid",
             actor_id: selectedActor,
             user_id: "09922bd9-7872-4664-99d0-08eae42fb554",
-            name: "name",
+            name: data["dat-name"],
             actor_type: params.actorType,
             status: "active",
             configuration: data,
         };
         const res = await createActorInstance(apiData);
-        console.log("submitted");
         toast(`${params.actorType} created successfully.`, {
             description: "New source created successfully",
         });
-        redirect(`/actors/${params.actorType}`);
+        router.push(`/actors/${params.actorType}`);
     };
 
     React.useEffect(() => {

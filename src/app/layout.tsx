@@ -4,6 +4,7 @@ import "./globals.css";
 import NavBar from "@/components/ServerComponents/NavBar";
 import clsx from "clsx";
 import { ThemeProvider } from "@/components/ClientComponents/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,16 +21,13 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body>
-                <ThemeProvider 
-                attribute="class"
-                defaultTheme="system"
-                enableSystem disableTransitionOnChange
-                >
-                    <div className="flex">
-                        <div className="w-24">
+                <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+                    <div className="flex h-screen overflow-hidden">
+                        <div className="w-24 h-full">
                             <NavBar />
                         </div>
-                        <div className="flex-1 p-6">{children}</div>
+                        <Toaster />
+                        <div className="flex-1 p-6 h-full overflow-y-scroll">{children}</div>
                     </div>
                 </ThemeProvider>
             </body>

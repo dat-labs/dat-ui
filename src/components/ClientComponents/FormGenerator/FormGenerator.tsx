@@ -15,8 +15,16 @@ import clsx from "clsx";
  * @param onSubmit
  * @returns form fields
  */
-export default function FormGenerator({ properties, onSubmit }: { properties: any; onSubmit: any }) {
-    const form = useForm();
+export default function FormGenerator({
+    properties,
+    onSubmit,
+    defaultData,
+}: {
+    properties: any;
+    onSubmit: any;
+    defaultData?: any;
+}) {
+    const form = useForm({ defaultValues: defaultData });
 
     /**
      * Function to handle form submission
