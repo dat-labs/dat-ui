@@ -65,7 +65,7 @@ function ActorDetailsPage({ params }: ActorDetailsPageProps) {
     const [actorData, setActorData] = useState(null);
 
     const load = useCallback(async () => {
-        const data: ActorInstanceData[] = await getActorData(actorType, actorId);
+        const data = await getActorData(actorType, actorId);
         data.actor.configuration = jsonData;
         data.configuration["dat-name"] = data.name;
         setActorData(data);
