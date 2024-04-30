@@ -1,7 +1,9 @@
 import { ActorInstanceData } from "./actors-table";
 
 export const getActorsData = async (actorType: string): Promise<ActorInstanceData[]> => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/actor_instances/${actorType}/list`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/actor_instances/${actorType}/list`, {
+        cache: "no-cache",
+    });
     const data = await response.json();
     // // wrap data in an array of ActorInstanceData
 

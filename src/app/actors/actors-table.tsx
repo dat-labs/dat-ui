@@ -1,12 +1,11 @@
 "use client";
-import {memo, useEffect, useMemo , useState, useCallback} from "react";
+import { memo, useEffect, useMemo, useState, useCallback } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "@/components/ClientComponents/data-table";
 import { getActorsData } from "./api";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { capitalizeFirstLetter } from "@/lib/utils";
-
 
 export type Actor = {
     id: string;
@@ -28,8 +27,7 @@ export type ActorInstanceData = {
     actor: Actor;
 };
 
-
-const getColumns = (actorType : string) : ColumnDef<ActorInstanceData>[] => {
+const getColumns = (actorType: string): ColumnDef<ActorInstanceData>[] => {
     return [
         {
             accessorKey: "name",
@@ -53,9 +51,6 @@ const getColumns = (actorType : string) : ColumnDef<ActorInstanceData>[] => {
             cell: ({ row }) => {
                 return (
                     <>
-                        <Link className={buttonVariants({ variant: "ghost" })} href={`/actors/${actorType}/run`}>
-                            Run
-                        </Link>
                         <Link className={buttonVariants({ variant: "ghost" })} href={`/actors/${actorType}/edit`}>
                             Edit
                         </Link>
@@ -67,7 +62,7 @@ const getColumns = (actorType : string) : ColumnDef<ActorInstanceData>[] => {
             },
         },
     ];
-}
+};
 
 async function ActorsTable({ actorType }: { actorType: string }) {
     const [loadData, setLoadData] = useState([]);
@@ -77,14 +72,12 @@ async function ActorsTable({ actorType }: { actorType: string }) {
         console.log("load");
         const data: ActorInstanceData[] = await getActorsData(actorType);
         setLoadData(data);
-    }, [actorType, setLoadData])
-
+    }, [actorType, setLoadData]);
 
     useEffect(() => {
         console.log("useEffect");
-        load()
-    }
-    ,[])
+        load();
+    }, []);
 
     // console.log(loadData);
     const columns = useMemo(() => getColumns(actorType), []);
