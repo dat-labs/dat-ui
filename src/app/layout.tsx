@@ -26,7 +26,7 @@ export default function RootLayout({
                 enableSystem disableTransitionOnChange
                 >
                     <div className="flex">
-                        <div className="w-24">
+                        <div className="w-52">
                             <NavBar />
                         </div>
                         <div className="flex-1 p-6">{children}</div>

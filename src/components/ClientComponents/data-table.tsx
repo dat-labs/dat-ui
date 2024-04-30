@@ -1,9 +1,8 @@
 "use client";
 
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
-
+import { ColumnDef, flexRender, getCoreRowModel, useReactTable, getPaginationRowModel } from "@tanstack/react-table";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-// import { useRouter } from 'next/router';
+import { Button } from "@/components/ui/button";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -17,18 +16,19 @@ export default function DataTable<TData, TValue>({ columns, data }: DataTablePro
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
     });
 
     // const router = useRouter();
 
     const handleRowClick = (row) => {
-         // const currentUrl = router.asPath;
+        // const currentUrl = router.asPath;
         const currentUrl = window.location.href;
 
         const newUrl = `${currentUrl}/${row?.original?.id}`;
 
         window.location.href = newUrl;
-        // router.push(newUrl); 
+        // router.push(newUrl);
     };
     return (
         <div className="rounded-md border">
@@ -55,7 +55,7 @@ export default function DataTable<TData, TValue>({ columns, data }: DataTablePro
                                 key={row.id}
                                 data-state={row.getIsSelected() && "selected"}
                                 onClick={() => handleRowClick(row)}
-                                style={{ cursor: 'pointer' }} // Optional: change cursor to pointer to indicate row is clickable
+                                style={{ cursor: "pointer" }} // Optional: change cursor to pointer to indicate row is clickable
                             >
                                 {row.getVisibleCells().map((cell) => (
                                     <TableCell key={cell.id}>
@@ -73,6 +73,23 @@ export default function DataTable<TData, TValue>({ columns, data }: DataTablePro
                     )}
                 </TableBody>
             </Table>
+            <div className="flex items-center justify-end space-x-2 py-4">
+                <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+                >
+                    Previous
+                </Button>
+                <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}>
+                    Next
+                </Button>
+            </div>
         </div>
     );
 }
