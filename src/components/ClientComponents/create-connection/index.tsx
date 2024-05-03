@@ -5,12 +5,27 @@ import SelectActor from "./select-actor";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import ConnectionConfiguration from "./connection-configuration";
 
 const formDataValue = {
     step: 1,
-    selectedSource: null,
-    selectedGenerator: null,
-    selectedDestination: null,
+    source: {
+        subStep: "selectConfigured",
+        value: null,
+    },
+    generator: {
+        subStep: "selectConfigured",
+        value: null,
+    },
+    destination: {
+        subStep: "selectConfigured",
+        value: null,
+    },
+    configuration: {
+        name: null,
+        schedule: null,
+    },
+    streams: {},
 };
 
 export const FromDataContext = React.createContext(null);
@@ -43,7 +58,7 @@ const formSteps = [
     },
     {
         title: "Configure Connection",
-        component: <SelectActor />,
+        component: <ConnectionConfiguration />,
     },
 ];
 
@@ -58,16 +73,20 @@ const FormComponent = () => {
         updateState("step", state.step - 1);
     };
 
+    const handleSave = () => {
+        console.log(state);
+    };
+
     return (
         <>
             <div className="mt-4">
                 <div className="flex justify-center">
-                    <div className="w-6/12">
-                        <div className="flex justify-between">
+                    <div className="">
+                        <div className="flex justify-between gap-20">
                             {formSteps.map((step, index) => (
                                 <div key={index} className="flex items-center">
                                     <div
-                                        className={`w-6 h-6 rounded-full ${
+                                        className={`w-5 h-5 rounded-full ${
                                             index === state.step - 1
                                                 ? "bg-primary text-primary-foreground"
                                                 : index < state.step - 1
@@ -81,19 +100,25 @@ const FormComponent = () => {
                                 </div>
                             ))}
                         </div>
+                        <Separator className="mt-8" />
                     </div>
                 </div>
-                <Separator className="mt-4" />
-                <Card className="mt-4 p-4">
+                <Card className="mt-8 p-6">
                     <Suspense fallback={<h1>Loading...</h1>}>{formSteps[state.step - 1].component}</Suspense>
 
                     <div className="flex justify-center mt-4 gap-2">
                         <Button disabled={state.step === 1} size="sm" variant="outline" onClick={handleBack}>
                             Back
                         </Button>
-                        <Button size="sm" onClick={handleNext}>
-                            Next
-                        </Button>
+                        {state.step < 4 ? (
+                            <Button size="sm" onClick={handleNext}>
+                                Next
+                            </Button>
+                        ) : (
+                            <Button size="sm" onClick={handleSave}>
+                                Save
+                            </Button>
+                        )}
                     </div>
                 </Card>
             </div>

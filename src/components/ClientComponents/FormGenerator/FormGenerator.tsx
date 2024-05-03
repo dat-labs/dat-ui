@@ -76,7 +76,7 @@ export default function FormGenerator({
         };
 
         return (
-            <div className={clsx({ "border-2 border-slate-700 p-3 rounded-md": type === "object" })} key={order}>
+            <div className={clsx({ "border border-muted p-3 rounded-md": type === "object" })} key={order}>
                 <label htmlFor={field_name} className="flex flex-col space-y-1">
                     <span>{title}</span>
                     {type === "string" && (
