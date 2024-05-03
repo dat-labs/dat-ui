@@ -1,30 +1,37 @@
 "use client"
+
 import Link from "next/link";
 import React from "react";
-import Image from "next/image";
 import { buttonVariants } from "@/components/ui/button";
 import clsx from "clsx";
 import { ModeToggle } from "../ClientComponents/theme-toggle";
+import {
+    LogoBlack,
+    ConnectionIcon,
+    DestinationIcon,
+    GeneratorIcon,
+    SourceIcon,
+} from "@/assets";
 
 
 const navItems = [
     {
-        icon: "connection-icon.svg",
+        icon: ConnectionIcon,
         label: "Connections",
         url: "/connections",
     },
     {
-        icon: "source-icon.svg",
+        icon: SourceIcon,
         label: "Source",
         url: "/actors/source",
     },
     {
-        icon: "generator-icon.svg",
+        icon: GeneratorIcon,
         label: "Generator",
         url: "/actors/generator",
     },
     {
-        icon: "destination-icon.svg",
+        icon: DestinationIcon,
         label: "Destination",
         url: "/actors/destination",
     },
@@ -34,7 +41,10 @@ const Sidebar = () => {
     return (
         <div className="flex flex-col w-full h-screen p-4 bg-primary-foreground border-r">
             <div className="flex flex-col">
-                <h1 className="text-xl font-semibold">dat</h1>
+                <Link href="/connections">
+                    {/* <Image src={LogoWhite} width={100} height={100} alt="logo"/> */}
+                    < LogoBlack className="h-24 w-24 fill-foreground"/>
+                </Link>
             </div>
             <div className="flex flex-col py-2 border-y">
                 <h1 className="text-sm text-ellipsis">dat (default Workspace)</h1>
@@ -52,7 +62,8 @@ const Sidebar = () => {
                                 )}
                                 href={item.url}
                             >
-                                <Image src={`/images/${item.icon}`} width={24} height={24} alt={item.label}/>
+                                {/* <Image src={`/icons/${item.icon}`} width={24} height={24} alt={item.label}/> */}
+                                <item.icon className="h-6 w-6 stroke-foreground"/>
                                 <p className="ml-2">{item.label}</p>
                             </Link>
                         )
