@@ -48,6 +48,7 @@ const config = {
                     DEFAULT: "hsl(var(--card))",
                     foreground: "hsl(var(--card-foreground))",
                 },
+                tableHeader: "hsl(var(--table-header))",
             },
             borderRadius: {
                 lg: "var(--radius)",

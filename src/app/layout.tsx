@@ -21,9 +21,13 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body>
-                <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-                    <div className="flex h-screen overflow-hidden">
-                        <div className="w-24 h-full">
+                <ThemeProvider 
+                attribute="class"
+                defaultTheme="system"
+                enableSystem disableTransitionOnChange
+                >
+                    <div className="flex">
+                        <div className="w-52">
                             <NavBar />
                         </div>
                         <Toaster />

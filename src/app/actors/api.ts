@@ -18,6 +18,8 @@ export const getActorsData = async (actorType: string): Promise<ActorInstanceDat
             status: actor.status,
             configuration: actor.configuration,
             actor: actor.actor,
+            connected_connections: actor.connected_connections,
+            number_of_connections: actor.connected_connections.length,
         };
     });
     return actorData;
@@ -70,5 +72,7 @@ export const getActorData = async (actorType: string, actorId: string): Promise<
         status: data.status,
         configuration: data.configuration,
         actor: data.actor,
+        connected_connections: data.connected_connections,
+        number_of_connections: data.connected_connections.length
     };
 };
