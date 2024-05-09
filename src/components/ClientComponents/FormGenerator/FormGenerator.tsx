@@ -1,13 +1,28 @@
 "use client";
 
 import React from "react";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormField, FormItem, FormMessage, Form } from "@/components/ui/form";
 import CircularLoader from "@/components/ui/circularLoader";
 import clsx from "clsx";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+
+/**
+ * Custom Chip component
+ */
+const Chip = ({ value, onDelete, children }: { value: any; onDelete: any; children: any }) => {
+    return (
+        <div className="flex items-center rounded-md bg-muted px-2 py-1 text-sm">
+            {value || children}
+            <button type="button" className="ml-2 rounded-md p-1 text-red-500 hover:bg-red-100" onClick={onDelete}>
+                &times;
+            </button>
+        </div>
+    );
+};
 
 /**
  * FormGenerator component to generate form fields based on the properties
@@ -32,7 +47,8 @@ export default function FormGenerator({
      * @returns form submission
      */
     const onSubmitForm = async (data: any) => {
-        await onSubmit(data);
+        console.log(data);
+        // await onSubmit(data);
     };
 
     /**
@@ -40,12 +56,22 @@ export default function FormGenerator({
      * @param field
      * @returns form fields
      */
-    const renderFormField = (field: any) => {
+    const renderFormField = (field: any, parentKey?: string) => {
         if (!field) {
             return null;
         }
-        const { type, title, description, order, minimum, maximum, defaultValue, examples, oneOf, field_name } = field;
-        const watchFieldValue = form.watch(field_name);
+        let { type, title, description, order, minimum, maximum, defaultValue, examples, oneOf, field_name } = field;
+        const originalFieldName = field_name;
+        field_name = parentKey ? `${parentKey}.${field_name}` : field_name;
+        const watchFieldValue = form.watch(`${field_name}.${originalFieldName}`);
+        const { fields, append, remove } =
+            type === "array"
+                ? useFieldArray({
+                      control: form.control,
+                      name: field_name,
+                      //   rules: { minLength: 1 },
+                  })
+                : { fields: null, append: null, remove: null };
 
         /**
          * Check if the field value has more properties to render and call renderFormField recursively
@@ -56,7 +82,6 @@ export default function FormGenerator({
         const checkIfFieldValueHasMoreProperties = (watchFieldValue: string, oneOf: any) => {
             if (watchFieldValue) {
                 const selectedOption = oneOf.find((option: any) => option.title === watchFieldValue);
-                console.log(selectedOption);
                 if (selectedOption && Object.keys(selectedOption.properties).length > 1) {
                     Object.keys(selectedOption.properties).forEach((key) => {
                         selectedOption.properties[key].field_name = key;
@@ -66,7 +91,11 @@ export default function FormGenerator({
                     if (sortedDepFields && sortedDepFields.length > 0) {
                         return (
                             <div className="flex flex-col space-y-4">
-                                <>{sortedDepFields?.map((dep_field) => dep_field && renderFormField(dep_field))}</>
+                                <>
+                                    {sortedDepFields?.map(
+                                        (dep_field) => dep_field && renderFormField(dep_field, `${field_name}`)
+                                    )}
+                                </>
                             </div>
                         );
                     }
@@ -75,10 +104,40 @@ export default function FormGenerator({
             return null;
         };
 
+        /**
+         * render grouping of parameters. For example advanced settings section.
+         * Can recursively render as many sections as needed
+         */
+        if (type === "object" && oneOf === undefined) {
+            Object.keys(field.properties).forEach((key) => {
+                field.properties[key].field_name = key;
+            });
+            const sortedProperties = Object.values(field.properties).sort((a: any, b: any) => a.order - b.order);
+            return (
+                <div className={clsx({ "border border-muted p-3 rounded-md": type === "object" })} key={order}>
+                    <Accordion type="single" collapsible className="data-entry-divider border-background">
+                        <AccordionItem value="item-1">
+                            <AccordionTrigger>{title}</AccordionTrigger>
+                            <AccordionContent>
+                                <label htmlFor={field_name} className="flex flex-col space-y-1">
+                                    {/* ... (existing code for rendering different field types) ... */}
+                                    <div className="pl-4">
+                                        <div className="flex flex-col space-y-4">
+                                            <>{sortedProperties.map((prop) => renderFormField(prop, `${field_name}`))}</>
+                                        </div>
+                                    </div>
+                                </label>
+                            </AccordionContent>
+                        </AccordionItem>
+                    </Accordion>
+                </div>
+            );
+        }
+
         return (
             <div className={clsx({ "border border-muted p-3 rounded-md": type === "object" })} key={order}>
                 <label htmlFor={field_name} className="flex flex-col space-y-1">
-                    <span>{title}</span>
+                    <span className="text-md font-medium">{title}</span>
                     {type === "string" && (
                         <Input
                             id={field_name}
@@ -104,7 +163,7 @@ export default function FormGenerator({
                         <>
                             <FormField
                                 control={form.control}
-                                name={field_name}
+                                name={`${field_name}.${originalFieldName}`}
                                 render={({ field }) => (
                                     <>
                                         <FormItem>
@@ -129,17 +188,45 @@ export default function FormGenerator({
                             />
                         </>
                     )}
+                    {type === "array" && (
+                        <div>
+                            <div className="flex flex-wrap gap-2 mb-2">
+                                {fields?.map((item, index) => (
+                                    <Chip key={item.id} value={item?.value} onDelete={() => remove(index)}>
+                                        {item?.value}
+                                    </Chip>
+                                ))}
+                            </div>
+                            <Input
+                                type="text"
+                                name={field_name}
+                                placeholder={description || "Enter a value and press Enter"}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        e.preventDefault(); // to prevent enter from submitting the form
+                                        const inputValue = e.currentTarget.value.trim();
+                                        if (inputValue) {
+                                            append({ value: inputValue });
+                                            e.currentTarget.value = ""; // Clear the input field after appending the value
+                                        }
+                                    }
+                                }}
+                            />
+                        </div>
+                    )}
                     {description && (
                         <div className="text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: description }}></div>
                     )}
 
                     {form.formState.errors[field_name] && (
                         <p className="text-sm text-destructive">
-                            <>{form.formState.errors[field_name].message}</>
+                            <>{form.formState.errors[field_name]?.message}</>
                         </p>
                     )}
 
-                    <div className="pl-4">{type === "object" && checkIfFieldValueHasMoreProperties(watchFieldValue, oneOf)}</div>
+                    <div className="pl-4">
+                        {type === "object" && oneOf && checkIfFieldValueHasMoreProperties(watchFieldValue, oneOf)}
+                    </div>
                 </label>
             </div>
         );

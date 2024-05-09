@@ -1,18 +1,11 @@
-"use client"
+"use client";
 
 import Link from "next/link";
 import React from "react";
 import { buttonVariants } from "@/components/ui/button";
 import clsx from "clsx";
 import { ModeToggle } from "../ClientComponents/theme-toggle";
-import {
-    LogoBlack,
-    ConnectionIcon,
-    DestinationIcon,
-    GeneratorIcon,
-    SourceIcon,
-} from "@/assets";
-
+import { LogoBlack, ConnectionIcon, DestinationIcon, GeneratorIcon, SourceIcon } from "@/assets";
 
 const navItems = [
     {
@@ -43,7 +36,7 @@ const Sidebar = () => {
             <div className="flex flex-col">
                 <Link href="/connections">
                     {/* <Image src={LogoWhite} width={100} height={100} alt="logo"/> */}
-                    < LogoBlack className="h-24 w-24 fill-foreground"/>
+                    <LogoBlack className="h-24 w-24 fill-foreground" />
                 </Link>
             </div>
             <div className="flex flex-col py-2 border-y">
@@ -52,7 +45,7 @@ const Sidebar = () => {
             <div className="flex-grow pt-8">
                 <nav className="flex flex-col space-y-4">
                     {navItems.map((item) => {
-                        console.log("item", item)
+                        console.log("item", item);
                         return (
                             <Link
                                 key={item.label}
@@ -63,10 +56,10 @@ const Sidebar = () => {
                                 href={item.url}
                             >
                                 {/* <Image src={`/icons/${item.icon}`} width={24} height={24} alt={item.label}/> */}
-                                <item.icon className="h-6 w-6 stroke-foreground"/>
+                                <item.icon className="h-6 w-6 stroke-foreground" />
                                 <p className="ml-2">{item.label}</p>
                             </Link>
-                        )
+                        );
                     })}
                 </nav>
             </div>

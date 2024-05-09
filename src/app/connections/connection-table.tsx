@@ -3,7 +3,7 @@
 import { memo, useEffect, useMemo, useState, useCallback } from "react";
 import DataTable from "@/components/ClientComponents/data-table";
 import { getConnectionsData } from "./api";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const getColumns = () => {
     return [
@@ -19,6 +19,7 @@ const getColumns = () => {
 };
 
 function ConnectionsTable() {
+    const router = useRouter();
     const [loadData, setLoadData] = useState([]);
 
     const load = useCallback(async () => {
@@ -31,7 +32,15 @@ function ConnectionsTable() {
     }, []);
 
     const columns = useMemo(() => getColumns(), []);
-    return <DataTable columns={columns} data={loadData} />;
+    return (
+        <DataTable
+            columns={columns}
+            data={loadData}
+            clickHandler={(row) => {
+                router.push(`/connections/${row.original.id}`);
+            }}
+        />
+    );
 }
 
 export default memo(ConnectionsTable);

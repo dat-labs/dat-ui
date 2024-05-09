@@ -24,17 +24,6 @@ export default function CreatePage({ params }: { params: { actorType: string } }
     };
     return (
         <div>
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href={`/actors/${params.actorType}`}>{params.actorType}</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Create</BreadcrumbPage>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
             <div className="flex justify-center">
                 <div className="w-6/12">
                     <ActorForm actorType={params.actorType} postFormSubmitActions={handleFormSubmit} />

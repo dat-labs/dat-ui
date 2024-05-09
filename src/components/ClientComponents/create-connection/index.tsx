@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import ConnectionConfiguration from "./connection-configuration";
+import { addConnection } from "./api";
 
 const formDataValue = {
     step: 1,
@@ -62,6 +63,23 @@ const formSteps = [
     },
 ];
 
+const getStremsData = (streamsObj: any) => {
+    let arrToReturn: any = [];
+    Object.keys(streamsObj).forEach((streamName: string) => {
+        if (streamsObj[streamName].configured === true) {
+            arrToReturn.push({
+                ...streamsObj[streamName].configuration,
+                name: streamName,
+                json_schema: {},
+                read_sync_mode: "INCREMENTAL",
+                write_sync_mode: "APPEND",
+                cursor_field: "string",
+            });
+        }
+    });
+    return arrToReturn;
+};
+
 const FormComponent = () => {
     const { state, updateState } = React.useContext(FromDataContext);
 
@@ -73,8 +91,32 @@ const FormComponent = () => {
         updateState("step", state.step - 1);
     };
 
-    const handleSave = () => {
-        console.log(state);
+    const handleSave = async () => {
+        const postData = {
+            source_instance_id: state.source.value.id,
+            generator_instance_id: state.generator.value.id,
+            destination_instance_id: state.destination.value.id,
+            workspace_id: "wkspc-uuid",
+            user_id: "09922bd9-7872-4664-99d0-08eae42fb554",
+            name: state.configuration.name,
+            namespace_format: "",
+            prefix: "",
+            configuration: {},
+            status: "active",
+            catalog: {
+                document_streams: getStremsData(state.streams),
+            },
+            schedule: {
+                cron: {
+                    cron_expression: "5 * * * *",
+                    timezone: "UTC",
+                },
+            },
+            schedule_type: "manual",
+        };
+        console.log(postData);
+        const res = await addConnection(postData);
+        console.log(res);
     };
 
     return (

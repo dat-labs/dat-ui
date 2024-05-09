@@ -5,9 +5,6 @@ import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "@/components/ClientComponents/data-table";
 import { getActorsData } from "./api";
 import { capitalizeFirstLetter } from "@/lib/utils";
-import { get } from "http";
-
-
 
 export type Actor = {
     id: string;
@@ -33,7 +30,7 @@ export type ActorInstanceData = {
 
 function hslToHex(hslString: any) {
     // Remove 'hsl(' and ')' from the string
-    hslString = hslString.replace(/hsl\(|\)/g, '').split(' ');
+    hslString = hslString.replace(/hsl\(|\)/g, "").split(" ");
     // Extract Hue, Saturation, and Lightness values
     let hue = parseInt(hslString[0]);
     let saturation = parseInt(hslString[1].slice(0, -1)) / 100;
@@ -69,32 +66,42 @@ function hslToHex(hslString: any) {
         b = x;
     }
     // Convert RGB to hexadecimal
-    r = Math.round((r + m) * 255).toString(16).padStart(2, '0');
-    g = Math.round((g + m) * 255).toString(16).padStart(2, '0');
-    b = Math.round((b + m) * 255).toString(16).padStart(2, '0');
+    r = Math.round((r + m) * 255)
+        .toString(16)
+        .padStart(2, "0");
+    g = Math.round((g + m) * 255)
+        .toString(16)
+        .padStart(2, "0");
+    b = Math.round((b + m) * 255)
+        .toString(16)
+        .padStart(2, "0");
     return `${r}${g}${b}`;
 }
 
 const getIconComponent = (iconName: string) => {
     // Use dynamic imports and handle exceptions
 
-    if (!iconName) { // Check for null or empty string
-      return Promise.resolve(null); // Return default icon
+    if (!iconName) {
+        // Check for null or empty string
+        return Promise.resolve(null); // Return default icon
     }
     try {
-      return import(`@/assets/actors/${iconName}`).then((module) => module.default);
+        return import(`@/assets/actors/${iconName}`).then((module) => module.default);
     } catch (error) {
-      console.warn(`Failed to import icon: ${iconName}`, error);
-      return Promise.resolve(null); // Return default icon on error
+        console.warn(`Failed to import icon: ${iconName}`, error);
+        return Promise.resolve(null); // Return default icon on error
     }
-  };
+};
 
 // const {theme} = useTheme();
 
 // console.log( style.getPropertyValue('--foreground'))
-const getColumns = (actorType: string): ColumnDef<ActorInstanceData>[] => {
-    if (getComputedStyle)
-    {
+
+async function ActorsTable({ actorType }: { actorType: string }) {
+    const [loadData, setLoadData] = useState([]);
+    // const data: ActorInstanceData[] = await getActorsData(actorType);
+
+    const getColumns = (actorType: string): ColumnDef<ActorInstanceData>[] => {
         var style = getComputedStyle(document.body);
         return [
             {
@@ -103,12 +110,19 @@ const getColumns = (actorType: string): ColumnDef<ActorInstanceData>[] => {
                 cell: ({ row }) => {
                     return (
                         <div className="flex items-center">
-                            {getIconComponent(row.original.actor.icon).then((IconComponent) => (
-                              IconComponent ? <IconComponent className="h-7 w-7 stroke-foreground" /> : <img
-                              src={ `https://ui-avatars.com/api/?name=${row.original.actor.name}&background=${hslToHex(style.getPropertyValue('--foreground'))}&color=${hslToHex(style.getPropertyValue('--background'))}`}
-                              alt="icon" className="h-7 w-7 rounded-md"
-                          />
-                            ))}
+                            {getIconComponent(row.original.actor.icon).then((IconComponent) =>
+                                IconComponent ? (
+                                    <IconComponent className="h-7 w-7 stroke-foreground" />
+                                ) : (
+                                    <img
+                                        src={`https://ui-avatars.com/api/?name=${row.original.actor.name}&background=${hslToHex(
+                                            style.getPropertyValue("--foreground")
+                                        )}&color=${hslToHex(style.getPropertyValue("--background"))}`}
+                                        alt="icon"
+                                        className="h-7 w-7 rounded-md"
+                                    />
+                                )
+                            )}
                             <span className="ml-2">{capitalizeFirstLetter(row.original.actor.name)}</span>
                         </div>
                     );
@@ -121,15 +135,9 @@ const getColumns = (actorType: string): ColumnDef<ActorInstanceData>[] => {
             {
                 accessorKey: "number_of_connections",
                 header: "No of Connections",
-            }
+            },
         ];
-    }
-    
-};
-
-async function ActorsTable({ actorType }: { actorType: string }) {
-    const [loadData, setLoadData] = useState([]);
-    // const data: ActorInstanceData[] = await getActorsData(actorType);
+    };
 
     const load = useCallback(async () => {
         console.log("load");
@@ -155,7 +163,7 @@ async function ActorsTable({ actorType }: { actorType: string }) {
         // router.push(newUrl);
     };
 
-    return <DataTable columns={columns} data={loadData} clickHandler={handleRowClick}/>;
+    return <DataTable columns={columns} data={loadData} clickHandler={handleRowClick} />;
 }
 
 export default memo(ActorsTable);

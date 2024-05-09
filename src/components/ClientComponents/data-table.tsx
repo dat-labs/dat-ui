@@ -22,7 +22,7 @@ export default function DataTable<TData, TValue>({ columns, data, clickHandler }
         <div>
             <div className="rounded-md border">
                 <Table>
-                    <TableHeader className="bg-tableHeader">
+                    <TableHeader className="bg-primary-foreground">
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => {
@@ -43,7 +43,7 @@ export default function DataTable<TData, TValue>({ columns, data, clickHandler }
                                 <TableRow
                                     key={row.id}
                                     data-state={row.getIsSelected() && "selected"}
-                                    onClick={clickHandler(row)}
+                                    onClick={clickHandler && clickHandler(row)}
                                     style={{ cursor: "pointer" }} // Optional: change cursor to pointer to indicate row is clickable
                                 >
                                     {row.getVisibleCells().map((cell) => (

@@ -65,7 +65,7 @@ export default function SelectSource({ actorType }: { actorType: string }) {
                         {actors.map((actor: any) => (
                             <Card
                                 onClick={() => handleSourceSelect(actor)}
-                                className="w-4/12 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition duration-400 bg-slate-50 dark:bg-slate-900"
+                                className="w-4/12 cursor-pointer transition duration-400 bg-card-background hover:bg-accent"
                             >
                                 <CardHeader>
                                     <CardTitle className="text-sm">Name : {actor.name}</CardTitle>
@@ -78,7 +78,7 @@ export default function SelectSource({ actorType }: { actorType: string }) {
                     </div>
                     <div className="flex justify-center">
                         {actors.length === 0 && (
-                            <div className="w-4/12 bg-slate-50 dark:bg-slate-900 p-4 rounded-xl shadow mt-4 mb-4">
+                            <div className="w-4/12 transition duration-400 bg-card-background hover:bg-accent p-4 rounded-xl shadow mt-4 mb-4">
                                 <h1 className="text-sm text-center">No {capitalizeFirstLetter(actorType)} found</h1>
                             </div>
                         )}
