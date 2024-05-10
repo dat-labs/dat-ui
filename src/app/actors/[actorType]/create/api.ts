@@ -458,7 +458,7 @@ const jsonData = {
 export const getFormDataForSource = async (selectedActor: string) => {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/actors/${selectedActor}/spec`);
     const data = await response.json();
-    return jsonData;
+    return data;
 };
 
 export const getActors = async (actorType: string) => {

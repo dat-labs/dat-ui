@@ -18,6 +18,12 @@ export default function DataTable<TData, TValue>({ columns, data, clickHandler }
         getPaginationRowModel: getPaginationRowModel(),
     });
 
+    const handleClickHandler = (row) => {
+        if (clickHandler) {
+            clickHandler(row);
+        }
+    };
+
     return (
         <div>
             <div className="rounded-md border">
@@ -43,7 +49,7 @@ export default function DataTable<TData, TValue>({ columns, data, clickHandler }
                                 <TableRow
                                     key={row.id}
                                     data-state={row.getIsSelected() && "selected"}
-                                    onClick={clickHandler && clickHandler(row)}
+                                    onClick={() => handleClickHandler(row)}
                                     style={{ cursor: "pointer" }} // Optional: change cursor to pointer to indicate row is clickable
                                 >
                                     {row.getVisibleCells().map((cell) => (

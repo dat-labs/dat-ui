@@ -140,20 +140,18 @@ async function ActorsTable({ actorType }: { actorType: string }) {
     };
 
     const load = useCallback(async () => {
-        console.log("load");
         const data = await getActorsData(actorType);
         setLoadData(data);
     }, [actorType, setLoadData]);
 
     useEffect(() => {
-        console.log("useEffect");
         load();
     }, []);
 
     // console.log(loadData);
     const columns = useMemo(() => getColumns(actorType), []);
 
-    const handleRowClick = (row) => () => {
+    const handleRowClick = (row: any) => () => {
         // const currentUrl = router.asPath;
         const currentUrl = window.location.href;
 

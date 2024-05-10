@@ -45,7 +45,6 @@ const Sidebar = () => {
             <div className="flex-grow pt-8">
                 <nav className="flex flex-col space-y-4">
                     {navItems.map((item) => {
-                        console.log("item", item);
                         return (
                             <Link
                                 key={item.label}

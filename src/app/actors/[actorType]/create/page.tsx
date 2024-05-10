@@ -12,6 +12,7 @@ import {
 import ActorForm from "./actor-form";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import PageBreadcrumb from "@/app/page-breadcrumb";
 
 export default function CreatePage({ params }: { params: { actorType: string } }) {
     const router = useRouter();
@@ -24,6 +25,17 @@ export default function CreatePage({ params }: { params: { actorType: string } }
     };
     return (
         <div>
+            <PageBreadcrumb
+                breadCrumbData={[
+                    {
+                        pageName: "Source",
+                        pageUrl: `/actors/${params.actorType}`,
+                    },
+                    {
+                        pageName: "Create",
+                    },
+                ]}
+            />
             <div className="flex justify-center">
                 <div className="w-6/12">
                     <ActorForm actorType={params.actorType} postFormSubmitActions={handleFormSubmit} />
