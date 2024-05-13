@@ -1,4 +1,4 @@
-import { ActorInstanceData } from "./actors-table";
+import { ActorInstanceData, ConnectorSpecification } from "./actors-table";
 
 export const getActorsData = async (actorType: string): Promise<ActorInstanceData[]> => {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/actor_instances/${actorType}/list`, {
@@ -76,3 +76,9 @@ export const getActorData = async (actorType: string, actorId: string): Promise<
         number_of_connections: data.connected_connections.length
     };
 };
+
+export const getActorSpec = async (actorId: string): Promise<ConnectorSpecification> => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/actors/${actorId}/spec`);
+    const data = await response.json();
+    return data;
+}

@@ -28,6 +28,15 @@ export type ActorInstanceData = {
     number_of_connections: number;
 };
 
+export type ConnectorSpecification = {
+    name: string;
+    module_name: string;
+    protocol_version: number;
+    documentation_url: string;
+    changelog_url: string;
+    connection_specification: object;
+};
+
 function hslToHex(hslString: any) {
     // Remove 'hsl(' and ')' from the string
     hslString = hslString.replace(/hsl\(|\)/g, "").split(" ");
@@ -102,7 +111,7 @@ async function ActorsTable({ actorType }: { actorType: string }) {
     // const data: ActorInstanceData[] = await getActorsData(actorType);
 
     const getColumns = (actorType: string): ColumnDef<ActorInstanceData>[] => {
-        var style = getComputedStyle(document.body);
+        // var style = getComputedStyle(document.body);
         return [
             {
                 accessorKey: "actor.name",
@@ -113,15 +122,7 @@ async function ActorsTable({ actorType }: { actorType: string }) {
                             {getIconComponent(row.original.actor.icon).then((IconComponent) =>
                                 IconComponent ? (
                                     <IconComponent className="h-7 w-7 stroke-foreground" />
-                                ) : (
-                                    <img
-                                        src={`https://ui-avatars.com/api/?name=${row.original.actor.name}&background=${hslToHex(
-                                            style.getPropertyValue("--foreground")
-                                        )}&color=${hslToHex(style.getPropertyValue("--background"))}`}
-                                        alt="icon"
-                                        className="h-7 w-7 rounded-md"
-                                    />
-                                )
+                                ) : null
                             )}
                             <span className="ml-2">{capitalizeFirstLetter(row.original.actor.name)}</span>
                         </div>
@@ -151,12 +152,12 @@ async function ActorsTable({ actorType }: { actorType: string }) {
     // console.log(loadData);
     const columns = useMemo(() => getColumns(actorType), []);
 
-    const handleRowClick = (row: any) => () => {
+    const handleRowClick = (row: any) => {
         // const currentUrl = router.asPath;
         const currentUrl = window.location.href;
 
         const newUrl = `${currentUrl}/${row?.original?.id}`;
-
+        console.log(newUrl);
         window.location.href = newUrl;
         // router.push(newUrl);
     };

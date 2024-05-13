@@ -19,7 +19,7 @@ export default function ActorForm({ actorType, postFormSubmitActions }: { actorT
             configuration: data,
         };
         const res = await createActorInstance(apiData);
-        console.log(res);
+        await console.log("res", res);
         if (postFormSubmitActions) {
             await postFormSubmitActions();
         }
@@ -28,8 +28,10 @@ export default function ActorForm({ actorType, postFormSubmitActions }: { actorT
     React.useEffect(() => {
         (async () => {
             if (selectedActor) {
+                console.log("called")
                 const res: any = await getFormDataForSource(selectedActor);
                 setFormData(res);
+                console.log("formData", res);
             }
         })();
         return () => {
@@ -43,6 +45,8 @@ export default function ActorForm({ actorType, postFormSubmitActions }: { actorT
             setActors(res);
         })();
     }, []);
+
+
 
     return (
         <>

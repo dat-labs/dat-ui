@@ -1,18 +1,11 @@
 "use client";
 
-import React, { Suspense } from "react";
-import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbSeparator,
-    BreadcrumbPage,
-} from "@/components/ui/breadcrumb";
+import React from "react";
 import ActorForm from "./actor-form";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import PageBreadcrumb from "@/app/page-breadcrumb";
+import DocWrapper from "../[actorId]/DocWrapper";
 
 export default function CreatePage({ params }: { params: { actorType: string } }) {
     const router = useRouter();
@@ -36,11 +29,13 @@ export default function CreatePage({ params }: { params: { actorType: string } }
                     },
                 ]}
             />
-            <div className="flex justify-center">
-                <div className="w-6/12">
-                    <ActorForm actorType={params.actorType} postFormSubmitActions={handleFormSubmit} />
+            <DocWrapper doc="Create Page doc">
+                <div className="flex justify-center">
+                    <div className="w-6/12">
+                        <ActorForm actorType={params.actorType} postFormSubmitActions={handleFormSubmit} />
+                    </div>
                 </div>
-            </div>
+            </DocWrapper>
         </div>
     );
 }
