@@ -40,7 +40,7 @@ export default function FormGenerator({
     defaultData?: any;
 }) {
     const form = useForm({ defaultValues: defaultData });
-
+    console.log("form", form)
     /**
      * Function to handle form submission
      * @param data
@@ -147,6 +147,7 @@ export default function FormGenerator({
                     )}
 
                     {type === "integer" && (
+                        <>
                         <Input
                             id={field_name}
                             type="number"
@@ -157,6 +158,8 @@ export default function FormGenerator({
                             })}
                             defaultValue={defaultValue}
                         />
+                        </>
+                        
                     )}
                     {type === "object" && oneOf && (
                         <>
@@ -167,7 +170,8 @@ export default function FormGenerator({
                                     <>
                                         <FormItem>
                                             <Select onValueChange={field.onChange}>
-                                                <SelectTrigger>
+                                            {console.log("defaultValue:", defaultValue)} 
+                                                <SelectTrigger defaultValue={defaultValue || ''}>
                                                     <SelectValue placeholder="Select an option" />
                                                 </SelectTrigger>
                                                 <SelectContent>
