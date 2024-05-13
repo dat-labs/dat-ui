@@ -8,21 +8,22 @@ import {
     BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
 import CreateConnectionsForm from "@/components/ClientComponents/create-connection";
+import PageBreadcrumb from "@/app/page-breadcrumb";
 
 export default function ConnectionsCreatePage() {
     return (
         <div>
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href={`/connections`}>Connections</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Create</BreadcrumbPage>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
+            <PageBreadcrumb
+                breadCrumbData={[
+                    {
+                        pageName: "Connections",
+                        pageUrl: `/connections`,
+                    },
+                    {
+                        pageName: "Create",
+                    },
+                ]}
+            />
             <CreateConnectionsForm />
         </div>
     );

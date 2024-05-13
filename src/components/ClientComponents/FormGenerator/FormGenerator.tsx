@@ -134,7 +134,7 @@ export default function FormGenerator({
         }
 
         return (
-            <div className={clsx({ "border border-muted p-3 rounded-md": type === "object" })} key={order}>
+            <div className={clsx({ "border p-3 rounded-md": type === "object" })} key={order}>
                 <label htmlFor={field_name} className="flex flex-col space-y-1">
                     <span className="text-md font-medium">{title}</span>
                     {type === "string" && (

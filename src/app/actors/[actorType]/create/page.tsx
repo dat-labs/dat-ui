@@ -37,7 +37,7 @@ export default function CreatePage({ params }: { params: { actorType: string } }
                 ]}
             />
             <div className="flex justify-center">
-                <div className="w-6/12">
+                <div className="w-full">
                     <ActorForm actorType={params.actorType} postFormSubmitActions={handleFormSubmit} />
                 </div>
             </div>

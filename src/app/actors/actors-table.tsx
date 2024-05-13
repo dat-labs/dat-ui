@@ -4,7 +4,7 @@ import { memo, useEffect, useMemo, useState, useCallback } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "@/components/ClientComponents/data-table";
 import { getActorsData } from "./api";
-import { capitalizeFirstLetter } from "@/lib/utils";
+import { capitalizeFirstLetter, getIconComponent } from "@/lib/utils";
 
 export type Actor = {
     id: string;
@@ -77,21 +77,6 @@ function hslToHex(hslString: any) {
         .padStart(2, "0");
     return `${r}${g}${b}`;
 }
-
-const getIconComponent = (iconName: string) => {
-    // Use dynamic imports and handle exceptions
-
-    if (!iconName) {
-        // Check for null or empty string
-        return Promise.resolve(null); // Return default icon
-    }
-    try {
-        return import(`@/assets/actors/${iconName}`).then((module) => module.default);
-    } catch (error) {
-        console.warn(`Failed to import icon: ${iconName}`, error);
-        return Promise.resolve(null); // Return default icon on error
-    }
-};
 
 // const {theme} = useTheme();
 

@@ -31,7 +31,7 @@ export default function RootLayout({
                                 <NavBar />
                             </div>
                             <div className="flex-1 h-screen flex flex-col ">
-                                <div className="w-full h-10 flex items-center  border-b">
+                                <div className="w-full h-14 flex items-center  border-b">
                                     <div className="pl-4 pr-4">
                                         <BreadCrumbGenerator />
                                     </div>

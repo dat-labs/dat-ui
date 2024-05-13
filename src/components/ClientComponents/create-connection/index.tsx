@@ -7,6 +7,10 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import ConnectionConfiguration from "./connection-configuration";
 import { addConnection } from "./api";
+import { BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import BreadCrumbGenerator from "../breadcrumb-generator";
+import Image from "next/image";
+import Loading from "@/app/actors/loading";
 
 const formDataValue = {
     step: 1,
@@ -27,6 +31,7 @@ const formDataValue = {
         schedule: null,
     },
     streams: {},
+    showNavButtons: true,
 };
 
 export const FromDataContext = React.createContext(null);
@@ -119,49 +124,79 @@ const FormComponent = () => {
         console.log(res);
     };
 
+    const shouldDisableNextButton = () => {
+        if (state.step === 1 && state.source.value === null) {
+            return true;
+        }
+        if (state.step === 2 && state.generator.value === null) {
+            return true;
+        }
+        if (state.step === 3 && state.destination.value === null) {
+            return true;
+        }
+        return false;
+    };
+
     return (
         <>
-            <div className="mt-4">
-                <div className="flex justify-center">
-                    <div className="">
-                        <div className="flex justify-between gap-20">
+            <div className="">
+                <div className="flex">
+                    <div className=" w-full">
+                        <div className="flex justify-start gap-5">
                             {formSteps.map((step, index) => (
-                                <div key={index} className="flex items-center">
-                                    <div
-                                        className={`w-5 h-5 rounded-full ${
-                                            index === state.step - 1
-                                                ? "bg-primary text-primary-foreground"
-                                                : index < state.step - 1
-                                                ? "dark:bg-green-500 bg-green-400"
-                                                : "bg-gray-300 "
-                                        } flex items-center justify-center`}
-                                    >
-                                        {index < state.step - 1 ? <span className="text-sm font-bold">&#10003;</span> : index + 1}
+                                <>
+                                    <div key={index} className="flex items-center ml-2">
+                                        <div
+                                            className={`w-5 h-5 rounded-full ${
+                                                index === state.step - 1
+                                                    ? "bg-primary text-primary-foreground"
+                                                    : index < state.step - 1
+                                                    ? "dark:bg-green-500 bg-green-400"
+                                                    : "bg-gray-300 "
+                                            } flex items-center justify-center`}
+                                        >
+                                            {index < state.step - 1 ? (
+                                                <span className="text-sm font-bold">&#10003;</span>
+                                            ) : (
+                                                index + 1
+                                            )}
+                                        </div>
+                                        <span className="ml-2 text-sm">{step.title}</span>
+                                        <img
+                                            width="15"
+                                            height="10px"
+                                            alt="seperator icon"
+                                            className="h-3 w-3 ml-4"
+                                            src="https://cdn0.iconfinder.com/data/icons/mintab-outline-for-ios-4/30/toward-forward-more-than-angle-bracket-512.png"
+                                        />
                                     </div>
-                                    <span className="ml-2 text-sm">{step.title}</span>
-                                </div>
+                                </>
                             ))}
                         </div>
-                        <Separator className="mt-8" />
+                        <Separator className="mt-2" />
                     </div>
                 </div>
-                <Card className="mt-8 p-6">
-                    <Suspense fallback={<h1>Loading...</h1>}>{formSteps[state.step - 1].component}</Suspense>
+                <Card className="mt-8 p-4">
+                    {/* <Suspense fallback={<Loading />}> */}
+                    {formSteps[state.step - 1].component}
+                    {/* </Suspense> */}
 
-                    <div className="flex justify-center mt-4 gap-2">
-                        <Button disabled={state.step === 1} size="sm" variant="outline" onClick={handleBack}>
-                            Back
-                        </Button>
-                        {state.step < 4 ? (
-                            <Button size="sm" onClick={handleNext}>
-                                Next
+                    {state.showNavButtons && (
+                        <div className="flex justify-center mt-4 gap-2">
+                            <Button disabled={state.step === 1} size="sm" variant="outline" onClick={handleBack}>
+                                Back
                             </Button>
-                        ) : (
-                            <Button size="sm" onClick={handleSave}>
-                                Save
-                            </Button>
-                        )}
-                    </div>
+                            {state.step < 4 ? (
+                                <Button size="sm" disabled={shouldDisableNextButton()} onClick={handleNext}>
+                                    Next
+                                </Button>
+                            ) : (
+                                <Button size="sm" onClick={handleSave}>
+                                    Save
+                                </Button>
+                            )}
+                        </div>
+                    )}
                 </Card>
             </div>
         </>
