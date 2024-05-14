@@ -140,7 +140,7 @@ const FormComponent = () => {
     return (
         <>
             <div className="">
-                <div className="flex">
+                <div className="flex mt-3">
                     <div className=" w-full">
                         <div className="flex justify-start gap-5">
                             {formSteps.map((step, index) => (
@@ -173,10 +173,10 @@ const FormComponent = () => {
                                 </>
                             ))}
                         </div>
-                        <Separator className="mt-2" />
+                        <Separator className="mt-3" />
                     </div>
                 </div>
-                <Card className="mt-8 p-4">
+                <Card className="m-6 mt-8 p-4">
                     {/* <Suspense fallback={<Loading />}> */}
                     {formSteps[state.step - 1].component}
                     {/* </Suspense> */}

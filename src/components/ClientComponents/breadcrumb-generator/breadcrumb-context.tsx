@@ -2,7 +2,7 @@
 
 import React from "react";
 
-const initialState = { state: { breadcrumbData: [] } };
+const initialState = { state: { breadcrumbData: [], padding: "6" } };
 
 export const BreadcrumbContext = React.createContext(initialState);
 
