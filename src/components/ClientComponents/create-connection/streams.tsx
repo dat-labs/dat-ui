@@ -7,6 +7,7 @@ import { FromDataContext } from ".";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import FormGenerator from "../FormGenerator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import DocWrapper from "@/app/actors/[actorType]/[actorId]/DocWrapper";
 
 export default function Streams({ data }) {
     const { state, updateState } = React.useContext(FromDataContext);
@@ -66,15 +67,17 @@ export default function Streams({ data }) {
                                     </Tooltip>
                                 </TooltipProvider>
                             </DialogTrigger>
-                            <DialogContent>
-                                <DialogHeader>
-                                    <DialogTitle>Configure {row.getValue("name")} stream</DialogTitle>
-                                </DialogHeader>
-                                <FormGenerator
-                                    properties={row.original.streamProperties.properties}
-                                    defaultData={state.streams[row.getValue("name")].configuration}
-                                    onSubmit={(values: any) => handleStreamConfigrationSave(values, row.getValue("name"))}
-                                />
+                            <DialogContent className="max-w-lg">
+                                <DocWrapper>
+                                    <DialogHeader>
+                                        <DialogTitle>Configure {row.getValue("name")} stream</DialogTitle>
+                                    </DialogHeader>
+                                    <FormGenerator
+                                        properties={row.original.streamProperties.properties}
+                                        defaultData={state.streams[row.getValue("name")].configuration}
+                                        onSubmit={(values: any) => handleStreamConfigrationSave(values, row.getValue("name"))}
+                                    />
+                                </DocWrapper>
                             </DialogContent>
                         </Dialog>
                     </>
