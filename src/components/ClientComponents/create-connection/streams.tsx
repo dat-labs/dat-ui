@@ -67,16 +67,18 @@ export default function Streams({ data }) {
                                     </Tooltip>
                                 </TooltipProvider>
                             </DialogTrigger>
-                            <DialogContent className="max-w-lg">
-                                <DocWrapper>
-                                    <DialogHeader>
-                                        <DialogTitle>Configure {row.getValue("name")} stream</DialogTitle>
-                                    </DialogHeader>
-                                    <FormGenerator
-                                        properties={row.original.streamProperties.properties}
-                                        defaultData={state.streams[row.getValue("name")].configuration}
-                                        onSubmit={(values: any) => handleStreamConfigrationSave(values, row.getValue("name"))}
-                                    />
+                            <DialogContent className="w-9/12 h-8/12 max-w-none overflow-y-auto">
+                                <DocWrapper doc="">
+                                    <div className="p-6 h-full">
+                                        <DialogHeader>
+                                            <DialogTitle className="mb-4">Configure {row.getValue("name")} stream</DialogTitle>
+                                        </DialogHeader>
+                                        <FormGenerator
+                                            properties={row.original.streamProperties.properties}
+                                            defaultData={state.streams[row.getValue("name")].configuration}
+                                            onSubmit={(values: any) => handleStreamConfigrationSave(values, row.getValue("name"))}
+                                        />
+                                    </div>
                                 </DocWrapper>
                             </DialogContent>
                         </Dialog>

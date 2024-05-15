@@ -31,7 +31,7 @@ const scheduleOptions = [
 
 export default function ConnectionConfiguration() {
     const { state, updateState } = React.useContext(FromDataContext);
-    console.log(state);
+    console.log(state.configuration);
 
     const getStreamsData = (streams: any) => {
         const data: any = [];
@@ -58,7 +58,7 @@ export default function ConnectionConfiguration() {
         const fetchStreams = async () => {
             const res = await getStreamsForSource(state.source.value.id);
             const streamsObj: any = {};
-            res.properties.document_streams.items.forEach((stream: any) => {
+            res.properties.streams.items.forEach((stream: any) => {
                 streamsObj[stream.properties.name.default] = {
                     streamProperties: stream,
                     configuration: {},
@@ -86,7 +86,7 @@ export default function ConnectionConfiguration() {
                 <label className="mt-2" htmlFor="schedule">
                     Schedule
                 </label>
-                <Select onValueChange={(val) => hadnleScheduleChange(val)}>
+                <Select onValueChange={(val) => hadnleScheduleChange(val)} value={state.configuration.schedule}>
                     <SelectTrigger className="mt-2" id="schedule">
                         <SelectValue placeholder="Select a schedule" />
                     </SelectTrigger>

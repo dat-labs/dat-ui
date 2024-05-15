@@ -17,7 +17,7 @@ export default function CreatePage({ params }: { params: { actorType: string } }
         router.push(`/actors/${params.actorType}`);
     };
     return (
-        <div>
+        <div className="p-6">
             <PageBreadcrumb
                 breadCrumbData={[
                     {
@@ -29,13 +29,11 @@ export default function CreatePage({ params }: { params: { actorType: string } }
                     },
                 ]}
             />
-            <DocWrapper doc="Create Page doc">
-                <div className="flex justify-center">
-                    <div className="w-full">
-                        <ActorForm actorType={params.actorType} postFormSubmitActions={handleFormSubmit} />
-                    </div>
+            <div className="flex justify-center">
+                <div className="w-full">
+                    <ActorForm actorType={params.actorType} postFormSubmitActions={handleFormSubmit} />
                 </div>
-            </DocWrapper>
+            </div>
         </div>
     );
 }

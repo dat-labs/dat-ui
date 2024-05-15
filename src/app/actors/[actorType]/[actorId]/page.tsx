@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import FormGenerator from "@/components/ClientComponents/FormGenerator";
 import { updateActorInstance } from "./api";
 import DocWrapper from "./DocWrapper";
-
+import PageBreadcrumb from "@/app/page-breadcrumb";
 
 interface ActorDetailsPageProps {
     params: {
@@ -21,13 +21,13 @@ function ActorDetailsPage({ params }: ActorDetailsPageProps) {
 
     const { actorType, actorId } = params;
     const [actorInstanceData, setActorInstanceData] = useState(null);
-    const  [actorSpecData, setActorSpecData] = useState(null);
+    const [actorSpecData, setActorSpecData] = useState(null);
 
     const load = useCallback(async () => {
         const data = await getActorData(actorType, actorId);
         const jsonData = await getActorSpec(data.actor.id);
         setActorInstanceData(data);
-        setActorSpecData(jsonData)
+        setActorSpecData(jsonData);
     }, [actorType, setActorInstanceData]);
 
     useEffect(() => {
@@ -39,9 +39,9 @@ function ActorDetailsPage({ params }: ActorDetailsPageProps) {
             name: data["dat-name"],
             configuration: data,
         };
-        const res = await updateActorInstance(actorId,apiData);
+        const res = await updateActorInstance(actorId, apiData);
         //TODO test status check
-        if(res.status === 200){
+        if (res.status === 200) {
             router.push(`/actors/${params.actorType}`);
             toast(`${actorType} updated successfully.`, {
                 description: `${actorType} updated successfully.`,
@@ -54,19 +54,32 @@ function ActorDetailsPage({ params }: ActorDetailsPageProps) {
     };
 
     return (
-        <DocWrapper doc="Edit Page doc">
-            {actorInstanceData !== null && (
-                <div className="flex justify-center">
-                    <div className="w-11/12">
-                        <FormGenerator
-                            properties={actorSpecData.properties.connection_specification.properties}
-                            onSubmit={handleSubmit}
-                            defaultData={actorInstanceData.configuration}
-                        />
+        <div className="p-6">
+            <DocWrapper doc="Edit Page doc">
+                <PageBreadcrumb
+                    breadCrumbData={[
+                        {
+                            pageName: "Source",
+                            pageUrl: `/actors/${actorType}`,
+                        },
+                        {
+                            pageName: "Edit",
+                        },
+                    ]}
+                />
+                {actorInstanceData !== null && (
+                    <div className="flex justify-center">
+                        <div className="w-11/12">
+                            <FormGenerator
+                                properties={actorSpecData.properties.connection_specification.properties}
+                                onSubmit={handleSubmit}
+                                defaultData={actorInstanceData.configuration}
+                            />
+                        </div>
                     </div>
-                </div>
-            )}
-        </DocWrapper>
+                )}
+            </DocWrapper>
+        </div>
     );
 }
 

@@ -25,3 +25,19 @@ export const getIconComponent = (iconName: string) => {
         return Promise.resolve(null); // Return default icon on error
     }
 };
+
+/**
+ * imports an icon without lazy loading. Used in client components
+ * @param iconName
+ * @returns
+ */
+export const importIcon = (iconName: string) => {
+    try {
+        console.log(iconName);
+        const iconModule = require(`@/assets/actors/${iconName}`);
+        return iconModule.default;
+    } catch (err) {
+        console.error(`Error importing icon "${iconName}":`, err);
+        return null;
+    }
+};

@@ -2,6 +2,7 @@ import React from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import FormGenerator from "@/components/ClientComponents/FormGenerator/FormGenerator";
 import { getFormDataForSource, getActors, createActorInstance } from "./api";
+import DocWrapper from "../[actorId]/DocWrapper";
 
 export default function ActorForm({ actorType, postFormSubmitActions }: { actorType: any; postFormSubmitActions: any }) {
     const [actors, setActors] = React.useState<any>(null);
@@ -46,28 +47,30 @@ export default function ActorForm({ actorType, postFormSubmitActions }: { actorT
     }, []);
 
     return (
-        <div className="flex p-5">
-            <div className="w-full border-r p-6 ">
-                <div className="mb-4">
-                    <p className="text-md mb-2 font-semibold">Select a source</p>
-                    <Select onValueChange={(val) => setSelectedActor(val)}>
-                        <SelectTrigger>
-                            <SelectValue placeholder={`Select a ${actorType}`} />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {actors?.map((actor: any) => (
-                                <SelectItem value={actor.id}>{actor.name}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+        <DocWrapper doc="">
+            <div className="flex p-5">
+                <div className="w-full p-6 ">
+                    <div className="mb-4">
+                        <p className="text-md mb-2 font-semibold">Select a source</p>
+                        <Select onValueChange={(val) => setSelectedActor(val)}>
+                            <SelectTrigger>
+                                <SelectValue placeholder={`Select a ${actorType}`} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {actors?.map((actor: any) => (
+                                    <SelectItem value={actor.id}>{actor.name}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    {formData?.properties?.connection_specification?.properties && (
+                        <FormGenerator
+                            properties={formData?.properties?.connection_specification?.properties}
+                            onSubmit={handleSubmit}
+                        />
+                    )}
                 </div>
-                {formData?.properties?.connection_specification?.properties && (
-                    <FormGenerator
-                        properties={formData?.properties?.connection_specification?.properties}
-                        onSubmit={handleSubmit}
-                    />
-                )}
             </div>
-        </div>
+        </DocWrapper>
     );
 }

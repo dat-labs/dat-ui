@@ -25,7 +25,7 @@ export default function ActorsPage({ params }: pageProps) {
     const title = capitalizeFirstLetter(actorType);
 
     return (
-        <main>
+        <main className="p-6">
             <div className="my-4 flex justify-between">
                 <PageBreadcrumb
                     breadCrumbData={[
