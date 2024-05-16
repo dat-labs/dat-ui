@@ -64,7 +64,7 @@ export default function SelectSource({ actorType }: { actorType: string }) {
         <div>
             <Card className="p-5">
                 <div className="mb-3">
-                    <p className="text-lg">Define {capitalizeFirstLetter(actorType)}</p>
+                    <p className="text-lg font-semibold">Define {capitalizeFirstLetter(actorType)}</p>
                     <p className="text-sm text-muted-foreground mt-2 mb-4">Select the mode of setup</p>
                 </div>
                 <RadioGroup

@@ -63,7 +63,7 @@ const formSteps = [
     },
 ];
 
-const getStremsData = (streamsObj: any) => {
+export const getStremsData = (streamsObj: any) => {
     let arrToReturn: any = [];
     Object.keys(streamsObj).forEach((streamName: string) => {
         if (streamsObj[streamName].configured === true) {

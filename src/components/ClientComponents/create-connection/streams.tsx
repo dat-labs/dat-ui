@@ -67,7 +67,7 @@ export default function Streams({ data }) {
                                     </Tooltip>
                                 </TooltipProvider>
                             </DialogTrigger>
-                            <DialogContent className="w-9/12 h-8/12 max-w-none overflow-y-auto">
+                            <DialogContent className="w-9/12 h-8/12 max-w-none overflow-auto">
                                 <DocWrapper doc="">
                                     <div className="p-6 h-full">
                                         <DialogHeader>

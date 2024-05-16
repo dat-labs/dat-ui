@@ -83,7 +83,7 @@ const EditConnectionComponent = ({ connectionData }) => {
             <Separator />
             <div className="flex p-2 bg-muted">
                 <div
-                    className={clsx("w-4/12 flex justify-center cursor-pointer p-2 rounded-md", {
+                    className={clsx("w-6/12 flex justify-center cursor-pointer p-2 rounded-md", {
                         "bg-background": tab === "streams",
                     })}
                     onClick={() => setTab("streams")}
@@ -91,20 +91,12 @@ const EditConnectionComponent = ({ connectionData }) => {
                     <p>Streams</p>
                 </div>
                 <div
-                    className={clsx("w-4/12 flex justify-center cursor-pointer p-2 rounded-md", {
+                    className={clsx("w-6/12 flex justify-center cursor-pointer p-2 rounded-md", {
                         "bg-background": tab === "run_history",
                     })}
                     onClick={() => setTab("run_history")}
                 >
                     <p>Run History</p>
-                </div>
-                <div
-                    className={clsx("w-4/12 flex justify-center cursor-pointer p-2 rounded-md", {
-                        "bg-background": tab === "scheduling",
-                    })}
-                    onClick={() => setTab("scheduling")}
-                >
-                    <p>Scheduling</p>
                 </div>
             </div>
             {state.source.value && (
