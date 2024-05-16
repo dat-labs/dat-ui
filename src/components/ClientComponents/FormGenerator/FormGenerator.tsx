@@ -40,7 +40,7 @@ export default function FormGenerator({
     defaultData?: any;
 }) {
     const form = useForm({ defaultValues: defaultData });
-    console.log("form", form)
+    console.log("form", form);
     /**
      * Function to handle form submission
      * @param data
@@ -136,7 +136,7 @@ export default function FormGenerator({
         return (
             <div className={clsx({ "border p-3 rounded-md": type === "object" })} key={order}>
                 <label htmlFor={field_name} className="flex flex-col space-y-1">
-                    <span className="text-md font-medium">{title}</span>
+                    <span className="text-md font-medium jus">{title}</span>
                     {type === "string" && (
                         <Input
                             id={field_name}
@@ -148,30 +148,29 @@ export default function FormGenerator({
 
                     {type === "integer" && (
                         <>
-                        <Input
-                            id={field_name}
-                            type="number"
-                            {...form.register(field_name, {
-                                required: "This is a required field.",
-                                min: { value: minimum, message: `Minimum value is ${minimum}` },
-                                max: { value: maximum, message: `Maximum value is ${maximum}` },
-                            })}
-                            defaultValue={defaultValue}
-                        />
+                            <Input
+                                id={field_name}
+                                type="number"
+                                {...form.register(field_name, {
+                                    required: "This is a required field.",
+                                    min: { value: minimum, message: `Minimum value is ${minimum}` },
+                                    max: { value: maximum, message: `Maximum value is ${maximum}` },
+                                })}
+                                defaultValue={defaultValue}
+                            />
                         </>
-                        
                     )}
                     {type === "object" && oneOf && (
                         <>
                             <FormField
                                 control={form.control}
-                                name={`${field_name}.${originalFieldName}`}
+                                name={`${field_name}.${field_name}`}
                                 render={({ field }) => (
                                     <>
+                                        {console.log(field)}
                                         <FormItem>
-                                            <Select onValueChange={field.onChange}>
-                                            {console.log("defaultValue:", defaultValue)} 
-                                                <SelectTrigger defaultValue={defaultValue || ''}>
+                                            <Select value={field.value} onValueChange={field.onChange}>
+                                                <SelectTrigger>
                                                     <SelectValue placeholder="Select an option" />
                                                 </SelectTrigger>
                                                 <SelectContent>

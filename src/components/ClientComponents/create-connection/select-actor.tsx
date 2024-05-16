@@ -3,22 +3,33 @@ import { FromDataContext } from ".";
 import { getActorsData } from "@/app/actors/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { capitalizeFirstLetter } from "@/lib/utils";
+import { capitalizeFirstLetter, cn, importIcon } from "@/lib/utils.ts";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import ActorForm from "@/app/actors/[actorType]/create/actor-form";
 import clsx from "clsx";
-import CircularLoader from "@/components/ui/circularLoader";
-const importIcon = (iconName) => {
-    try {
-        console.log(iconName);
-        const iconModule = require(`@/assets/actors/${iconName}`);
-        return iconModule.default;
-    } catch (err) {
-        console.error(`Error importing icon "${iconName}":`, err);
-        return null;
-    }
-};
+import { Input } from "@/components/ui/input";
+import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
+
+export type SearchProps = React.InputHTMLAttributes<HTMLInputElement>;
+
+const Search = React.forwardRef(({ className, ...props }, ref) => {
+    return (
+        <div className="relative h-10 w-full">
+            <MagnifyingGlassIcon className="absolute h-6 w-6 left-3 top-[18px] transform -translate-y-1/2 text-gray-500 z-10" />
+            <Input
+                {...props}
+                ref={ref}
+                className={cn(
+                    "pl-10 pr-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:border-transparent",
+                    className
+                )} // Add additional styling as needed
+            />
+        </div>
+    );
+});
+
+Search.displayName = "Search";
 
 export default function SelectSource({ actorType }: { actorType: string }) {
     const { state, updateState } = React.useContext(FromDataContext);
@@ -51,27 +62,31 @@ export default function SelectSource({ actorType }: { actorType: string }) {
 
     return (
         <div>
-            <Card className="p-3">
+            <Card className="p-5">
+                <div className="mb-3">
+                    <p className="text-lg font-semibold">Define {capitalizeFirstLetter(actorType)}</p>
+                    <p className="text-sm text-muted-foreground mt-2 mb-4">Select the mode of setup</p>
+                </div>
                 <RadioGroup
                     value={state[actorType].subStep}
                     className="w-full"
                     onValueChange={(val: any) => handleSubStepChange(val)}
                 >
                     <div className="flex items-center gap-4">
-                        <div className="flex gap-2 items-center w-6/12 p-4 border rounded-lg border">
+                        <div className="flex gap-2 items-center w-6/12 p-4">
                             <RadioGroupItem value="selectConfigured" id="selectConfigured" />
-                            <Label htmlFor="selectConfigured" className="w-full">
+                            <Label htmlFor="selectConfigured" className="w-full cursor-pointer">
                                 Select a configured {actorType}
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-xs text-muted-foreground mt-1">
                                     You can select an already configured {actorType} by choosing this option
                                 </p>
                             </Label>
                         </div>
-                        <div className="flex gap-2 items-center w-6/12 p-4  border rounded-lg border">
+                        <div className="flex gap-2 items-center w-6/12 p-4 ">
                             <RadioGroupItem value="createNew" id="createNew" />
-                            <Label htmlFor="createNew" className="w-full">
+                            <Label htmlFor="createNew" className="w-full cursor-pointer">
                                 Create a new {actorType}
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-xs text-muted-foreground mt-1">
                                     You can create a new {actorType} by choosing this option
                                 </p>
                             </Label>
@@ -82,36 +97,34 @@ export default function SelectSource({ actorType }: { actorType: string }) {
 
             {state[actorType].subStep === "selectConfigured" && (
                 <>
-                    <div className="flex gap-4 w-full mt-4">
+                    <Search
+                        type="search"
+                        placeholder={`Search your ${capitalizeFirstLetter(actorType)}`}
+                        className="mt-6 rounded-lg"
+                    />
+                    <div className="grid grid-cols-4 gap-4 w-full mt-4 p-3">
                         {actors.map((actor: any) => {
                             const IconComponent = importIcon(actor.actor.icon);
+                            console.log(IconComponent);
                             return (
                                 <Card
                                     onClick={() => handleSourceSelect(actor)}
-                                    className={clsx(
-                                        "w-4/12 cursor-pointer transition duration-400 bg-card-background hover:bg-accent",
-                                        { "border-foreground": state[actorType]?.value?.id === actor.id }
-                                    )}
+                                    className={clsx("cursor-pointer transition duration-400 bg-card-background hover:bg-accent", {
+                                        "border-foreground": state[actorType]?.value?.id === actor.id,
+                                    })}
                                 >
-                                    <CardHeader>
+                                    <CardHeader className="p-3">
                                         <CardTitle className="text-sm">
                                             <div className="flex gap-2 items-center">
-                                                <Suspense fallback={<CircularLoader />}>
-                                                    {/* {getIconComponent(actor.actor.icon).then((IconComponent) =>
-                                                    IconComponent ? <IconComponent className="h-7 w-7 stroke-foreground" /> : null
-                                                )} */}
-                                                    {/* {importIcon(actor.actor.icon)} */}
-                                                    {/* <LazyIcon iconName={actor.actor.icon} /> */}
-                                                    {IconComponent ? (
-                                                        <IconComponent />
-                                                    ) : (
-                                                        <img
-                                                            src={`https://ui-avatars.com/api/?name=${actor.actor.name}`}
-                                                            alt="icon"
-                                                            className="h-7 w-7 rounded-md"
-                                                        />
-                                                    )}
-                                                </Suspense>
+                                                {IconComponent !== null ? (
+                                                    <IconComponent className="h-6 w-6 stroke-foreground" />
+                                                ) : (
+                                                    <img
+                                                        src={`https://ui-avatars.com/api/?name=${actor.actor.name}`}
+                                                        alt="icon"
+                                                        className="h-7 w-7 rounded-md"
+                                                    />
+                                                )}
                                                 <p>{actor.name}</p>
                                             </div>
                                         </CardTitle>
@@ -133,9 +146,11 @@ export default function SelectSource({ actorType }: { actorType: string }) {
                 </>
             )}
             {state[actorType].subStep === "createNew" && (
-                <div className="flex justify-center mt-4">
+                <div className="flex justify-center mt-6">
                     <div className="w-full">
-                        <ActorForm actorType={actorType} />
+                        <Card>
+                            <ActorForm actorType={actorType} />
+                        </Card>
                     </div>
                 </div>
             )}

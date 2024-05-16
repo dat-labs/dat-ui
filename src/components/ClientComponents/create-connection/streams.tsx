@@ -68,16 +68,18 @@ export default function Streams({ data }) {
                                     </Tooltip>
                                 </TooltipProvider>
                             </DialogTrigger>
-                            <DialogContent className="min-w-full">
+                            <DialogContent className="w-9/12 h-8/12 max-w-none overflow-auto">
                                 <DocWrapper doc="Stream" url="google.com">
-                                    <DialogHeader>
-                                        <DialogTitle>Configure {row.getValue("name")} stream</DialogTitle>
-                                    </DialogHeader>
-                                    <FormGenerator
-                                        properties={row.original.streamProperties.properties}
-                                        defaultData={state.streams[row.getValue("name")].configuration}
-                                        onSubmit={(values: any) => handleStreamConfigrationSave(values, row.getValue("name"))}
-                                    />
+                                    <div className="p-6 h-full">
+                                        <DialogHeader>
+                                            <DialogTitle className="mb-4">Configure {row.getValue("name")} stream</DialogTitle>
+                                        </DialogHeader>
+                                        <FormGenerator
+                                            properties={row.original.streamProperties.properties}
+                                            defaultData={state.streams[row.getValue("name")].configuration}
+                                            onSubmit={(values: any) => handleStreamConfigrationSave(values, row.getValue("name"))}
+                                        />
+                                    </div>
                                 </DocWrapper>
                             </DialogContent>
                         </Dialog>

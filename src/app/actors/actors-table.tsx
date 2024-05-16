@@ -4,7 +4,7 @@ import { memo, useEffect, useMemo, useState, useCallback } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "@/components/ClientComponents/data-table";
 import { getActorsData } from "./api";
-import { capitalizeFirstLetter, getIconComponent } from "@/lib/utils";
+import { capitalizeFirstLetter, getIconComponent } from "@/lib/utils.ts";
 
 export type Actor = {
     id: string;

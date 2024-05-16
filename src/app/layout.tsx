@@ -36,7 +36,7 @@ export default function RootLayout({
                                         <BreadCrumbGenerator />
                                     </div>
                                 </div>
-                                <div className="flex-1 overflow-auto p-6">{children}</div>
+                                <div className="flex-1 overflow-auto">{children}</div>
                             </div>
                         </div>
                     </BreadcrumbContextProvider>

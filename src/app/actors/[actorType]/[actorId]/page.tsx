@@ -10,7 +10,6 @@ import DocWrapper from "@/components/commom/doc-wrapper";
 import PageBreadcrumb from "@/app/page-breadcrumb";
 import { capitalizeFirstLetter } from "@/lib/utils";
 
-
 interface ActorDetailsPageProps {
     params: {
         actorType: string;
@@ -23,13 +22,13 @@ function ActorDetailsPage({ params }: ActorDetailsPageProps) {
 
     const { actorType, actorId } = params;
     const [actorInstanceData, setActorInstanceData] = useState(null);
-    const  [actorSpecData, setActorSpecData] = useState(null);
+    const [actorSpecData, setActorSpecData] = useState(null);
 
     const load = useCallback(async () => {
         const data = await getActorData(actorType, actorId);
         const jsonData = await getActorSpec(data.actor.id);
         setActorInstanceData(data);
-        setActorSpecData(jsonData)
+        setActorSpecData(jsonData);
     }, [actorType, setActorInstanceData]);
 
     useEffect(() => {
@@ -41,9 +40,9 @@ function ActorDetailsPage({ params }: ActorDetailsPageProps) {
             name: data["dat-name"],
             configuration: data,
         };
-        const res = await updateActorInstance(actorId,apiData);
+        const res = await updateActorInstance(actorId, apiData);
         //TODO test status check
-        if(res.status === 200){
+        if (res.status === 200) {
             router.push(`/actors/${params.actorType}`);
             toast(`${actorType} updated successfully.`, {
                 description: `${actorType} updated successfully.`,
@@ -69,22 +68,19 @@ function ActorDetailsPage({ params }: ActorDetailsPageProps) {
                         },
                     ]}
                 />
-            </div>
-            <DocWrapper doc="Edit Page doc" url="https://google.co.in">
-            {actorInstanceData !== null && (
-                <div className="flex justify-center">
-                    <div className="w-11/12">
-                        <FormGenerator
-                            properties={actorSpecData.properties.connection_specification.properties}
-                            onSubmit={handleSubmit}
-                            defaultData={actorInstanceData.configuration}
-                        />
+                {actorInstanceData !== null && (
+                    <div className="flex justify-center">
+                        <div className="w-11/12">
+                            <FormGenerator
+                                properties={actorSpecData.properties.connection_specification.properties}
+                                onSubmit={handleSubmit}
+                                defaultData={actorInstanceData.configuration}
+                            />
+                        </div>
                     </div>
-                </div>
-            )}
-        </DocWrapper>
+                )}
+            </div>
         </main>
-        
     );
 }
 

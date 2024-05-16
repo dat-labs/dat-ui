@@ -20,7 +20,7 @@ export default function CreatePage({ params }: { params: { actorType: string } }
         router.push(`/actors/${params.actorType}`);
     };
     return (
-        <div>
+        <div className="p-6">
             <PageBreadcrumb
                 breadCrumbData={[
                     {

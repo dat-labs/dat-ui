@@ -3,14 +3,9 @@
 import React, { Suspense } from "react";
 import SelectActor from "./select-actor";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import ConnectionConfiguration from "./connection-configuration";
 import { addConnection } from "./api";
-import { BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import BreadCrumbGenerator from "../breadcrumb-generator";
-import Image from "next/image";
-import Loading from "@/app/actors/loading";
 
 const formDataValue = {
     step: 1,
@@ -36,7 +31,7 @@ const formDataValue = {
 
 export const FromDataContext = React.createContext(null);
 
-const FormContextProvider = ({ children }: { children: any }) => {
+export const FormContextProvider = ({ children }: { children: any }) => {
     const [state, setState] = React.useState(formDataValue);
 
     const updateState = (key: any, value: any) => {
@@ -68,7 +63,7 @@ const formSteps = [
     },
 ];
 
-const getStremsData = (streamsObj: any) => {
+export const getStremsData = (streamsObj: any) => {
     let arrToReturn: any = [];
     Object.keys(streamsObj).forEach((streamName: string) => {
         if (streamsObj[streamName].configured === true) {
@@ -176,10 +171,8 @@ const FormComponent = () => {
                         <Separator className="mt-3" />
                     </div>
                 </div>
-                <Card className="m-6 mt-8 p-4">
-                    {/* <Suspense fallback={<Loading />}> */}
-                    {formSteps[state.step - 1].component}
-                    {/* </Suspense> */}
+                <div className="p-6">
+                    <div>{formSteps[state.step - 1].component}</div>
 
                     {state.showNavButtons && (
                         <div className="flex justify-center mt-4 gap-2">
@@ -197,7 +190,7 @@ const FormComponent = () => {
                             )}
                         </div>
                     )}
-                </Card>
+                </div>
             </div>
         </>
     );
