@@ -36,7 +36,7 @@ const Sidebar = () => {
             <div className="flex flex-col">
                 <Link href="/connections">
                     {/* <Image src={LogoWhite} width={100} height={100} alt="logo"/> */}
-                    <LogoBlack className="h-24 w-24 fill-foreground" />
+                    <LogoBlack className="h-10 w-24 fill-foreground mb-4" />
                 </Link>
             </div>
             <div className="flex flex-col py-2 border-y">

@@ -1,10 +1,22 @@
-const DocWrapper = ({ children, doc }) => {
+import { Button } from "@/components/ui/button";
+import { ArrowTopRightIcon } from "@radix-ui/react-icons";
+
+const DocWrapper = ({ children, doc, url }) => {
+
+    const clickHandler = () => {
+        window.open(url, '_blank');
+    }
     return (
         <div className="flex justify-between">
             <div className="flex-1">{children}</div>
             <div className="flex-1 border-l">
-                {doc}
                 <div className="w-full p-6">
+                    <div className="flex justify-end">
+                        <Button variant="outline" onClick={clickHandler}>
+                            <ArrowTopRightIcon className="mr-2" /> Open Full Docs
+                        </Button>
+                    </div>
+                    {doc}
                     <h3 className="text-xl font-semibold mb-4">How to create a source?</h3>
                     <p className="text-sm">
                         Morbi tristique senectus et netus et malesuada. Commodo nulla facilisi nullam vehicula ipsum a arcu

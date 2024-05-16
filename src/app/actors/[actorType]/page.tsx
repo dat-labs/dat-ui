@@ -30,12 +30,12 @@ export default function ActorsPage({ params }: pageProps) {
                 <PageBreadcrumb
                     breadCrumbData={[
                         {
-                            pageName: "Source",
+                            pageName: `${capitalizeFirstLetter(actorType)}`,
                             pageUrl: `/actors/${actorType}`,
                         },
                     ]}
                 />
-                <p className="text-lg font-medium">List of configured sources:</p>
+                <p className="text-lg font-medium">{capitalizeFirstLetter(actorType)}s</p>
                 <Link className={clsx(buttonVariants({ variant: "default", size: "sm" }))} href={`/actors/${actorType}/create`}>
                     Create {title}
                 </Link>

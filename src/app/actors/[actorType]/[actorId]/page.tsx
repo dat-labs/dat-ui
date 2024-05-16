@@ -6,7 +6,9 @@ import { getActorData, getActorSpec } from "../../api";
 import { toast } from "sonner";
 import FormGenerator from "@/components/ClientComponents/FormGenerator";
 import { updateActorInstance } from "./api";
-import DocWrapper from "./DocWrapper";
+import DocWrapper from "@/components/commom/doc-wrapper";
+import PageBreadcrumb from "@/app/page-breadcrumb";
+import { capitalizeFirstLetter } from "@/lib/utils";
 
 
 interface ActorDetailsPageProps {
@@ -54,7 +56,21 @@ function ActorDetailsPage({ params }: ActorDetailsPageProps) {
     };
 
     return (
-        <DocWrapper doc="Edit Page doc">
+        <main>
+            <div className="my-4 flex justify-between">
+                <PageBreadcrumb
+                    breadCrumbData={[
+                        {
+                            pageName: `${capitalizeFirstLetter(actorType)}`,
+                            pageUrl: `/actors/${actorType}`,
+                        },
+                        {
+                            pageName: "Edit",
+                        },
+                    ]}
+                />
+            </div>
+            <DocWrapper doc="Edit Page doc" url="https://google.co.in">
             {actorInstanceData !== null && (
                 <div className="flex justify-center">
                     <div className="w-11/12">
@@ -67,6 +83,8 @@ function ActorDetailsPage({ params }: ActorDetailsPageProps) {
                 </div>
             )}
         </DocWrapper>
+        </main>
+        
     );
 }
 

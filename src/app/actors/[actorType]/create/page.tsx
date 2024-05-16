@@ -5,13 +5,16 @@ import ActorForm from "./actor-form";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import PageBreadcrumb from "@/app/page-breadcrumb";
-import DocWrapper from "../[actorId]/DocWrapper";
+import DocWrapper from "@/components/commom/doc-wrapper";
+import { capitalizeFirstLetter } from "@/lib/utils";
+import { SearchBar } from "@/components/commom/search-bar";
 
 export default function CreatePage({ params }: { params: { actorType: string } }) {
     const router = useRouter();
+    const actorType = params.actorType;
 
     const handleFormSubmit = () => {
-        toast(`${params.actorType} created successfully.`, {
+        toast(`${actorType} created successfully.`, {
             description: "New source created successfully",
         });
         router.push(`/actors/${params.actorType}`);
@@ -21,7 +24,7 @@ export default function CreatePage({ params }: { params: { actorType: string } }
             <PageBreadcrumb
                 breadCrumbData={[
                     {
-                        pageName: "Source",
+                        pageName: `${capitalizeFirstLetter(actorType)}`,
                         pageUrl: `/actors/${params.actorType}`,
                     },
                     {
@@ -29,13 +32,8 @@ export default function CreatePage({ params }: { params: { actorType: string } }
                     },
                 ]}
             />
-            <DocWrapper doc="Create Page doc">
-                <div className="flex justify-center">
-                    <div className="w-full">
-                        <ActorForm actorType={params.actorType} postFormSubmitActions={handleFormSubmit} />
-                    </div>
-                </div>
-            </DocWrapper>
+            <SearchBar />
+            <ActorForm actorType={params.actorType} postFormSubmitActions={handleFormSubmit} />
         </div>
     );
 }

@@ -7,7 +7,8 @@ import { FromDataContext } from ".";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import FormGenerator from "../FormGenerator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import DocWrapper from "@/app/actors/[actorType]/[actorId]/DocWrapper";
+import DocWrapper from "@/components/commom/doc-wrapper";
+
 
 export default function Streams({ data }) {
     const { state, updateState } = React.useContext(FromDataContext);
@@ -67,8 +68,8 @@ export default function Streams({ data }) {
                                     </Tooltip>
                                 </TooltipProvider>
                             </DialogTrigger>
-                            <DialogContent className="max-w-lg">
-                                <DocWrapper>
+                            <DialogContent className="min-w-full">
+                                <DocWrapper doc="Stream" url="google.com">
                                     <DialogHeader>
                                         <DialogTitle>Configure {row.getValue("name")} stream</DialogTitle>
                                     </DialogHeader>
