@@ -12,8 +12,11 @@ export default function ActorForm({ actorType, postFormSubmitActions }: { actorT
     const [actors, setActors] = React.useState<any>(null);
     const [selectedActor, setSelectedActor] = React.useState<any>(null);
     const [formData, setFormData] = React.useState<any>(null);
+    const [error, setError] = React.useState<any>(null);
 
     const handleSubmit = async (data: any) => {
+        error && setError(null);
+
         let apiData = {
             workspace_id: "wkspc-uuid",
             actor_id: selectedActor,
@@ -24,7 +27,11 @@ export default function ActorForm({ actorType, postFormSubmitActions }: { actorT
             configuration: data,
         };
         const res = await createActorInstance(apiData);
-        if (postFormSubmitActions) {
+        console.log("res", res);
+        if (res.status_code !== 200) {
+            setError(res.responseData.detail);
+        }
+        if (res.status_code === 200 && postFormSubmitActions) {
             await postFormSubmitActions();
         }
     };
@@ -77,6 +84,8 @@ export default function ActorForm({ actorType, postFormSubmitActions }: { actorT
                             <FormGenerator
                                 properties={formData?.properties?.connection_specification?.properties}
                                 onSubmit={handleSubmit}
+                                submitButtonText="Test and Save"
+                                errorText={error}
                             />
                         )}
                     </DocWrapper>
