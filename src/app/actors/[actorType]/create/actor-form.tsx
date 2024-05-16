@@ -18,13 +18,12 @@ export default function ActorForm({ actorType, postFormSubmitActions }: { actorT
             workspace_id: "wkspc-uuid",
             actor_id: selectedActor,
             user_id: "09922bd9-7872-4664-99d0-08eae42fb554",
-            name: data["dat-name"],
+            name: data["dat_name"],
             actor_type: actorType,
             status: "active",
             configuration: data,
         };
         const res = await createActorInstance(apiData);
-        await console.log("res", res);
         if (postFormSubmitActions) {
             await postFormSubmitActions();
         }
