@@ -60,7 +60,11 @@ const EditConnectionComponent = ({ connectionData }) => {
                 <p className="text-xl font-bold text-foreground">{connectionData.name}</p>
                 <div className="flex mt-3 mb-3 gap-4">
                     <div className="flex items-center">
-                        <SourceIcon className="h-5 w-5" />
+                        {SourceIcon  ? <SourceIcon className="h-5 w-5" /> : <img
+                                src={`https://ui-avatars.com/api/?name=${connectionData.source_instance.actor.name}`}
+                                alt="icon"
+                                className="h-7 w-7 rounded-md"
+                            />}
                         <p className="ml-3">{connectionData.source_instance.actor.name}</p>
                     </div>
                     <div className="flex items-center">

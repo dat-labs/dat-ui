@@ -9,6 +9,7 @@ import { FormField, FormItem, FormMessage, Form } from "@/components/ui/form";
 import CircularLoader from "@/components/ui/circularLoader";
 import clsx from "clsx";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import { ErrorAlert } from "@/components/commom/error-alert";
 
 /**
  * Custom Chip component
@@ -34,10 +35,14 @@ export default function FormGenerator({
     properties,
     onSubmit,
     defaultData,
+    submitButtonText,
+    errorText,
 }: {
     properties: any;
     onSubmit: any;
     defaultData?: any;
+    submitButtonText?: string;
+    errorText?: string;
 }) {
     const form = useForm({ defaultValues: defaultData });
     console.log("form", form);
@@ -288,14 +293,20 @@ export default function FormGenerator({
     const sortedProperties = Object.values(properties).sort((a: any, b: any) => a.order - b.order);
 
     return (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmitForm)} className="flex flex-col space-y-4">
-                <>{sortedProperties.map((field) => renderFormField(field))}</>
-                <Button type="submit" disabled={form.formState.isSubmitting}>
-                    {form.formState.isSubmitting && <CircularLoader />}
-                    Submit
-                </Button>
-            </form>
-        </Form>
+        <>
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmitForm)} className="flex flex-col space-y-4">
+                    <>{sortedProperties.map((field) => renderFormField(field))}</>
+                    <Button type="submit" disabled={form.formState.isSubmitting}>
+                        {form.formState.isSubmitting && <CircularLoader />}
+                        {/* Submit */}
+                        {submitButtonText || "Submit"}
+                    </Button>
+                </form>
+                {
+                    errorText && <ErrorAlert error={errorText} />
+                }
+            </Form>
+        </>
     );
 }

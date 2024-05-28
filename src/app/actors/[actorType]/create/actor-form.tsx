@@ -12,8 +12,11 @@ export default function ActorForm({ actorType, postFormSubmitActions }: { actorT
     const [actors, setActors] = React.useState<any>(null);
     const [selectedActor, setSelectedActor] = React.useState<any>(null);
     const [formData, setFormData] = React.useState<any>(null);
+    const [error, setError] = React.useState<any>(null);
 
     const handleSubmit = async (data: any) => {
+        error && setError(null);
+
         let apiData = {
             workspace_id: "wkspc-uuid",
             actor_id: selectedActor,
@@ -24,7 +27,11 @@ export default function ActorForm({ actorType, postFormSubmitActions }: { actorT
             configuration: data,
         };
         const res = await createActorInstance(apiData);
-        if (postFormSubmitActions) {
+        console.log("res", res);
+        if (res.status_code !== 200) {
+            setError(res.responseData.detail);
+        }
+        if (res.status_code === 200 && postFormSubmitActions) {
             await postFormSubmitActions();
         }
     };
@@ -68,18 +75,18 @@ export default function ActorForm({ actorType, postFormSubmitActions }: { actorT
                 )}
                 {step === 2 && (
                     <DocWrapper doc="Create Page doc" url="google.com">
-                        <div className="mr-6">
-                            <Button onClick={() => setStep(1)} variant="outline" className="mb-7">
-                                <ArrowLeftIcon className="mr-4" /> Back
-                            </Button>
-                            <p className="mb-2 font-bold">Create a {capitalizeFirstLetter(actorType)}</p>
-                            {formData?.properties?.connection_specification?.properties && (
-                                <FormGenerator
-                                    properties={formData?.properties?.connection_specification?.properties}
-                                    onSubmit={handleSubmit}
-                                />
-                            )}
-                        </div>
+                        <Button onClick={() => setStep(1)} variant="outline" className="mb-7">
+                            <ArrowLeftIcon className="mr-4" /> Back
+                        </Button>
+                        <p className="mb-2 font-bold">Create a {capitalizeFirstLetter(actorType)}</p>
+                        {formData?.properties?.connection_specification?.properties && (
+                            <FormGenerator
+                                properties={formData?.properties?.connection_specification?.properties}
+                                onSubmit={handleSubmit}
+                                submitButtonText="Test and Save"
+                                errorText={error}
+                            />
+                        )}
                     </DocWrapper>
                 )}
             </div>
