@@ -58,8 +58,8 @@ export default function ConnectionConfiguration() {
         const fetchStreams = async () => {
             const res = await getStreamsForSource(state.source.value.id);
             const streamsObj: any = {};
-            res.properties.document_streams.items.forEach((stream: any) => {
-                streamsObj[stream.properties.name.default] = {
+            res.properties.document_streams.items.anyOf.forEach((stream: any) => {
+                streamsObj[stream.properties.name.const] = {
                     streamProperties: stream,
                     configuration: {},
                     configured: false,

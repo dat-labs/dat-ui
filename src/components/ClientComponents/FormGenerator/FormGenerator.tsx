@@ -47,6 +47,7 @@ export default function FormGenerator({
      * @returns form submission
      */
     const onSubmitForm = async (data: any) => {
+        console.log(data);
         await onSubmit(data);
     };
 
@@ -56,13 +57,21 @@ export default function FormGenerator({
      * @returns form fields
      */
     const renderFormField = (field: any, parentKey?: string) => {
+        // return if no field is provided
         if (!field) {
             return null;
         }
-        let { type, title, description, order, minimum, maximum, defaultValue, examples, oneOf, field_name } = field;
-        const originalFieldName = field_name;
-        field_name = parentKey ? `${parentKey}.${field_name}` : field_name;
-        const watchFieldValue = form.watch(`${field_name}.${originalFieldName}`);
+        let { type, title, description, order, minimum, maximum, defaultValue, examples, oneOf, field_name, hidden } = field;
+        /**
+         * For fields which are marked as hidden in json schema
+         */
+        if (hidden === true) {
+            return null;
+        }
+        const fieldEnum = field.enum;
+        const originalFieldName = field_name; // to store the original field name to be used if needed
+        field_name = parentKey ? `${parentKey}.${field_name}` : field_name; // override field name with appended parent key
+        const watchFieldValue = form.watch(`${field_name}.${originalFieldName}`); // to watch for value of this field
         const { fields, append, remove } =
             type === "array"
                 ? useFieldArray({
@@ -80,13 +89,23 @@ export default function FormGenerator({
          */
         const checkIfFieldValueHasMoreProperties = (watchFieldValue: string, oneOf: any) => {
             if (watchFieldValue) {
-                const selectedOption = oneOf.find((option: any) => option.title === watchFieldValue);
-                if (selectedOption && Object.keys(selectedOption.properties).length > 1) {
+                const selectedOption = oneOf.find(
+                    (option: any) => option.properties[originalFieldName].default === watchFieldValue
+                );
+                /**
+                 * if selected value === current object value
+                 */
+                if (selectedOption && Object.keys(selectedOption.properties).length >= 1) {
                     Object.keys(selectedOption.properties).forEach((key) => {
                         selectedOption.properties[key].field_name = key;
                     });
-                    let depFields = Object.values(selectedOption.properties).filter((field: any) => field?.const === undefined);
-                    const sortedDepFields = Object.values(depFields).sort((a: any, b: any) => a.order - b.order);
+                    let depFields = Object.values(selectedOption.properties).filter((field: any) => field?.const === undefined); // remove any object with const in it
+                    const sortedDepFields = Object.values(depFields).sort((a: any, b: any) => a.order - b.order); // get sorted fields on order key
+                    /**
+                     * if there are dependent fields to render
+                     * call the render function again
+                     * with current field namee as the parent key
+                     */
                     if (sortedDepFields && sortedDepFields.length > 0) {
                         return (
                             <div className="flex flex-col space-y-4">
@@ -138,12 +157,42 @@ export default function FormGenerator({
                 <label htmlFor={field_name} className="flex flex-col space-y-1">
                     <span className="text-md font-medium jus">{title}</span>
                     {type === "string" && (
-                        <Input
-                            id={field_name}
-                            type="text"
-                            {...form.register(field_name, { required: "This is a required field." })}
-                            defaultValue={defaultValue}
-                        />
+                        <>
+                            {field.enum ? (
+                                <FormField
+                                    control={form.control}
+                                    name={field_name}
+                                    render={({ field }) => (
+                                        <>
+                                            <FormItem>
+                                                <Select value={field.value} onValueChange={field.onChange}>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select an option" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {fieldEnum.map((option: any, index: number) => (
+                                                            <>
+                                                                <SelectItem key={index} value={option}>
+                                                                    {option}
+                                                                </SelectItem>
+                                                            </>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        </>
+                                    )}
+                                />
+                            ) : (
+                                <Input
+                                    id={field_name}
+                                    type="text"
+                                    {...form.register(field_name, { required: "This is a required field." })}
+                                    defaultValue={defaultValue}
+                                />
+                            )}
+                        </>
                     )}
 
                     {type === "integer" && (
@@ -160,14 +209,13 @@ export default function FormGenerator({
                             />
                         </>
                     )}
-                    {type === "object" && oneOf && (
+                    {oneOf && (
                         <>
                             <FormField
                                 control={form.control}
-                                name={`${field_name}.${field_name}`}
+                                name={`${field_name}.${originalFieldName}`}
                                 render={({ field }) => (
                                     <>
-                                        {console.log(field)}
                                         <FormItem>
                                             <Select value={field.value} onValueChange={field.onChange}>
                                                 <SelectTrigger>
@@ -176,7 +224,10 @@ export default function FormGenerator({
                                                 <SelectContent>
                                                     {oneOf.map((option: any, index: number) => (
                                                         <>
-                                                            <SelectItem key={index} value={option.title}>
+                                                            <SelectItem
+                                                                key={index}
+                                                                value={option.properties[originalFieldName].default}
+                                                            >
                                                                 {option.title}
                                                             </SelectItem>
                                                         </>
@@ -226,9 +277,7 @@ export default function FormGenerator({
                         </p>
                     )}
 
-                    <div className="pl-4">
-                        {type === "object" && oneOf && checkIfFieldValueHasMoreProperties(watchFieldValue, oneOf)}
-                    </div>
+                    <div className="pl-4">{oneOf && checkIfFieldValueHasMoreProperties(watchFieldValue, oneOf)}</div>
                 </label>
             </div>
         );

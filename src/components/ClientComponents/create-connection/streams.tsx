@@ -9,7 +9,6 @@ import FormGenerator from "../FormGenerator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import DocWrapper from "@/components/commom/doc-wrapper";
 
-
 export default function Streams({ data }) {
     const { state, updateState } = React.useContext(FromDataContext);
 
@@ -68,7 +67,7 @@ export default function Streams({ data }) {
                                     </Tooltip>
                                 </TooltipProvider>
                             </DialogTrigger>
-                            <DialogContent className="w-9/12 h-8/12 max-w-none overflow-auto">
+                            <DialogContent className="w-9/12 h-2/3 max-w-none overflow-auto">
                                 <DocWrapper doc="Stream" url="google.com">
                                     <div className="p-6 h-full">
                                         <DialogHeader>

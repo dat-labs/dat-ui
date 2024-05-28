@@ -28,7 +28,6 @@ export default function ActorForm({ actorType, postFormSubmitActions }: { actorT
             await postFormSubmitActions();
         }
     };
-
     React.useEffect(() => {
         (async () => {
             if (selectedActor) {
@@ -69,16 +68,18 @@ export default function ActorForm({ actorType, postFormSubmitActions }: { actorT
                 )}
                 {step === 2 && (
                     <DocWrapper doc="Create Page doc" url="google.com">
-                        <Button onClick={() => setStep(1)} variant="outline" className="mb-7">
-                            <ArrowLeftIcon className="mr-4" /> Back
-                        </Button>
-                        <p className="mb-2 font-bold">Create a {capitalizeFirstLetter(actorType)}</p>
-                        {formData?.properties?.connection_specification?.properties && (
-                            <FormGenerator
-                                properties={formData?.properties?.connection_specification?.properties}
-                                onSubmit={handleSubmit}
-                            />
-                        )}
+                        <div className="mr-6">
+                            <Button onClick={() => setStep(1)} variant="outline" className="mb-7">
+                                <ArrowLeftIcon className="mr-4" /> Back
+                            </Button>
+                            <p className="mb-2 font-bold">Create a {capitalizeFirstLetter(actorType)}</p>
+                            {formData?.properties?.connection_specification?.properties && (
+                                <FormGenerator
+                                    properties={formData?.properties?.connection_specification?.properties}
+                                    onSubmit={handleSubmit}
+                                />
+                            )}
+                        </div>
                     </DocWrapper>
                 )}
             </div>
