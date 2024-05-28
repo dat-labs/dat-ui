@@ -7,6 +7,10 @@ import clsx from "clsx";
 import { ModeToggle } from "../ClientComponents/theme-toggle";
 import { LogoBlack, ConnectionIcon, DestinationIcon, GeneratorIcon, SourceIcon } from "@/assets";
 
+const NavItemComponent = ({ children }) => {
+    return <div>{children}</div>;
+};
+
 const navItems = [
     {
         icon: ConnectionIcon,
@@ -27,6 +31,26 @@ const navItems = [
         icon: DestinationIcon,
         label: "Destination",
         url: "/actors/destination",
+    },
+];
+
+const bottomNavItems = [
+    {
+        label: "Help",
+        url: "/help",
+        component: NavItemComponent,
+    },
+    {
+        component: ModeToggle,
+    },
+    {
+        label: "Settings",
+        url: "/settings",
+        component: NavItemComponent,
+    },
+    {
+        label: "Log out",
+        component: NavItemComponent,
     },
 ];
 
@@ -64,10 +88,19 @@ const Sidebar = () => {
             </div>
             <div className="pt-8">
                 <nav className="flex flex-col space-y-4">
-                    <p className="text-sm">Help</p>
+                    {bottomNavItems.map((item) => {
+                        return (
+                            <Link href={ item.url ? item.url : ""}>
+                                <item.component key={item.label}>
+                                    {item.label && <p className="text-sm">{item.label}</p>}
+                                </item.component>
+                            </Link>
+                        );
+                    })}
+                    {/* <p className="text-sm">Help</p>
                     <ModeToggle />
                     <p className="text-sm">Settings</p>
-                    <p className="text-sm">Log out</p>
+                    <p className="text-sm">Log out</p> */}
                 </nav>
             </div>
         </div>

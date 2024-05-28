@@ -30,18 +30,18 @@ const getColumns = () => {
     ];
 };
 
-function ConnectionsTable() {
+function ConnectionsTable({loadData = []}) {
     const router = useRouter();
-    const [loadData, setLoadData] = useState([]);
+    // const [loadData, setLoadData] = useState([]);
 
-    const load = useCallback(async () => {
-        const data = await getConnectionsData();
-        setLoadData(data);
-    }, [setLoadData]);
+    // const load = useCallback(async () => {
+    //     const data = await getConnectionsData();
+    //     setLoadData(data);
+    // }, [setLoadData]);
 
-    useEffect(() => {
-        load();
-    }, []);
+    // useEffect(() => {
+    //     load();
+    // }, []);
 
     const columns = useMemo(() => getColumns(), []);
     return (

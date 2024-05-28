@@ -1,7 +1,17 @@
-export default function Home() {
-    return (
-        <div className="text-center">
-            <h1>dat ui</h1>
-        </div>
-    );
-}
+"use client";
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
+const HomePage = () => {
+  const router = useRouter();
+
+  useEffect(() => {
+    // Redirect to /connections on load
+      router.push('/connections');
+  }, [router]);
+
+  return null;
+};
+
+export default HomePage;

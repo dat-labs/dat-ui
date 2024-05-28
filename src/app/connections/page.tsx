@@ -1,8 +1,5 @@
 import React from "react";
-import Link from "next/link";
-import clsx from "clsx";
-import { buttonVariants } from "@/components/ui/button";
-import ConnectionsTable from "./connection-table";
+import ConnectionWrapper from "./connection-wrapper";
 import PageBreadcrumb from "../page-breadcrumb";
 
 export default function Connections() {
@@ -16,14 +13,7 @@ export default function Connections() {
                     },
                 ]}
             />
-            <div className="my-4 flex justify-between align-middle">
-                <p className="text-lg font-medium">List of Connections:</p>
-
-                <Link className={clsx(buttonVariants({ variant: "default", size: "sm" }))} href={`/connections/create`}>
-                    Create Connection
-                </Link>
-            </div>
-            <ConnectionsTable />
+           <ConnectionWrapper />
         </div>
     );
 }
