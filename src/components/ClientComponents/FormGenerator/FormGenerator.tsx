@@ -1,29 +1,19 @@
 "use client";
 
 import React from "react";
-import { useFieldArray, useForm } from "react-hook-form";
-import { Input } from "@/components/ui/input";
+import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FormField, FormItem, FormMessage, Form } from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import CircularLoader from "@/components/ui/circularLoader";
 import clsx from "clsx";
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { ErrorAlert } from "@/components/commom/error-alert";
-
-/**
- * Custom Chip component
- */
-const Chip = ({ value, onDelete, children }: { value: any; onDelete: any; children: any }) => {
-    return (
-        <div className="flex items-center rounded-md bg-muted px-2 py-1 text-sm">
-            {value || children}
-            <button type="button" className="ml-2 rounded-md p-1 text-red-500 hover:bg-red-100" onClick={onDelete}>
-                &times;
-            </button>
-        </div>
-    );
-};
+import SectionalComponent from "./input-components/sectional-component";
+import TextBox from "./input-components/textbox";
+import Integer from "./input-components/integer";
+import SingleSelect from "./input-components/single-select";
+import TextArray from "./input-components/text-array";
+import EnumField from "./input-components/enum-field";
+import RadioButton from "./input-components/radio-button";
 
 /**
  * FormGenerator component to generate form fields based on the properties
@@ -45,7 +35,7 @@ export default function FormGenerator({
     errorText?: string;
 }) {
     const form = useForm({ defaultValues: defaultData });
-    console.log("form", form);
+
     /**
      * Function to handle form submission
      * @param data
@@ -66,25 +56,13 @@ export default function FormGenerator({
         if (!field) {
             return null;
         }
-        let { type, title, description, order, minimum, maximum, defaultValue, examples, oneOf, field_name, hidden } = field;
-        /**
-         * For fields which are marked as hidden in json schema
-         */
-        if (hidden === true) {
-            return null;
-        }
-        const fieldEnum = field.enum;
+        let { type, title, description, order, minimum, maximum, examples, oneOf, field_name, hidden } = field;
+        let uiOpts = field["ui-opts"];
+        let defaultValue = field.default;
+
         const originalFieldName = field_name; // to store the original field name to be used if needed
         field_name = parentKey ? `${parentKey}.${field_name}` : field_name; // override field name with appended parent key
         const watchFieldValue = form.watch(`${field_name}.${originalFieldName}`); // to watch for value of this field
-        const { fields, append, remove } =
-            type === "array"
-                ? useFieldArray({
-                      control: form.control,
-                      name: field_name,
-                      //   rules: { minLength: 1 },
-                  })
-                : { fields: null, append: null, remove: null };
 
         /**
          * Check if the field value has more properties to render and call renderFormField recursively
@@ -131,149 +109,75 @@ export default function FormGenerator({
          * render grouping of parameters. For example advanced settings section.
          * Can recursively render as many sections as needed
          */
-        if (type === "object" && oneOf === undefined) {
+        if ((type === "object" && oneOf === undefined && field?.properties) || uiOpts?.widget === "group") {
             Object.keys(field.properties).forEach((key) => {
                 field.properties[key].field_name = key;
             });
             const sortedProperties = Object.values(field.properties).sort((a: any, b: any) => a.order - b.order);
             return (
-                <div className={clsx({ "border border-muted p-3 rounded-md": type === "object" })} key={order}>
-                    <Accordion type="single" collapsible className="data-entry-divider border-background">
-                        <AccordionItem value="item-1">
-                            <AccordionTrigger>{title}</AccordionTrigger>
-                            <AccordionContent>
-                                <label htmlFor={field_name} className="flex flex-col space-y-1">
-                                    {/* ... (existing code for rendering different field types) ... */}
-                                    <div className="pl-4">
-                                        <div className="flex flex-col space-y-4">
-                                            <>{sortedProperties.map((prop) => renderFormField(prop, `${field_name}`))}</>
-                                        </div>
-                                    </div>
-                                </label>
-                            </AccordionContent>
-                        </AccordionItem>
-                    </Accordion>
-                </div>
+                <SectionalComponent
+                    title={title}
+                    field_name={field_name}
+                    sortedProperties={sortedProperties}
+                    renderFormField={renderFormField}
+                    order={order}
+                    type={type}
+                />
             );
         }
 
         return (
-            <div className={clsx({ "border p-3 rounded-md": type === "object" })} key={order}>
+            <div
+                key={field_name}
+                className={clsx({ "border p-3 rounded-md": type === "object", hidden: uiOpts?.hidden === true })}
+                key={order}
+            >
                 <label htmlFor={field_name} className="flex flex-col space-y-1">
                     <span className="text-md font-medium jus">{title}</span>
-                    {type === "string" && (
-                        <>
-                            {field.enum ? (
-                                <FormField
-                                    control={form.control}
-                                    name={field_name}
-                                    render={({ field }) => (
-                                        <>
-                                            <FormItem>
-                                                <Select value={field.value} onValueChange={field.onChange}>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select an option" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {fieldEnum.map((option: any, index: number) => (
-                                                            <>
-                                                                <SelectItem key={index} value={option}>
-                                                                    {option}
-                                                                </SelectItem>
-                                                            </>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                                <FormMessage />
-                                            </FormItem>
-                                        </>
-                                    )}
-                                />
-                            ) : (
-                                <Input
-                                    id={field_name}
-                                    type="text"
-                                    {...form.register(field_name, { required: "This is a required field." })}
-                                    defaultValue={defaultValue}
-                                />
-                            )}
-                        </>
+                    {description && (
+                        <div className="text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: description }}></div>
                     )}
 
-                    {type === "integer" && (
-                        <>
-                            <Input
-                                id={field_name}
-                                type="number"
-                                {...form.register(field_name, {
-                                    required: "This is a required field.",
-                                    min: { value: minimum, message: `Minimum value is ${minimum}` },
-                                    max: { value: maximum, message: `Maximum value is ${maximum}` },
-                                })}
+                    {(type === "string" || uiOpts?.widget === "textbox") &&
+                        (field.enum ? (
+                            <EnumField form={form} field_name={field_name} fieldEnum={field.enum} />
+                        ) : (
+                            <TextBox
+                                field={field}
+                                form={form}
+                                field_name={field_name}
                                 defaultValue={defaultValue}
+                                uiOpts={uiOpts}
                             />
-                        </>
+                        ))}
+
+                    {type === "integer" && (
+                        <Integer
+                            field_name={field_name}
+                            form={form}
+                            minimum={minimum}
+                            maximum={maximum}
+                            defaultValue={defaultValue}
+                        />
                     )}
-                    {oneOf && (
-                        <>
-                            <FormField
-                                control={form.control}
-                                name={`${field_name}.${originalFieldName}`}
-                                render={({ field }) => (
-                                    <>
-                                        <FormItem>
-                                            <Select value={field.value} onValueChange={field.onChange}>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select an option" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {oneOf.map((option: any, index: number) => (
-                                                        <>
-                                                            <SelectItem
-                                                                key={index}
-                                                                value={option.properties[originalFieldName].default}
-                                                            >
-                                                                {option.title}
-                                                            </SelectItem>
-                                                        </>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    </>
-                                )}
-                            />
-                        </>
+
+                    {uiOpts?.widget === "singleDropdown" && (
+                        <SingleSelect form={form} field_name={field_name} originalFieldName={originalFieldName} oneOf={oneOf} />
                     )}
-                    {type === "array" && (
-                        <div>
-                            <div className="flex flex-wrap gap-2 mb-2">
-                                {fields?.map((item, index) => (
-                                    <Chip key={item.id} value={item?.value} onDelete={() => remove(index)}>
-                                        {item?.value}
-                                    </Chip>
-                                ))}
-                            </div>
-                            <Input
-                                type="text"
-                                name={field_name}
-                                placeholder={description || "Enter a value and press Enter"}
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
-                                        e.preventDefault(); // to prevent enter from submitting the form
-                                        const inputValue = e.currentTarget.value.trim();
-                                        if (inputValue) {
-                                            append({ value: inputValue });
-                                            e.currentTarget.value = ""; // Clear the input field after appending the value
-                                        }
-                                    }
-                                }}
+
+                    {uiOpts?.widget === "radioButton" && (
+                        <div className="mt-4">
+                            <RadioButton
+                                form={form}
+                                field_name={field_name}
+                                originalFieldName={originalFieldName}
+                                oneOf={oneOf}
                             />
                         </div>
                     )}
-                    {description && (
-                        <div className="text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: description }}></div>
+
+                    {(type === "array" || type === "textboxDelimiterSeparatedChip") && (
+                        <TextArray type={type} form={form} field_name={field_name} description={description} />
                     )}
 
                     {form.formState.errors[field_name] && (
@@ -299,13 +203,10 @@ export default function FormGenerator({
                     <>{sortedProperties.map((field) => renderFormField(field))}</>
                     <Button type="submit" disabled={form.formState.isSubmitting}>
                         {form.formState.isSubmitting && <CircularLoader />}
-                        {/* Submit */}
                         {submitButtonText || "Submit"}
                     </Button>
                 </form>
-                {
-                    errorText && <ErrorAlert error={errorText} />
-                }
+                {errorText && <ErrorAlert error={errorText} />}
             </Form>
         </>
     );
