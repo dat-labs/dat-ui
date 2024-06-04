@@ -13,6 +13,7 @@ import Integer from "./input-components/integer";
 import SingleSelect from "./input-components/single-select";
 import TextArray from "./input-components/text-array";
 import EnumField from "./input-components/enum-field";
+import RadioButton from "./input-components/radio-button";
 
 /**
  * FormGenerator component to generate form fields based on the properties
@@ -133,6 +134,9 @@ export default function FormGenerator({
             >
                 <label htmlFor={field_name} className="flex flex-col space-y-1">
                     <span className="text-md font-medium jus">{title}</span>
+                    {description && (
+                        <div className="text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: description }}></div>
+                    )}
 
                     {(type === "string" || uiOpts?.widget === "textbox") &&
                         (field.enum ? (
@@ -161,12 +165,19 @@ export default function FormGenerator({
                         <SingleSelect form={form} field_name={field_name} originalFieldName={originalFieldName} oneOf={oneOf} />
                     )}
 
-                    {(type === "array" || type === "textboxDelimiterSeparatedChip") && (
-                        <TextArray type={type} form={form} field_name={field_name} description={description} />
+                    {uiOpts?.widget === "radioButton" && (
+                        <div className="mt-4">
+                            <RadioButton
+                                form={form}
+                                field_name={field_name}
+                                originalFieldName={originalFieldName}
+                                oneOf={oneOf}
+                            />
+                        </div>
                     )}
 
-                    {description && (
-                        <div className="text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: description }}></div>
+                    {(type === "array" || type === "textboxDelimiterSeparatedChip") && (
+                        <TextArray type={type} form={form} field_name={field_name} description={description} />
                     )}
 
                     {form.formState.errors[field_name] && (
