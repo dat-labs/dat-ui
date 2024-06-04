@@ -55,8 +55,9 @@ export default function FormGenerator({
         if (!field) {
             return null;
         }
-        let { type, title, description, order, minimum, maximum, defaultValue, examples, oneOf, field_name, hidden } = field;
+        let { type, title, description, order, minimum, maximum, examples, oneOf, field_name, hidden } = field;
         let uiOpts = field["ui-opts"];
+        let defaultValue = field.default;
 
         const originalFieldName = field_name; // to store the original field name to be used if needed
         field_name = parentKey ? `${parentKey}.${field_name}` : field_name; // override field name with appended parent key
@@ -107,7 +108,7 @@ export default function FormGenerator({
          * render grouping of parameters. For example advanced settings section.
          * Can recursively render as many sections as needed
          */
-        if (type === "object" && oneOf === undefined) {
+        if (type === "object" && oneOf === undefined && field?.properties) {
             Object.keys(field.properties).forEach((key) => {
                 field.properties[key].field_name = key;
             });
@@ -129,11 +130,17 @@ export default function FormGenerator({
                 <label htmlFor={field_name} className="flex flex-col space-y-1">
                     <span className="text-md font-medium jus">{title}</span>
 
-                    {type === "string" &&
+                    {(type === "string" || uiOpts?.widget === "textbox") &&
                         (field.enum ? (
                             <EnumField form={form} field_name={field_name} fieldEnum={field.enum} />
                         ) : (
-                            <TextBox field={field} form={form} field_name={field_name} defaultValue={defaultValue} />
+                            <TextBox
+                                field={field}
+                                form={form}
+                                field_name={field_name}
+                                defaultValue={defaultValue}
+                                uiOpts={uiOpts}
+                            />
                         ))}
 
                     {type === "integer" && (
@@ -146,11 +153,13 @@ export default function FormGenerator({
                         />
                     )}
 
-                    {oneOf && (
+                    {uiOpts?.widget === "singleDropdown" && (
                         <SingleSelect form={form} field_name={field_name} originalFieldName={originalFieldName} oneOf={oneOf} />
                     )}
 
-                    {type === "array" && <TextArray type={type} form={form} field_name={field_name} description={description} />}
+                    {(type === "array" || type === "textboxDelimiterSeparatedChip") && (
+                        <TextArray type={type} form={form} field_name={field_name} description={description} />
+                    )}
 
                     {description && (
                         <div className="text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: description }}></div>
