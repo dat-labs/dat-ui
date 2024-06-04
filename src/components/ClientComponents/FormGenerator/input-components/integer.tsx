@@ -11,6 +11,7 @@ export default function Integer({ field_name, form, minimum, maximum, defaultVal
                     required: "This is a required field.",
                     min: { value: minimum, message: `Minimum value is ${minimum}` },
                     max: { value: maximum, message: `Maximum value is ${maximum}` },
+                    valueAsNumber: true,
                 })}
                 defaultValue={defaultValue}
             />

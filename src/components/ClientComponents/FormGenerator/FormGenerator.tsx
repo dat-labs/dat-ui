@@ -108,7 +108,7 @@ export default function FormGenerator({
          * render grouping of parameters. For example advanced settings section.
          * Can recursively render as many sections as needed
          */
-        if (type === "object" && oneOf === undefined && field?.properties) {
+        if ((type === "object" && oneOf === undefined && field?.properties) || uiOpts?.widget === "group") {
             Object.keys(field.properties).forEach((key) => {
                 field.properties[key].field_name = key;
             });
@@ -126,7 +126,11 @@ export default function FormGenerator({
         }
 
         return (
-            <div className={clsx({ "border p-3 rounded-md": type === "object", hidden: uiOpts?.hidden === true })} key={order}>
+            <div
+                key={field_name}
+                className={clsx({ "border p-3 rounded-md": type === "object", hidden: uiOpts?.hidden === true })}
+                key={order}
+            >
                 <label htmlFor={field_name} className="flex flex-col space-y-1">
                     <span className="text-md font-medium jus">{title}</span>
 
