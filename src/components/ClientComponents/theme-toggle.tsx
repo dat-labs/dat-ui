@@ -5,7 +5,7 @@ import { useTheme } from "next-themes"
 
 export function ModeToggle() {
   const { setTheme } = useTheme()
-  const [currentTheme, setCurrentTheme] = useState("light")
+  const [currentTheme, setCurrentTheme] = useState("dark")
 
 const toggleTheme = () => { 
   if (currentTheme === "light") {

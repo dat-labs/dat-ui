@@ -57,6 +57,9 @@ export default function FormGenerator({
             return null;
         }
         let { type, title, description, order, minimum, maximum, examples, oneOf, field_name, hidden } = field;
+        if (oneOf === undefined && field?.anyOf) {
+            oneOf = field.anyOf;
+        }
         let uiOpts = field["ui-opts"];
         let defaultValue = field.default;
 

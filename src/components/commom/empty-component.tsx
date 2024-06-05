@@ -1,8 +1,10 @@
 import React, { memo } from "react";
-import { NoConnection } from "@/assets";
+import { NoConnection, NoConnectionWhite, NoConnectionDark } from "@/assets";
+
 import { ArrowRightIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import { useRouter } from 'next/navigation';
+import { useTheme } from 'next-themes';
 
 
 const config = {
@@ -19,14 +21,18 @@ const config = {
             </>
         ),
         buttonText: "Setup New Connection",
-        icon: NoConnection,
+        darkIcon: NoConnectionDark,
+        lightIcon: NoConnectionWhite,
         redirectUrl: "/connections/create",
     },
 };
 
 const Empty = ({ configKey }: { configKey: string }) => {
     const router = useRouter();
-    const { heading, description, buttonText, icon, redirectUrl } = config[configKey];
+    const { heading, description, buttonText, darkIcon, lightIcon, redirectUrl } = config[configKey];
+    const { theme } = useTheme();
+
+    const Icon = theme === 'dark' ? darkIcon : lightIcon;
 
     const clickHandler = () => {
         router.push(redirectUrl);
@@ -34,7 +40,9 @@ const Empty = ({ configKey }: { configKey: string }) => {
     return (
         <div className="flex justify-between items-center flex-col gap-8">
             <div>{heading}</div>
-            <NoConnection className="h-80 w-full fill-foreground mb-4" />
+            {/* <NoConnection className="h-80 w-full fill-foreground mb-4" /> */}
+            {/* Render icon as a component */}
+            <Icon className="h-80 w-full fill-foreground mb-4" />
             <div className="text-center space-y-2 font-bold">{description}</div>
             {/* <NoConnection className="h-80 w-full fill-foreground mb-4" />
             <div className="">{description}</div> */}
@@ -46,3 +54,4 @@ const Empty = ({ configKey }: { configKey: string }) => {
 };
 
 export default memo(Empty);
+ 
