@@ -117,7 +117,7 @@ export default function SelectSource({ actorType }: { actorType: string }) {
                                         <CardTitle className="text-sm">
                                             <div className="flex gap-2 items-center">
                                                 {IconComponent !== null ? (
-                                                    <IconComponent className="h-6 w-6 stroke-foreground" />
+                                                    <IconComponent className="h-6 w-6 stroke-foreground fill-foreground" />
                                                 ) : (
                                                     <img
                                                         src={`https://ui-avatars.com/api/?name=${actor.actor.name}`}

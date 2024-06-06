@@ -38,7 +38,7 @@ const ActorListing = ({ actors, onChangeHandler, actorType, selectedActor }) => 
                                         <div className="flex gap-2 items-center">
                                             <Suspense fallback={<CircularLoader />}>
                                                 {IconComponent ? (
-                                                    <IconComponent className="h-7 w-7" />
+                                                    <IconComponent className="h-7 w-7 fill-foreground" />
                                                 ) : (
                                                     <img
                                                         src={`https://ui-avatars.com/api/?name=${actor.name}`}
