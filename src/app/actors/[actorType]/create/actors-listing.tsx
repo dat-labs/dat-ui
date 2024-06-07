@@ -1,8 +1,9 @@
 import React, { Suspense } from "react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { capitalizeFirstLetter } from "@/lib/utils";
 import clsx from "clsx";
 import CircularLoader from "@/components/ui/circularLoader";
+import { SearchBar } from "@/components/commom/search-bar";
+import useSearch from "@/hooks/useSearch";
 
 const importIcon = (iconName) => {
     try {
@@ -20,10 +21,14 @@ const ActorListing = ({ actors, onChangeHandler, actorType, selectedActor }) => 
         return null;
     }
 
+    const { query, setQuery, filteredData } = useSearch(actors, "name");
+
     return (
         <div>
+            <SearchBar handleChange={(e) => setQuery(e.target.value)} search={query} />
+
             <div className="flex gap-4 w-full mt-4">
-                {actors.map((actor: any) => {
+                {filteredData.map((actor: any) => {
                     const IconComponent = importIcon(actor.icon);
                     return (
                         <Card

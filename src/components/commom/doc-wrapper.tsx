@@ -1,14 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { ArrowTopRightIcon } from "@radix-ui/react-icons";
 
-const DocWrapper = ({ children, doc, url }) => {
-
+const DocWrapper = ({ children, doc, url, editMode }) => {
     const clickHandler = () => {
-        window.open(url, '_blank');
-    }
+        window.open(url, "_blank");
+    };
     return (
         <div className="flex justify-between">
-            <div className="flex-1">{children}</div>
+            <div className={`flex-1 ${editMode && "mt-12"} `}>{children}</div>
             <div className="flex-1 border-l">
                 <div className="w-full p-6">
                     <div className="flex justify-end">
@@ -17,7 +16,7 @@ const DocWrapper = ({ children, doc, url }) => {
                         </Button>
                     </div>
                     {doc}
-                    <h3 className="text-xl font-semibold mb-4">How to create a source?</h3>
+                    <h3 className="text-xl font-semibold mb-4">How to {editMode ? "edit" : "create"} a source?</h3>
                     <p className="text-sm">
                         Morbi tristique senectus et netus et malesuada. Commodo nulla facilisi nullam vehicula ipsum a arcu
                         cursus. Fringilla est ullamcorper eget nulla facilisi etiam dignissim. Aliquam sem et tortor consequat id

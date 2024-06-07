@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import PageBreadcrumb from "@/app/page-breadcrumb";
 import DocWrapper from "@/components/commom/doc-wrapper";
 import { capitalizeFirstLetter } from "@/lib/utils";
-import { SearchBar } from "@/components/commom/search-bar";
 
 export default function CreatePage({ params }: { params: { actorType: string } }) {
     const router = useRouter();
@@ -32,8 +31,8 @@ export default function CreatePage({ params }: { params: { actorType: string } }
                     },
                 ]}
             />
-            <SearchBar />
-            <ActorForm actorType={params.actorType} postFormSubmitActions={handleFormSubmit} />
+            {/* Create Mode Actor Form */}
+            <ActorForm actorType={params.actorType} postFormSubmitActions={handleFormSubmit} editMode={false} />
         </div>
     );
 }

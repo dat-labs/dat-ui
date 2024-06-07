@@ -10,14 +10,17 @@ import ActorForm from "@/app/actors/[actorType]/create/actor-form";
 import clsx from "clsx";
 import { Input } from "@/components/ui/input";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
+import useSearch from "@/hooks/useSearch";
 
 export type SearchProps = React.InputHTMLAttributes<HTMLInputElement>;
 
-const Search = React.forwardRef(({ className, ...props }, ref) => {
+const Search = React.forwardRef(({ className, handleSearch, search, ...props }, ref) => {
     return (
         <div className="relative h-10 w-full">
             <MagnifyingGlassIcon className="absolute h-6 w-6 left-3 top-[18px] transform -translate-y-1/2 text-gray-500 z-10" />
             <Input
+                onChange={handleSearch}
+                value={search}
                 {...props}
                 ref={ref}
                 className={cn(
@@ -60,6 +63,8 @@ export default function SelectSource({ actorType }: { actorType: string }) {
         updateState(actorType, { ...state[actorType], subStep: val });
     };
 
+    const { query, setQuery, filteredData } = useSearch(actors, "name");
+
     return (
         <div>
             <Card className="p-5">
@@ -101,9 +106,11 @@ export default function SelectSource({ actorType }: { actorType: string }) {
                         type="search"
                         placeholder={`Search your ${capitalizeFirstLetter(actorType)}`}
                         className="mt-6 rounded-lg"
+                        handleSearch={(e) => setQuery(e.target.value)}
+                        search={query}
                     />
                     <div className="grid grid-cols-4 gap-4 w-full mt-4 p-3">
-                        {actors.map((actor: any) => {
+                        {filteredData.map((actor: any) => {
                             const IconComponent = importIcon(actor.actor.icon);
                             console.log(IconComponent);
                             return (

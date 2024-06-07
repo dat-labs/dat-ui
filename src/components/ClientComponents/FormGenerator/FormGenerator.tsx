@@ -202,7 +202,7 @@ export default function FormGenerator({
     return (
         <>
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmitForm)} className="flex flex-col space-y-4">
+                <form onSubmit={form.handleSubmit(onSubmitForm)} className="flex flex-col space-y-4 mr-8">
                     <>{sortedProperties.map((field) => renderFormField(field))}</>
                     <Button type="submit" disabled={form.formState.isSubmitting}>
                         {form.formState.isSubmitting && <CircularLoader />}
