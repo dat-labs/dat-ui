@@ -8,10 +8,19 @@ import { ModeToggle } from "../ClientComponents/theme-toggle";
 import { LogoBlack, ConnectionIcon, DestinationIcon, GeneratorIcon, SourceIcon } from "@/assets";
 import { usePathname } from "next/navigation";
 
+/**
+ * NavItemComponent serves as a wrapper for navigation items.
+ * @param children - The children elements to render.
+ * @returns The rendered NavItemComponent.
+ */
+
 const NavItemComponent = ({ children }) => {
     return <div>{children}</div>;
 };
 
+/**
+ * Defines the items for the main navigation section.
+ */
 const navItems = [
     {
         icon: ConnectionIcon,
@@ -35,6 +44,9 @@ const navItems = [
     },
 ];
 
+/**
+ * Defines the items for the bottom navigation section.
+ */
 const bottomNavItems = [
     {
         label: "Help",
@@ -55,6 +67,10 @@ const bottomNavItems = [
     },
 ];
 
+/**
+ * Sidebar component renders the navigation sidebar with links to different sections.
+ * @returns The rendered Sidebar component.
+ */
 const Sidebar = () => {
     const pathname = usePathname();
 

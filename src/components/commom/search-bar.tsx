@@ -19,6 +19,13 @@ import React from "react";
 //     );
 // };
 
+/**
+ * @param props - Component properties.
+ * @param className - Additional class names for styling.
+ * @param handleSearch - Function to handle the search input change.
+ * @param search - The current search query.
+ * @param ref - Reference to the input element.
+ */
 export const Search = React.forwardRef(({ className, handleSearch, search, ...props }, ref) => {
     return (
         <div className="relative h-10 w-full">

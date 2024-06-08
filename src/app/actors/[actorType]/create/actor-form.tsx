@@ -11,7 +11,14 @@ import { getActorData, getActorSpec } from "../../api";
 import { updateActorInstance } from "../[actorId]/api";
 import { toast } from "sonner";
 
-// editMode, actorId parameters added in Action Form for Edit Form Generation
+/**
+ * Form structure for Creating/Editing an Actor
+ * @param actorType - The type of the actor.
+ * @param postFormSubmitActions - Actions to perform after form submission
+ * @param editMode - Indicates if the form is in edit mode.
+ * @param actorId - The ID of the actor to edit.
+ * @returns Form Fields
+ */
 export default function ActorForm({
     actorType,
     postFormSubmitActions,
@@ -32,6 +39,11 @@ export default function ActorForm({
     const [selectedActor, setSelectedActor] = React.useState<any>(null);
     const [error, setError] = React.useState<any>(null);
 
+    /**
+     * Handles form submission for creating a new actor.
+     * @param data - The form data.
+     * @returns Form submission
+     */
     const handleCreateFormSubmit = async (data: any) => {
         error && setError(null);
 
@@ -54,7 +66,9 @@ export default function ActorForm({
         }
     };
 
-    // Will run when not in Edit mode
+    /**
+     * @ if creating actor then fetches data for selectedActor
+     */
     React.useEffect(() => {
         !editMode &&
             (async () => {
@@ -69,6 +83,10 @@ export default function ActorForm({
         };
     }, [selectedActor]);
 
+    /**
+     * Fetches the list of actor options for the given actor type when not in edit mode.
+     * @returns list of actor options
+     */
     React.useEffect(() => {
         !editMode &&
             (async () => {
@@ -77,6 +95,10 @@ export default function ActorForm({
             })();
     }, []);
 
+    /**
+     * handles the state {selectedActor} and moves to step 2 of Actor creation
+     * @param actorData - The selected actor's data in step 1
+     */
     const actorHandler = (actorData: any) => {
         setSelectedActor(actorData?.id);
         setStep(2);
@@ -87,6 +109,10 @@ export default function ActorForm({
 
     const [actorInstanceData, setActorInstanceData] = useState(null);
 
+    /**
+     * Loads the saved actor's data and displays in it's Edit form
+     * @returns Actor's saved data to be edited
+     */
     const load = useCallback(async () => {
         const data = await getActorData(actorType, actorId);
         const jsonData = await getActorSpec(data.actor.id);
@@ -94,11 +120,18 @@ export default function ActorForm({
         setFormData(jsonData); // setting Form data when Edit executed
     }, [actorType, setActorInstanceData]);
 
-    // To load the saved data when Edit Mode
+    /**
+     * Calls the load function when in Edit Mode
+     */
     React.useEffect(() => {
         editMode && load();
     }, []);
 
+    /**
+     * Handles form submission for editing an existing actor.
+     * @param data - The edited form data
+     * @returns form submission after Editing
+     */
     const handleEditFormSubmit = async (data: any) => {
         let apiData = {
             name: data["dat-name"],

@@ -10,7 +10,9 @@ interface ActorDetailsPageProps {
         actorId: string;
     };
 }
-
+/**
+ * @returns Page of an already created actor
+ */
 function ActorDetailsPage({ params }: ActorDetailsPageProps) {
     const { actorType, actorId } = params;
 
@@ -32,7 +34,7 @@ function ActorDetailsPage({ params }: ActorDetailsPageProps) {
                 <div className="flex flex-row w-full">
                     <div className="w-full ml-4">
                         {/* Edit Mode Actor Form */}
-                        <ActorForm actorType={params.actorType} actorId={params.actorId} editMode={true} />
+                        <ActorForm actorType={actorType} actorId={actorId} editMode={true} />
                     </div>
                 </div>
             </div>

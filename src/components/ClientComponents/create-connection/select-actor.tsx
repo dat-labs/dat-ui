@@ -35,6 +35,11 @@ export type SearchProps = React.InputHTMLAttributes<HTMLInputElement>;
 
 Search.displayName = "Search";
 
+/**
+ * SelectSource component allows the user to select an actor type as per the search query.
+ * @param actorType - The type of actor to select.
+ * @returns The rendered SelectSource component with searchbar and actor list.
+ */
 export default function SelectSource({ actorType }: { actorType: string }) {
     const { state, updateState } = React.useContext(FromDataContext);
 
@@ -56,10 +61,17 @@ export default function SelectSource({ actorType }: { actorType: string }) {
         }
     }, [state[actorType].subStep]);
 
+    /**
+     * Handles the selection of an actor.
+     * @param actor - The selected actor.
+     */
     const handleSourceSelect = (actor: any) => {
         updateState(actorType, { ...state[actorType], value: actor });
     };
-
+    /**
+     * Handles the change of the sub-step.
+     * @param val - The value of the selected sub-step.
+     */
     const handleSubStepChange = (val: any) => {
         updateState(actorType, { ...state[actorType], subStep: val });
     };
