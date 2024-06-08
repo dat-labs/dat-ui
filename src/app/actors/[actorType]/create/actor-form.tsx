@@ -11,6 +11,7 @@ import { getActorData, getActorSpec } from "../../api";
 import { updateActorInstance } from "../[actorId]/api";
 import { toast } from "sonner";
 
+// editMode, actorId parameters added in Action Form for Edit Form Generation
 export default function ActorForm({
     actorType,
     postFormSubmitActions,
@@ -22,11 +23,13 @@ export default function ActorForm({
     editMode?: boolean;
     actorId?: any;
 }) {
-    //  Create Form Logic
+    // For form input values in both Edit and Create Mode
+    const [formData, setFormData] = React.useState<any>(null);
+
+    // *********** Create Form Logic ****************
     const [step, setStep] = useState(1);
     const [actors, setActors] = React.useState<any>(null);
     const [selectedActor, setSelectedActor] = React.useState<any>(null);
-    const [formData, setFormData] = React.useState<any>(null);
     const [error, setError] = React.useState<any>(null);
 
     const handleCreateFormSubmit = async (data: any) => {
@@ -50,6 +53,8 @@ export default function ActorForm({
             await postFormSubmitActions();
         }
     };
+
+    // Will run when not in Edit mode
     React.useEffect(() => {
         !editMode &&
             (async () => {
@@ -77,19 +82,19 @@ export default function ActorForm({
         setStep(2);
     };
 
-    //Edit Form Logic
+    //************* Edit Form Logic **********
     const router = useRouter();
 
     const [actorInstanceData, setActorInstanceData] = useState(null);
-    const [actorSpecData, setActorSpecData] = useState(null);
 
     const load = useCallback(async () => {
         const data = await getActorData(actorType, actorId);
         const jsonData = await getActorSpec(data.actor.id);
-        setActorInstanceData(data);
-        setActorSpecData(jsonData);
+        setActorInstanceData(data); // fill the form when Edit Mode
+        setFormData(jsonData); // setting Form data when Edit executed
     }, [actorType, setActorInstanceData]);
 
+    // To load the saved data when Edit Mode
     React.useEffect(() => {
         editMode && load();
     }, []);
@@ -128,6 +133,7 @@ export default function ActorForm({
                 )}
                 {(editMode || step === 2) && (
                     <DocWrapper doc={`${editMode ? "Edit" : "Create"}  Page doc`} url="google.com" editMode={editMode}>
+                        {/* Back button not needed in Edit Mode */}
                         {!editMode && (
                             <Button onClick={() => setStep(1)} variant="outline" className="mb-7">
                                 <ArrowLeftIcon className="mr-4" /> Back
@@ -138,22 +144,16 @@ export default function ActorForm({
                             {editMode ? "Edit" : "Create"} a {capitalizeFirstLetter(actorType)}
                         </p>
 
-                        {editMode
-                            ? actorInstanceData !== null && (
-                                  <FormGenerator
-                                      properties={actorSpecData.properties.connection_specification.properties}
-                                      onSubmit={handleEditFormSubmit}
-                                      defaultData={actorInstanceData.configuration}
-                                  />
-                              )
-                            : formData?.properties?.connection_specification?.properties && (
-                                  <FormGenerator
-                                      properties={formData?.properties?.connection_specification?.properties}
-                                      onSubmit={handleCreateFormSubmit}
-                                      submitButtonText="Test and Save"
-                                      errorText={error}
-                                  />
-                              )}
+                        {/* Form generator to create Or edit as per editMode value */}
+                        {formData?.properties?.connection_specification?.properties && (
+                            <FormGenerator
+                                properties={formData?.properties?.connection_specification?.properties}
+                                onSubmit={editMode ? handleEditFormSubmit : handleCreateFormSubmit}
+                                submitButtonText={editMode ? "" : "Test and Save"}
+                                errorText={!editMode && error}
+                                defaultData={editMode && actorInstanceData?.configuration}
+                            />
+                        )}
                     </DocWrapper>
                 )}
             </div>

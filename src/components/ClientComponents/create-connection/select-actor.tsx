@@ -3,34 +3,35 @@ import { FromDataContext } from ".";
 import { getActorsData } from "@/app/actors/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { capitalizeFirstLetter, cn, importIcon } from "@/lib/utils.ts";
+import { capitalizeFirstLetter, importIcon } from "@/lib/utils.ts";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import ActorForm from "@/app/actors/[actorType]/create/actor-form";
 import clsx from "clsx";
-import { Input } from "@/components/ui/input";
-import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import useSearch from "@/hooks/useSearch";
+import { Search } from "@/components/commom/search-bar";
 
 export type SearchProps = React.InputHTMLAttributes<HTMLInputElement>;
 
-const Search = React.forwardRef(({ className, handleSearch, search, ...props }, ref) => {
-    return (
-        <div className="relative h-10 w-full">
-            <MagnifyingGlassIcon className="absolute h-6 w-6 left-3 top-[18px] transform -translate-y-1/2 text-gray-500 z-10" />
-            <Input
-                onChange={handleSearch}
-                value={search}
-                {...props}
-                ref={ref}
-                className={cn(
-                    "pl-10 pr-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:border-transparent",
-                    className
-                )} // Add additional styling as needed
-            />
-        </div>
-    );
-});
+// Shifted this Search to common/components ->
+
+// const Search = React.forwardRef(({ className, handleSearch, search, ...props }, ref) => {
+//     return (
+//         <div className="relative h-10 w-full">
+//             <MagnifyingGlassIcon className="absolute h-6 w-6 left-3 top-[18px] transform -translate-y-1/2 text-gray-500 z-10" />
+//             <Input
+//                 onChange={handleSearch}
+//                 value={search}
+//                 {...props}
+//                 ref={ref}
+//                 className={cn(
+//                     "pl-10 pr-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:border-transparent",
+//                     className
+//                 )} // Add additional styling as needed
+//             />
+//         </div>
+//     );
+// });
 
 Search.displayName = "Search";
 
@@ -63,6 +64,7 @@ export default function SelectSource({ actorType }: { actorType: string }) {
         updateState(actorType, { ...state[actorType], subStep: val });
     };
 
+    //Using useSearch Hook
     const { query, setQuery, filteredData } = useSearch(actors, "name");
 
     return (
