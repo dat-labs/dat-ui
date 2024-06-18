@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import Loading from "../loading";
 import ActorsTable from "../actors-table";
 import { capitalizeFirstLetter } from "@/lib/utils";
@@ -7,6 +7,8 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import clsx from "clsx";
 import Link from "next/link";
 import PageBreadcrumb from "@/app/page-breadcrumb";
+import { getActorsData } from "../api";
+import ActorWrapper from "./actor-wrapper";
 
 interface pageProps {
     params: {
@@ -42,7 +44,8 @@ export default function ActorsPage({ params }: pageProps) {
             </div>
 
             <Suspense fallback={<Loading />}>
-                <ActorsTable actorType={actorType} />
+                {/* <ActorsTable actorType={actorType} loadData={loadData} /> */}
+                <ActorWrapper actorType={actorType} />
             </Suspense>
         </main>
     );

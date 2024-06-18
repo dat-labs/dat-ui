@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { ArrowLeftIcon } from "@radix-ui/react-icons";
 import FormGenerator from "@/components/ClientComponents/FormGenerator/FormGenerator";
 import { getFormDataForSource, getActors, createActorInstance } from "./api";
@@ -10,7 +10,9 @@ import { useRouter } from "next/navigation";
 import { getActorData, getActorSpec } from "../../api";
 import { updateActorInstance } from "../[actorId]/api";
 import { toast } from "sonner";
-
+import useApiCall from "@/hooks/useApiCall";
+import { getSession } from "next-auth/react";
+import Loading from "../../loading";
 /**
  * Form structure for Creating/Editing an Actor
  * @param actorType - The type of the actor.
@@ -33,11 +35,13 @@ export default function ActorForm({
     // For form input values in both Edit and Create Mode
     const [formData, setFormData] = React.useState<any>(null);
 
-    // *********** Create Form Logic ****************
+    // ************************************************ Create Form Logic *****************************************************
     const [step, setStep] = useState(1);
     const [actors, setActors] = React.useState<any>(null);
     const [selectedActor, setSelectedActor] = React.useState<any>(null);
     const [error, setError] = React.useState<any>(null);
+
+    const { makeApiCall: createInstanceApi } = useApiCall(createActorInstance, "POST");
 
     /**
      * Handles form submission for creating a new actor.
@@ -47,16 +51,19 @@ export default function ActorForm({
     const handleCreateFormSubmit = async (data: any) => {
         error && setError(null);
 
+        const session = await getSession();
+
         let apiData = {
-            workspace_id: "wkspc-uuid",
+            workspace_id: session?.user?.workspace_id,
             actor_id: selectedActor,
-            user_id: "09922bd9-7872-4664-99d0-08eae42fb554",
+            user_id: session?.user?.id,
             name: data["dat_name"],
             actor_type: actorType,
             status: "active",
             configuration: data,
         };
-        const res = await createActorInstance(apiData);
+
+        const res = await createInstanceApi(apiData);
         console.log("res", res);
         if (res.status_code !== 200) {
             setError(res.responseData.detail);
@@ -67,14 +74,14 @@ export default function ActorForm({
     };
 
     /**
-     * @ if creating actor then fetches data for selectedActor
+     * @ if creating actor then fetches data for selectedActors
      */
-    React.useEffect(() => {
+    const { data: formStructure, loading: formStructureLoader, makeApiCall: formStructurApi } = useApiCall(getFormDataForSource);
+    useEffect(() => {
         !editMode &&
             (async () => {
                 if (selectedActor) {
-                    const res: any = await getFormDataForSource(selectedActor);
-                    setFormData(res);
+                    await formStructurApi(selectedActor);
                     setStep(2);
                 }
             })();
@@ -83,17 +90,30 @@ export default function ActorForm({
         };
     }, [selectedActor]);
 
+    useEffect(() => {
+        if (formStructure) {
+            setFormData(formStructure);
+        }
+    }, [formStructure, setFormData]);
+
     /**
      * Fetches the list of actor options for the given actor type when not in edit mode.
      * @returns list of actor options
      */
-    React.useEffect(() => {
+    const { data: getActorsData, loading: getActorsLoader, makeApiCall: getActorsApi } = useApiCall(getActors, "GET");
+    useEffect(() => {
         !editMode &&
             (async () => {
-                const res: any = await getActors(actorType);
-                setActors(res);
+                await getActorsApi(actorType);
             })();
     }, []);
+
+    useEffect(() => {
+        if (getActorsData) {
+            setActors(getActorsData);
+            console.log(getActorsData);
+        }
+    }, [setActors, getActorsData]);
 
     /**
      * handles the state {selectedActor} and moves to step 2 of Actor creation
@@ -104,21 +124,24 @@ export default function ActorForm({
         setStep(2);
     };
 
-    //************* Edit Form Logic **********
+    //************************************************* Edit Form Logic *****************************************
     const router = useRouter();
 
     const [actorInstanceData, setActorInstanceData] = useState(null);
+
+    const { loading: actorDataLoader, makeApiCall: actorDataApi } = useApiCall(getActorData);
+    const { loading: actorSpecResLoader, makeApiCall: actorSpecResApi } = useApiCall(getActorSpec);
 
     /**
      * Loads the saved actor's data and displays in it's Edit form
      * @returns Actor's saved data to be edited
      */
     const load = useCallback(async () => {
-        const data = await getActorData(actorType, actorId);
-        const jsonData = await getActorSpec(data.actor.id);
+        const data = await actorDataApi(actorType, actorId);
+        const jsonData = await actorSpecResApi(data?.actor.id);
         setActorInstanceData(data); // fill the form when Edit Mode
         setFormData(jsonData); // setting Form data when Edit executed
-    }, [actorType, setActorInstanceData]);
+    }, [actorType, setActorInstanceData, setFormData]);
 
     /**
      * Calls the load function when in Edit Mode
@@ -127,19 +150,29 @@ export default function ActorForm({
         editMode && load();
     }, []);
 
+    const {
+        data: updateInstanceRes,
+        statusCode: updateInstanceStatus,
+        makeApiCall: updateInstanceApi,
+    } = useApiCall(updateActorInstance, "PUT");
+
     /**
      * Handles form submission for editing an existing actor.
      * @param data - The edited form data
      * @returns form submission after Editing
      */
-    const handleEditFormSubmit = async (data: any) => {
+    const handleEditFormSubmit = async (savedData: any) => {
         let apiData = {
-            name: data["dat-name"],
-            configuration: data,
+            name: savedData["dat-name"],
+            configuration: savedData,
         };
-        const res = await updateActorInstance(actorId, apiData);
+
+        await updateInstanceApi(actorId, apiData);
+        console.log(updateInstanceRes);
+
         //TODO test status check
-        if (res.status === 200) {
+
+        if (updateInstanceStatus === 200) {
             router.push(`/actors/${actorType}`);
             toast(`${actorType} updated successfully.`, {
                 description: `${actorType} updated successfully.`,
@@ -173,19 +206,26 @@ export default function ActorForm({
                             </Button>
                         )}
 
-                        <p className="mb-2 font-bold">
-                            {editMode ? "Edit" : "Create"} a {capitalizeFirstLetter(actorType)}
-                        </p>
-
-                        {/* Form generator to create Or edit as per editMode value */}
-                        {formData?.properties?.connection_specification?.properties && (
-                            <FormGenerator
-                                properties={formData?.properties?.connection_specification?.properties}
-                                onSubmit={editMode ? handleEditFormSubmit : handleCreateFormSubmit}
-                                submitButtonText={editMode ? "" : "Test and Save"}
-                                errorText={!editMode && error}
-                                defaultData={editMode && actorInstanceData?.configuration}
-                            />
+                        {formStructureLoader || actorDataLoader || actorSpecResLoader ? (
+                            <div className="flex h-96 items-center justify-center">
+                                <Loading />
+                            </div>
+                        ) : (
+                            //Form generator to create Or edit as per editMode value
+                            formData?.properties?.connection_specification?.properties && (
+                                <>
+                                    <p className="mb-2 font-bold">
+                                        {editMode ? "Edit" : "Create"} a {capitalizeFirstLetter(actorType)}
+                                    </p>
+                                    <FormGenerator
+                                        properties={formData?.properties?.connection_specification?.properties}
+                                        onSubmit={editMode ? handleEditFormSubmit : handleCreateFormSubmit}
+                                        submitButtonText={editMode ? "" : "Test and Save"}
+                                        errorText={!editMode && error}
+                                        defaultData={editMode && actorInstanceData?.configuration}
+                                    />
+                                </>
+                            )
                         )}
                     </DocWrapper>
                 )}

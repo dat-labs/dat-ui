@@ -28,7 +28,6 @@ const importIcon = (iconName) => {
  * @param onChangeHandler - Handler function to call when an actor is selected.
  * @param actorType - The type of actor being displayed.
  * @param selectedActor - The currently selected actor.
- *
  * @returns {JSX.Element|null} The rendered actor listing component or null if no actors are provided.
  */
 
@@ -37,7 +36,7 @@ const ActorListing = ({ actors, onChangeHandler, actorType, selectedActor }) => 
         return null;
     }
 
-    const { query, setQuery, filteredData } = useSearch(actors, "name");
+    const { query, setQuery, filteredData } = useSearch(actors, "name", false);
 
     return (
         <div>

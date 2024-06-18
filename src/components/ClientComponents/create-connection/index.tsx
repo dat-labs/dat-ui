@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import ConnectionConfiguration from "./connection-configuration";
 import { addConnection } from "./api";
+import useApiCall from "@/hooks/useApiCall";
+import { useRouter } from "next/navigation";
+import { getSession } from "next-auth/react";
 
 const formDataValue = {
     step: 1,
@@ -31,9 +34,20 @@ const formDataValue = {
 
 export const FromDataContext = React.createContext(null);
 
+/**
+ * FormContextProvider manages the state for the form data and provides updateState function to update the state.
+ * It wraps its children components with FromDataContext.Provider to make state and updateState accessible.
+ * @param {React.ReactNode} children The child components to be wrapped by FormContextProvider.
+ * @returns {JSX.Element} The rendered FormContextProvider component.
+ */
 export const FormContextProvider = ({ children }: { children: any }) => {
     const [state, setState] = React.useState(formDataValue);
 
+    /**
+     * Updates the state with the given key-value pair.
+     * @param {any} key The key in the state object to update.
+     * @param {any} value The new value to set for the key in the state object.
+     */
     const updateState = (key: any, value: any) => {
         setState({
             ...state,
@@ -63,6 +77,12 @@ const formSteps = [
     },
 ];
 
+/**
+ * Retrieves the streams data from the streamsObj for rendering.
+ *
+ * @param {object} streamsObj The streams object from the component's state.
+ * @returns {Array<object>} An array of formatted stream data objects.
+ */
 export const getStremsData = (streamsObj: any) => {
     let arrToReturn: any = [];
     Object.keys(streamsObj).forEach((streamName: string) => {
@@ -91,7 +111,15 @@ const FormComponent = () => {
         updateState("step", state.step - 1);
     };
 
+    const { makeApiCall } = useApiCall(addConnection, "POST");
+
+    /**
+     * Handles the action when the "Save" button is clicked to save the connection configuration.
+     * Makes an API call with the configured connection data.
+     */
     const handleSave = async () => {
+        const session = await getSession();
+
         const postData = {
             source_instance_id: state.source.value.id,
             generator_instance_id: state.generator.value.id,
@@ -99,8 +127,8 @@ const FormComponent = () => {
             source_instance: state.source.value,
             generator_instance: state.generator.value,
             destination_instance: state.destination.value,
-            workspace_id: "wkspc-uuid",
-            user_id: "09922bd9-7872-4664-99d0-08eae42fb554",
+            workspace_id: session?.user?.workspace_id,
+            user_id: session?.user?.id,
             name: state.configuration.name,
             namespace_format: "",
             prefix: "",
@@ -117,9 +145,7 @@ const FormComponent = () => {
             },
             schedule_type: "manual",
         };
-        console.log(postData);
-        const res = await addConnection(postData);
-        console.log(res);
+        await makeApiCall(postData);
     };
 
     const shouldDisableNextButton = () => {

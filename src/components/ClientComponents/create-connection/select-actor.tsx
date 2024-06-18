@@ -77,7 +77,7 @@ export default function SelectSource({ actorType }: { actorType: string }) {
     };
 
     //Using useSearch Hook
-    const { query, setQuery, filteredData } = useSearch(actors, "name");
+    const { query, setQuery, filteredData } = useSearch(actors, "name", false);
 
     return (
         <div>

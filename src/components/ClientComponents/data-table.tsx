@@ -1,32 +1,74 @@
 "use client";
 
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable, getPaginationRowModel } from "@tanstack/react-table";
+import {
+    ColumnDef,
+    SortingState,
+    getSortedRowModel,
+    flexRender,
+    getCoreRowModel,
+    useReactTable,
+    getPaginationRowModel,
+} from "@tanstack/react-table";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Search } from "../commom/search-bar";
+import useSearch from "@/hooks/useSearch";
+import React from "react";
 
 interface DataTableProps<TData, TValue> {
+    actorType?: string;
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
     clickHandler: (row: any) => void;
 }
 
-export default function DataTable<TData, TValue>({ columns, data, clickHandler }: DataTableProps<TData, TValue>) {
+/**
+ * DataTable component for displaying data in a table format with sorting, pagination, and search functionalities.
+ * @param {string} actorType The type of actor to be displayed (used in search placeholder).
+ * @param {ColumnDef<TData, TValue>[]} columns The columns definition for the table.
+ * @param {TData[]} data The data to be displayed in the table.
+ * @param {(row: any) => void} [clickHandler] Optional click handler for table rows.
+ * @returns {JSX.Element} The rendered DataTable component.
+ */
+export default function DataTable<TData, TValue>({ actorType, columns, data, clickHandler }: DataTableProps<TData, TValue>) {
+    const [sorting, setSorting] = React.useState<SortingState>([]);
+
     const table = useReactTable({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
+        onSortingChange: setSorting,
+        getSortedRowModel: getSortedRowModel(),
+        state: {
+            sorting,
+        },
     });
 
+    /**
+     * Handles the click event on a table row and calls the provided clickHandler if available.
+     *
+     * @param {any} row The row data that was clicked.
+     */
     const handleClickHandler = (row) => {
         if (clickHandler) {
             clickHandler(row);
         }
     };
 
+    const { query, setQuery, filteredData } = useSearch(table.getRowModel().rows, "name", true);
+
     return (
         <div>
-            <div className="rounded-md border">
+            <Search
+                type="search"
+                placeholder={`Search your ${actorType}`}
+                className="mt-6 rounded-lg"
+                handleSearch={(e) => setQuery(e.target.value)}
+                search={query}
+            />
+
+            <div className="rounded-md border mt-4">
                 <Table>
                     <TableHeader className="bg-primary-foreground">
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -44,8 +86,8 @@ export default function DataTable<TData, TValue>({ columns, data, clickHandler }
                         ))}
                     </TableHeader>
                     <TableBody>
-                        {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
+                        {filteredData.length > 0 ? (
+                            filteredData.map((row) => (
                                 <TableRow
                                     key={row.id}
                                     data-state={row.getIsSelected() && "selected"}

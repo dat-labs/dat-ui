@@ -13,7 +13,7 @@ export default function Connections() {
                     },
                 ]}
             />
-           <ConnectionWrapper />
+            <ConnectionWrapper />
         </div>
     );
 }

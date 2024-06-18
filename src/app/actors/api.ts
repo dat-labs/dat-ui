@@ -73,7 +73,7 @@ export const getActorData = async (actorType: string, actorId: string): Promise<
         configuration: data.configuration,
         actor: data.actor,
         connected_connections: data.connected_connections,
-        number_of_connections: data.connected_connections.length
+        number_of_connections: data.connected_connections.length,
     };
 };
 
@@ -81,4 +81,4 @@ export const getActorSpec = async (actorId: string): Promise<ConnectorSpecificat
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/actors/${actorId}/spec`);
     const data = await response.json();
     return data;
-}
+};

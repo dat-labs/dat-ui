@@ -5,6 +5,10 @@ import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "@/components/ClientComponents/data-table";
 import { getActorsData } from "./api";
 import { capitalizeFirstLetter, getIconComponent } from "@/lib/utils.ts";
+import { ConnectionActions } from "@/components/ClientComponents/action-button-groups";
+import ActorActions from "@/components/ClientComponents/action-button-groups/actor-actions";
+import { CaretSortIcon } from "@radix-ui/react-icons";
+import { Button } from "@/components/ui/button";
 
 export type Actor = {
     id: string;
@@ -90,53 +94,84 @@ function hslToHex(hslString: any) {
 // const {theme} = useTheme();
 
 // console.log( style.getPropertyValue('--foreground'))
+/**
+ * Generates column definitions for a data table based on the actor type.
+ * @param {string} actorType - The type of actor, used to set the header title.
+ * @returns {ColumnDef<ActorInstanceData>[]} An array of column definitions for the data table.
+ */
+const getColumns = (actorType: string): ColumnDef<ActorInstanceData>[] => {
+    // var style = getComputedStyle(document.body);
+    return [
+        {
+            accessorKey: "actor.name",
+            header: capitalizeFirstLetter(actorType),
+            cell: ({ row }) => {
+                return (
+                    <div className="flex items-center">
+                        {getIconComponent(row.original.actor.icon).then((IconComponent) =>
+                            IconComponent ? <IconComponent className="h-7 w-7 stroke-foreground" /> : null
+                        )}
+                        <span className="ml-2">{capitalizeFirstLetter(row.original.actor.name)}</span>
+                    </div>
+                );
+            },
+        },
+        {
+            accessorKey: "name",
+            header: "Name",
+        },
+        {
+            accessorKey: "number_of_connections",
+            header: ({ column }) => {
+                return (
+                    <span className="flex items-center">
+                        Number of Connections
+                        <Button variant="ghost" onClick={column.getToggleSortingHandler()}>
+                            <CaretSortIcon className="h-6 w-6" />
+                        </Button>
+                    </span>
+                );
+            },
+        },
+        {
+            accessorKey: "actions",
+            header: "Actions",
+            cell: ({ row }) => {
+                return (
+                    <div className="flex items-center">
+                        <ActorActions actorId={row.original.id} />
+                    </div>
+                );
+            },
+        },
+    ];
+};
 
-async function ActorsTable({ actorType }: { actorType: string }) {
-    const [loadData, setLoadData] = useState([]);
+/**
+ * Renders a data table for actors with specific columns based on the actor type.
+ * @param {string} actorType - The type of actor to be displayed.
+ * @param {any[]} [loadData=[]] - The data to be loaded into the table.
+ * @returns {JSX.Element} The rendered actors table component.
+ */
+function ActorsTable({ actorType, loadData = [] }: { actorType: string; loadData: any }) {
+    //const [loadData, setLoadData] = useState([]);
     // const data: ActorInstanceData[] = await getActorsData(actorType);
 
-    const getColumns = (actorType: string): ColumnDef<ActorInstanceData>[] => {
-        // var style = getComputedStyle(document.body);
-        return [
-            {
-                accessorKey: "actor.name",
-                header: capitalizeFirstLetter(actorType),
-                cell: ({ row }) => {
-                    return (
-                        <div className="flex items-center">
-                            {getIconComponent(row.original.actor.icon).then((IconComponent) =>
-                                IconComponent ? (
-                                    <IconComponent className="h-7 w-7 stroke-foreground" />
-                                ) : null
-                            )}
-                            <span className="ml-2">{capitalizeFirstLetter(row.original.actor.name)}</span>
-                        </div>
-                    );
-                },
-            },
-            {
-                accessorKey: "name",
-                header: "Name",
-            },
-            {
-                accessorKey: "number_of_connections",
-                header: "No of Connections",
-            },
-        ];
-    };
+    // const load = useCallback(async () => {
+    //     const data = await getActorsData(actorType);
+    //     setLoadData(data);
+    // }, [actorType, setLoadData]);
 
-    const load = useCallback(async () => {
-        const data = await getActorsData(actorType);
-        setLoadData(data);
-    }, [actorType, setLoadData]);
+    // useEffect(() => {
+    //     load();
+    // }, []);
 
-    useEffect(() => {
-        load();
-    }, []);
-
-    // console.log(loadData);
     const columns = useMemo(() => getColumns(actorType), []);
 
+    /**
+     * Handles row click events by navigating to a detailed view of the selected actor.
+     * @param {any} row - The clicked row data.
+     */
     const handleRowClick = (row: any) => {
         // const currentUrl = router.asPath;
         const currentUrl = window.location.href;
@@ -147,7 +182,7 @@ async function ActorsTable({ actorType }: { actorType: string }) {
         // router.push(newUrl);
     };
 
-    return <DataTable columns={columns} data={loadData} clickHandler={handleRowClick} />;
+    return <DataTable actorType={actorType} columns={columns} data={loadData} clickHandler={handleRowClick} />;
 }
 
 export default memo(ActorsTable);

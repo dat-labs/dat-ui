@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FromDataContext } from ".";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Streams from "./streams";
 import { getStreamsForSource } from "./api";
+import useApiCall from "@/hooks/useApiCall";
 
 const scheduleOptions = [
     {
@@ -29,10 +30,20 @@ const scheduleOptions = [
     },
 ];
 
+/**
+ * ConnectionConfiguration component manages the configuration of a connection.
+ * It allows setting the connection's name, schedule, and streams data.
+ * @returns {JSX.Element} The rendered ConnectionConfiguration component.
+ */
 export default function ConnectionConfiguration() {
     const { state, updateState } = React.useContext(FromDataContext);
-    console.log(state.configuration);
 
+    /**
+     * Retrieves streams data from the state and formats it for rendering.
+     *
+     * @param {object} streams The streams object from the component's state.
+     * @returns {Array<object>} An array of formatted stream data objects.
+     */
     const getStreamsData = (streams: any) => {
         const data: any = [];
         Object.keys(state.streams).forEach((stream) => {
@@ -46,29 +57,48 @@ export default function ConnectionConfiguration() {
         return data;
     };
 
+    /**
+     * Handles changes to the connection name input field.
+     */
     const handleNameChange = (e: any) => {
         updateState("configuration", { ...state.configuration, name: e.target.value });
     };
 
-    const hadnleScheduleChange = (val: any) => {
+    /**
+     * Handles changes to the schedule select component.
+     * @param {any} val The selected value from the schedule select component.
+     */
+    const handleScheduleChange = (val: any) => {
         updateState("configuration", { ...state.configuration, schedule: val });
     };
 
-    React.useEffect(() => {
+    const { data, makeApiCall } = useApiCall(getStreamsForSource);
+    const streamsObj: any = {};
+
+    useEffect(() => {
+        /**
+         * Fetches streams data from the API based on the selected source.
+         */
         const fetchStreams = async () => {
-            const res = await getStreamsForSource(state.source.value.id);
-            const streamsObj: any = {};
-            res.properties.document_streams.items.anyOf.forEach((stream: any) => {
-                streamsObj[stream.properties.name.default] = {
-                    streamProperties: stream,
-                    configuration: {},
-                    configured: false,
-                };
-            });
-            updateState("streams", streamsObj);
+            await makeApiCall(state.source.value.id);
         };
         fetchStreams();
     }, [state.source.value.id]);
+
+    /**
+     * Updates the streams object in the component's state with fetched data.
+     */
+    useEffect(() => {
+        data?.properties.document_streams.items.anyOf.forEach((stream: any) => {
+            streamsObj[stream.properties.name.default] = {
+                streamProperties: stream,
+                configuration: {},
+                configured: false,
+            };
+        });
+        updateState("streams", streamsObj);
+        console.log(state);
+    }, [data]);
 
     return (
         <>
@@ -86,7 +116,7 @@ export default function ConnectionConfiguration() {
                 <label className="mt-2" htmlFor="schedule">
                     Schedule
                 </label>
-                <Select onValueChange={(val) => hadnleScheduleChange(val)} value={state.configuration.schedule}>
+                <Select onValueChange={(val) => handleScheduleChange(val)} value={state.configuration.schedule}>
                     <SelectTrigger className="mt-2" id="schedule">
                         <SelectValue placeholder="Select a schedule" />
                     </SelectTrigger>

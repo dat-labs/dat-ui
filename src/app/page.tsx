@@ -1,17 +1,14 @@
-"use client";
+import { useRouter } from "next/navigation";
+import { auth } from "@/auth";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+const HomePage = async () => {
+    // const router = useRouter();
+    // useEffect(() => {
+    //     // Redirect to /connections on load
+    //     router.push("/connections");
+    // }, [router]);
 
-const HomePage = () => {
-  const router = useRouter();
-
-  useEffect(() => {
-    // Redirect to /connections on load
-      router.push('/connections');
-  }, [router]);
-
-  return null;
+    return <div>HOMEPAGE</div>;
 };
 
 export default HomePage;

@@ -1,19 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import React from "react";
+import React, { Component, useEffect, useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import clsx from "clsx";
 import { ModeToggle } from "../ClientComponents/theme-toggle";
 import { LogoBlack, ConnectionIcon, DestinationIcon, GeneratorIcon, SourceIcon } from "@/assets";
 import { usePathname } from "next/navigation";
+import LogoutButton from "../ClientComponents/Logout-button";
 
 /**
  * NavItemComponent serves as a wrapper for navigation items.
  * @param children - The children elements to render.
  * @returns The rendered NavItemComponent.
  */
-
 const NavItemComponent = ({ children }) => {
     return <div>{children}</div>;
 };
@@ -62,8 +62,7 @@ const bottomNavItems = [
         component: NavItemComponent,
     },
     {
-        label: "Log out",
-        component: NavItemComponent,
+        component: LogoutButton,
     },
 ];
 

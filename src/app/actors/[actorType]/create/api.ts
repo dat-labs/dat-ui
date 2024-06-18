@@ -239,5 +239,5 @@ export const createActorInstance = async (data: any) => {
         body: JSON.stringify(data),
     });
     const responseData = await response.json();
-    return {responseData, "status_code": response.status};
+    return { responseData, status_code: response.status };
 };

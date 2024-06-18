@@ -1,5 +1,5 @@
 import { handlers } from "@/auth";
 
-console.log(handlers);
+// console.log(handlers);
 
 export const { GET, POST } = handlers;

@@ -10,7 +10,7 @@ import { useState, useEffect } from "react";
  * @returns filteredData - The filtered dataset based on the search query.
  */
 
-const useSearch = (data, searchKey) => {
+const useSearch = (data, searchKey, forTable) => {
     const [query, setQuery] = useState("");
     const [filteredData, setFilteredData] = useState(data);
 
@@ -18,7 +18,11 @@ const useSearch = (data, searchKey) => {
         if (query === "") {
             setFilteredData(data);
         } else {
-            setFilteredData(data.filter((item) => item[searchKey].toLowerCase().includes(query.toLowerCase())));
+            if (forTable) {
+                setFilteredData(data.filter((item) => item.original[searchKey].toLowerCase().includes(query.toLowerCase())));
+            } else {
+                setFilteredData(data.filter((item) => item[searchKey].toLowerCase().includes(query.toLowerCase())));
+            }
         }
     }, [query, data, searchKey]);
 
