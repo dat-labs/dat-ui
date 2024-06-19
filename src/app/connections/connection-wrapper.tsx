@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useEffect, useState, useCallback } from "react";
+import { memo, useEffect, useState } from "react";
 import Link from "next/link";
 import clsx from "clsx";
 import { buttonVariants } from "@/components/ui/button";
@@ -35,6 +35,7 @@ const ConnectionWrapper = () => {
     useEffect(() => {
         if (data) {
             setLoadData(data);
+            console.log(data);
         }
     }, [data, setLoadData]);
 

@@ -33,7 +33,6 @@ export const getIconComponent = (iconName: string) => {
  */
 export const importIcon = (iconName: string) => {
     try {
-        console.log(iconName);
         const iconModule = require(`@/assets/actors/${iconName}`);
         return iconModule.default;
     } catch (err) {

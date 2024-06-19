@@ -31,7 +31,7 @@ interface DataTableProps<TData, TValue> {
  * @returns {JSX.Element} The rendered DataTable component.
  */
 export default function DataTable<TData, TValue>({ actorType, columns, data, clickHandler }: DataTableProps<TData, TValue>) {
-    const [sorting, setSorting] = React.useState<SortingState>([]);
+    const [sorting, setSorting] = React.useState([]);
 
     const table = useReactTable({
         data,

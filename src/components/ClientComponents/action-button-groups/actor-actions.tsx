@@ -13,7 +13,7 @@ import React from "react";
  * @param {string} actorId The ID of the actor instance to delete.
  * @returns {JSX.Element} The rendered ActorActions component.
  */
-export default function ActorActions({ actorId }) {
+export default function ActorActions({ actorId, connection_count }) {
     const router = useRouter();
     const { data, error, loading, statusCode, makeApiCall } = useApiCall(deleteActorInstance, "DELETE");
 
@@ -41,7 +41,7 @@ export default function ActorActions({ actorId }) {
                                 variant="outline"
                                 size="icon"
                                 onClick={handleActorInstanceDelete}
-                                disabled={loading}
+                                disabled={loading || connection_count > 0}
                                 className="ml-2"
                             >
                                 <TrashIcon className="h-4 w-4" />

@@ -126,7 +126,7 @@ const getColumns = (actorType: string): ColumnDef<ActorInstanceData>[] => {
                 return (
                     <span className="flex items-center">
                         Number of Connections
-                        <Button variant="ghost" onClick={column.getToggleSortingHandler()}>
+                        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
                             <CaretSortIcon className="h-6 w-6" />
                         </Button>
                     </span>
@@ -139,7 +139,7 @@ const getColumns = (actorType: string): ColumnDef<ActorInstanceData>[] => {
             cell: ({ row }) => {
                 return (
                     <div className="flex items-center">
-                        <ActorActions actorId={row.original.id} />
+                        <ActorActions actorId={row.original.id} connection_count={row.original.number_of_connections} />
                     </div>
                 );
             },

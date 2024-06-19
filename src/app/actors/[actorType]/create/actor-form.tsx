@@ -207,8 +207,8 @@ export default function ActorForm({
                         )}
 
                         {formStructureLoader || actorDataLoader || actorSpecResLoader ? (
-                            <div className="flex h-96 items-center justify-center">
-                                <Loading />
+                            <div className="mr-8">
+                                <Loading height="400px" />
                             </div>
                         ) : (
                             //Form generator to create Or edit as per editMode value
