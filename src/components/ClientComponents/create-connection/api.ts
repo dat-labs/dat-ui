@@ -14,27 +14,20 @@ export const addConnection = async (data: object) => {
             "Content-Type": "application/json",
         },
     });
-    const res = await response.json();
-    console.log("Result", res);
-    return res;
+    const responseData = await response.json();
+    return { responseData, status: response.status };
 };
 
 export const deleteConnection = async (connection_id: string) => {
-    try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/connections/${connection_id}`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/connections/${connection_id}`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
 
-        if (!response.ok) {
-            throw new Error("Api response was not ok");
-        }
+    console.log("API response :", response);
 
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.log(`Failed to delete item: ${error.message}`);
-    }
+    const responseData = await response.json();
+    return { responseData, status: response.status, ok: response.ok };
 };

@@ -6,6 +6,7 @@ import useApiCall from "@/hooks/useApiCall";
 import { TrashIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
 import React from "react";
+import { toast } from "sonner";
 
 /**
  * ActorActions component handles actions related to an actor instance,
@@ -15,7 +16,7 @@ import React from "react";
  */
 export default function ActorActions({ actorId, connection_count }) {
     const router = useRouter();
-    const { data, error, loading, statusCode, makeApiCall } = useApiCall(deleteActorInstance, "DELETE");
+    const { data, error, loading, makeApiCall } = useApiCall(deleteActorInstance, "DELETE");
 
     /**
      * Handles the click event to delete the actor instance.
@@ -27,8 +28,13 @@ export default function ActorActions({ actorId, connection_count }) {
      */
     const handleActorInstanceDelete = async (e) => {
         e.stopPropagation();
-        await makeApiCall(actorId);
-        router.refresh();
+        const res = await makeApiCall(actorId);
+        console.log(res.status);
+        if (res.status == 200) {
+            router.refresh();
+        } else {
+            toast.error("Deletion Failed", res.error);
+        }
     };
 
     return (

@@ -13,7 +13,7 @@ export const updateConnection = async (connectionId: string, data: any) => {
         body: JSON.stringify(data),
     });
     const responseData = await response.json();
-    return responseData;
+    return { data: responseData, status: response.status };
 };
 
 export const manualRunConnection = async (connectionId: string) => {
@@ -24,7 +24,7 @@ export const manualRunConnection = async (connectionId: string) => {
         },
     });
     const responseData = await response.json();
-    return responseData;
+    return { data: responseData, status: response.status };
 };
 
 export const getConnectionAggRunLogs = async (connectionId: string) => {

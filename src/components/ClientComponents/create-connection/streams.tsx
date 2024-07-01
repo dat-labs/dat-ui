@@ -9,19 +9,14 @@ import FormGenerator from "../FormGenerator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import DocWrapper from "@/components/commom/doc-wrapper";
 import Loading from "@/app/actors/loading";
-import useResizable from "@/hooks/resizeHook";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
-import { capitalizeFirstLetter } from "@/lib/utils";
 
 export default function Streams({ data, loading }: { data: any; loading: boolean }) {
     const { state, updateState } = React.useContext(FromDataContext);
 
     const ifDocs = true;
-
-    // Resizing state and handlers
-    const { width, startDragging } = useResizable(ifDocs ? 50 : 100);
 
     const handleStreamConfigrationSave = (values: any, streamName: string) => {
         updateState("streams", {

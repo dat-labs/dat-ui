@@ -18,6 +18,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 // function DeleteAlertDialog() {
 //     return (
@@ -44,17 +45,38 @@ import {
 
 export default function ConnectionActions({ connectionId }) {
     const router = useRouter();
-    const { data: connectionData, makeApiCall: runConnectionCall } = useApiCall(manualRunConnection, "POST");
-    const { data: deleteRes, loading, makeApiCall: deleteConnectionCall } = useApiCall(deleteConnection, "DELETE");
+    const {
+        data: connectionData,
+        error: runConnectionError,
+        makeApiCall: runConnectionCall,
+    } = useApiCall(manualRunConnection, "POST");
+    const {
+        data: deleteRes,
+        error: deleteConnectionError,
+        loading,
+        makeApiCall: deleteConnectionCall,
+    } = useApiCall(deleteConnection, "DELETE");
 
     const handleConnectionRun = async (e) => {
         e.stopPropagation();
-        await runConnectionCall(connectionId);
+        const res = await runConnectionCall(connectionId);
+
+        if (res.status == 200) {
+            toast.success("Succesful Run!");
+        } else {
+            toast.error("Run Connection Failed!");
+        }
     };
     const handleDelete = async (e) => {
         e.stopPropagation();
-        await deleteConnectionCall(connectionId);
-        router.refresh();
+        const res = await deleteConnectionCall(connectionId);
+
+        if (res.status === 204) {
+            toast.success("Succesfully Deleted Connection !");
+            router.refresh();
+        } else {
+            toast.error("Failed to Delete Connection!");
+        }
     };
     return (
         <div>

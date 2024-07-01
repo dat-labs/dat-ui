@@ -18,8 +18,6 @@ import {
 } from "@radix-ui/react-icons";
 import { getConnectionAggRunLogs } from "@/app/connections/[connectionId]/api";
 import useApiCall from "@/hooks/useApiCall";
-import { ColumnDef } from "@tanstack/react-table";
-import { StreamTable } from "./StreamTable";
 import RunLogTable from "./RunLogTable";
 import {
     Pagination,
@@ -76,91 +74,21 @@ export function DatePickerWithRange({ className }: React.HTMLAttributes<HTMLDivE
 }
 
 export default function RunHistory({ connectionData }) {
-    // const [logData, setLogData] = React.useState(null);
+    const [logData, setLogData] = React.useState([]);
 
-    // const { data, makeApiCall } = useApiCall(getConnectionAggRunLogs, "GET");
-    // React.useEffect(() => {
-    //     (async () => {
-    //         await makeApiCall(connectionData.id);
-    //         console.log(data);
-    //     })();
-    // }, []);
+    const { data, makeApiCall } = useApiCall(getConnectionAggRunLogs, "GET");
 
-    // React.useEffect(() => {
-    //     if (data) {
-    //         setLogData(data);
-    //         console.log(logData);
-    //     }
-    // }, [data, setLogData]);
+    React.useEffect(() => {
+        (async () => {
+            await makeApiCall(connectionData.id);
+        })();
+    }, []);
 
-    const logData = [
-        {
-            id: "1",
-            status: "success",
-            start_time: "10:00 AM 2021/09/01 ",
-            end_time: "2021-09-01 10:30:00",
-            duration: "30 mins",
-            size: "10 MB",
-            documents_fetched: 8,
-            destination_record_updated: 14,
-            records_per_stream: [
-                {
-                    stream: "pdf",
-                    documents_fetched: 500,
-                    destination_record_updated: 500,
-                },
-                {
-                    stream: "csv",
-                    documents_fetched: 500,
-                    destination_record_updated: 500,
-                },
-            ],
-        },
-        {
-            id: "2",
-            status: "partial",
-            start_time: "10:00 AM 2021/09/01 ",
-            end_time: "2021-09-01 10:30:00",
-            duration: "30 mins",
-            size: "10 MB",
-            documents_fetched: 8,
-            destination_record_updated: 14,
-            records_per_stream: [
-                {
-                    stream: "pdf",
-                    documents_fetched: 500,
-                    destination_record_updated: 500,
-                },
-                {
-                    stream: "csv",
-                    documents_fetched: 500,
-                    destination_record_updated: 500,
-                },
-            ],
-        },
-        {
-            id: "3",
-            status: "failed",
-            start_time: "10:00 AM 2021/09/01 ",
-            end_time: "2021-09-01 10:30:00",
-            duration: "30 mins",
-            size: "10 MB",
-            documents_fetched: 8,
-            destination_record_updated: 14,
-            records_per_stream: [
-                {
-                    stream: "pdf",
-                    documents_fetched: 500,
-                    destination_record_updated: 500,
-                },
-                {
-                    stream: "csv",
-                    documents_fetched: 500,
-                    destination_record_updated: 500,
-                },
-            ],
-        },
-    ];
+    React.useEffect(() => {
+        if (data) {
+            setLogData(data.data.runs);
+        }
+    }, [data]);
 
     return (
         <div className="p-5 mr-12 bg-[#FFFFFF]">
@@ -172,9 +100,7 @@ export default function RunHistory({ connectionData }) {
                     </div>
                 </div>
 
-                {logData.map((log) => (
-                    <RunLogTable logInstance={log} />
-                ))}
+                {logData.length > 0 && logData.map((log, index) => <RunLogTable key={index} logInstance={log} />)}
 
                 <Pagination>
                     <PaginationContent>

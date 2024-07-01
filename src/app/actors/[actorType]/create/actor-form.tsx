@@ -73,7 +73,6 @@ export default function ActorForm({
         };
 
         const res = await createInstanceApi(apiData);
-        console.log("res", res);
         if (res.status_code !== 200) {
             setError(res.responseData.detail);
         }
@@ -192,8 +191,6 @@ export default function ActorForm({
         };
 
         await updateInstanceApi(actorId, apiData);
-        console.log(updateInstanceRes);
-
         //TODO test status check
 
         if (updateInstanceStatus === 200) {

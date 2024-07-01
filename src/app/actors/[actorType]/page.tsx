@@ -43,10 +43,11 @@ export default function ActorsPage({ params }: pageProps) {
                 </Link>
             </div>
 
-            <Suspense fallback={<Loading />}>
-                {/* <ActorsTable actorType={actorType} loadData={loadData} /> */}
-                <ActorWrapper actorType={actorType} />
-            </Suspense>
+            <div>
+                <Suspense fallback={<Loading />}>
+                    <ActorWrapper actorType={actorType} />
+                </Suspense>
+            </div>
         </main>
     );
 }
