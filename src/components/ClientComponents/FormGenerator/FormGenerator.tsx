@@ -133,7 +133,6 @@ export default function FormGenerator({
             <div
                 key={field_name}
                 className={clsx({ "border p-3 rounded-md": type === "object", hidden: uiOpts?.hidden === true })}
-                key={order}
             >
                 <label htmlFor={field_name} className="flex flex-col space-y-1">
                     <span className="text-md font-medium jus">{title}</span>
@@ -180,7 +179,13 @@ export default function FormGenerator({
                     )}
 
                     {(type === "array" || type === "textboxDelimiterSeparatedChip") && (
-                        <TextArray type={type} form={form} field_name={field_name} description={description} />
+                        <TextArray
+                            type={type}
+                            form={form}
+                            field_name={field_name}
+                            description={description}
+                            defaultValue={defaultValue}
+                        />
                     )}
 
                     {form.formState.errors[field_name] && (
