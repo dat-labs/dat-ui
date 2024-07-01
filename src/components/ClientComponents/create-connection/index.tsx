@@ -111,6 +111,7 @@ const FormComponent = () => {
         updateState("step", state.step - 1);
     };
 
+    const router = useRouter();
     const { makeApiCall } = useApiCall(addConnection, "POST");
 
     /**
@@ -145,7 +146,10 @@ const FormComponent = () => {
             },
             schedule_type: "manual",
         };
+
+        console.log("Calling API", postData);
         await makeApiCall(postData);
+        router.push("/connections");
     };
 
     const shouldDisableNextButton = () => {

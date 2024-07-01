@@ -19,7 +19,7 @@ interface DataTableProps<TData, TValue> {
     actorType?: string;
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
-    clickHandler: (row: any) => void;
+    clickHandler?: (row: any) => void;
 }
 
 /**
