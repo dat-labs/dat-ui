@@ -100,7 +100,7 @@ export default function ActorForm({
     useEffect(() => {
         if (formStructure) {
             setFormData(formStructure);
-            setActorInstanceName(formStructure?.properties?.name?.const);
+            setActorInstanceName(formStructure?.title?.replace("Specification", ""));
         }
     }, [formStructure, setFormData]);
 
@@ -124,14 +124,10 @@ export default function ActorForm({
     }, [setActors, getActorsData]);
 
     useEffect(() => {
-        if (actors && actorInstanceName) {
-            for (let i = 0; i < actors?.length; i++) {
-                console.log(actors[i].name + "And" + actorInstanceName);
-                if (actors[i].name === actorInstanceName) {
-                    const icon = actors[i].icon;
-                    setActorInstanceIcon(icon);
-                    break;
-                }
+        if (!editMode && actors && actorInstanceName) {
+            const reqActor = actors?.find((a) => a.name === actorInstanceName);
+            if (reqActor) {
+                setActorInstanceIcon(reqActor.icon);
             }
         }
     }, [actors, actorInstanceName]);
@@ -226,7 +222,7 @@ export default function ActorForm({
                         <div className={`flex flex-col h-full`}>
                             <div className="flex flex-row items-center border-b py-3 pl-4 space-x-2">
                                 {ActorIcon !== null ? <ActorIcon className="h-6 w-6 stroke-foreground" /> : <CircularLoader />}
-                                <p className="text-gray-600">{formData?.properties?.name?.const}</p>
+                                <p className="text-gray-600">{editMode ? actorInstanceData?.actor.name : actorInstanceName}</p>
                             </div>
                             <ScrollArea className={`w-full h-[610px]`}>
                                 {formStructureLoader || actorDataLoader || actorSpecResLoader ? (

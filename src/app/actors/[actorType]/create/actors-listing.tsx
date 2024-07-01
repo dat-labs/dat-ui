@@ -14,7 +14,6 @@ import { PlusIcon } from "@radix-ui/react-icons";
  */
 const importIcon = (iconName) => {
     try {
-        console.log(iconName);
         const iconModule = require(`@/assets/actors/${iconName}`);
         return iconModule.default;
     } catch (err) {

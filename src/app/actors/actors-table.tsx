@@ -9,6 +9,7 @@ import { ConnectionActions } from "@/components/ClientComponents/action-button-g
 import ActorActions from "@/components/ClientComponents/action-button-groups/actor-actions";
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 export type Actor = {
     id: string;
@@ -109,7 +110,11 @@ const getColumns = (actorType: string): ColumnDef<ActorInstanceData>[] => {
                 return (
                     <div className="flex items-center">
                         {getIconComponent(row.original.actor.icon).then((IconComponent) =>
-                            IconComponent ? <IconComponent className="h-7 w-7 stroke-foreground" /> : null
+                            IconComponent ? (
+                                <Card className="p-1 rounded">
+                                    <IconComponent className="h-7 w-7 stroke-foreground" />
+                                </Card>
+                            ) : null
                         )}
                         <span className="ml-2">{capitalizeFirstLetter(row.original.actor.name)}</span>
                     </div>
