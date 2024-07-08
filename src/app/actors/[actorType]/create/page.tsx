@@ -26,7 +26,7 @@ export default function CreatePage({ params }: { params: { actorType: string } }
     };
 
     return (
-        <div className="p-6">
+        <div className="">
             <PageBreadcrumb
                 breadCrumbData={[
                     {

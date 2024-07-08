@@ -1,10 +1,11 @@
 import React, { Suspense } from "react";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import clsx from "clsx";
 import CircularLoader from "@/components/ui/circularLoader";
 import { Search } from "@/components/commom/search-bar";
 import useSearch from "@/hooks/useSearch";
 import { capitalizeFirstLetter } from "@/lib/utils";
+import { PlusIcon } from "@radix-ui/react-icons";
 
 /**
  * Dynamically imports an icon based on the provided icon name.
@@ -13,7 +14,6 @@ import { capitalizeFirstLetter } from "@/lib/utils";
  */
 const importIcon = (iconName) => {
     try {
-        console.log(iconName);
         const iconModule = require(`@/assets/actors/${iconName}`);
         return iconModule.default;
     } catch (err) {
@@ -39,7 +39,7 @@ const ActorListing = ({ actors, onChangeHandler, actorType, selectedActor }) => 
     const { query, setQuery, filteredData } = useSearch(actors, "name", false);
 
     return (
-        <div>
+        <div className="p-5">
             {/* Replaced the old searchbar */}
             {/* <SearchBar handleChange={(e) => setQuery(e.target.value)} search={query} /> */}
             <Search
@@ -50,40 +50,55 @@ const ActorListing = ({ actors, onChangeHandler, actorType, selectedActor }) => 
                 search={query}
             />
 
-            <div className="flex gap-4 w-full mt-4">
-                {filteredData.map((actor: any) => {
-                    const IconComponent = importIcon(actor.icon);
-                    return (
-                        <Card
-                            onClick={() => onChangeHandler(actor)}
-                            className={clsx("w-4/12 cursor-pointer transition duration-400 bg-card-background hover:bg-accent", {
-                                "border-foreground": selectedActor?.id === actor.id,
-                            })}
-                        >
-                            <CardHeader>
-                                <CardTitle className="text-sm">
-                                    <div className="flex justify-between">
-                                        <div className="flex gap-2 items-center">
-                                            <Suspense fallback={<CircularLoader />}>
-                                                {IconComponent ? (
-                                                    <IconComponent className="h-7 w-7 fill-foreground" />
-                                                ) : (
-                                                    <img
-                                                        src={`https://ui-avatars.com/api/?name=${actor.name}`}
-                                                        alt="icon"
-                                                        className="h-7 w-7 rounded-md"
-                                                    />
-                                                )}
-                                            </Suspense>
-                                            <p className="ml-2 font-normal">{actor.name}</p>
+            <div className="flex flex-col mx-auto gap-4 w-11/12 mt-4">
+                <div className="flex gap-4">
+                    {filteredData.map((actor: any) => {
+                        const IconComponent = importIcon(actor.icon);
+                        return (
+                            <Card
+                                onClick={() => onChangeHandler(actor)}
+                                className={clsx(
+                                    "w-full lg:w-1/3 cursor-pointer transition duration-400 bg-card-background hover:bg-accent",
+                                    {
+                                        "border-foreground": selectedActor?.id === actor.id,
+                                    }
+                                )}
+                            >
+                                <CardHeader>
+                                    <CardTitle className="text-sm">
+                                        <div className="flex md:flex-row flex-col justify-between">
+                                            <div className="flex gap-2 items-center">
+                                                <Suspense fallback={<CircularLoader />}>
+                                                    {IconComponent ? (
+                                                        <IconComponent className="h-7 w-7" />
+                                                    ) : (
+                                                        <img
+                                                            src={`https://ui-avatars.com/api/?name=${actor.name}`}
+                                                            alt="icon"
+                                                            className="h-7 w-7 rounded-md"
+                                                        />
+                                                    )}
+                                                </Suspense>
+                                                <p className="ml-2 font-normal">{actor.name}</p>
+                                            </div>
+                                            <p className="rounded-xl text-center uppercase bg-zinc-100 text-gray-500 p-2 mt-3 md:mt-0 border-2">
+                                                Verified
+                                            </p>
                                         </div>
-                                        <p className="rounded bg-zinc-100 text-black px-4 py-2">Verified</p>
-                                    </div>
-                                </CardTitle>
-                            </CardHeader>
-                        </Card>
-                    );
-                })}
+                                    </CardTitle>
+                                </CardHeader>
+                            </Card>
+                        );
+                    })}
+                </div>
+
+                <Card className="mt-4 flex flex-row items-center p-2 space-x-2 text-muted-foreground">
+                    <Card className="rounded-md">
+                        <PlusIcon className="h-6 w-6 text-muted-foreground" />
+                    </Card>
+
+                    <p>Couldn't Find what you looking for? Request a new Connector</p>
+                </Card>
             </div>
         </div>
     );

@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback } from "react";
+import React, { Suspense, useCallback, useEffect } from "react";
 import { FromDataContext } from ".";
 import { getActorsData } from "@/app/actors/api";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,8 @@ import ActorForm from "@/app/actors/[actorType]/create/actor-form";
 import clsx from "clsx";
 import useSearch from "@/hooks/useSearch";
 import { Search } from "@/components/commom/search-bar";
+import useApiCall from "@/hooks/useApiCall";
+import Loading from "@/app/actors/loading";
 
 export type SearchProps = React.InputHTMLAttributes<HTMLInputElement>;
 
@@ -45,13 +47,22 @@ export default function SelectSource({ actorType }: { actorType: string }) {
 
     const [actors, setActors] = React.useState([]);
 
+    const { data, loading, makeApiCall } = useApiCall(getActorsData);
+
     React.useEffect(() => {
         const fetchData = async () => {
-            const data = await getActorsData(actorType);
-            setActors(data);
+            await makeApiCall(actorType);
+            // const data = await getActorsData(actorType);
+            // setActors(data);
         };
         fetchData();
     }, [actorType]);
+
+    useEffect(() => {
+        if (data) {
+            setActors(data);
+        }
+    }, [data, setActors]);
 
     React.useEffect(() => {
         if (state[actorType].subStep === "createNew") {
@@ -123,47 +134,52 @@ export default function SelectSource({ actorType }: { actorType: string }) {
                         handleSearch={(e) => setQuery(e.target.value)}
                         search={query}
                     />
-                    <div className="grid grid-cols-4 gap-4 w-full mt-4 p-3">
-                        {filteredData.map((actor: any) => {
-                            const IconComponent = importIcon(actor.actor.icon);
-                            console.log(IconComponent);
-                            return (
-                                <Card
-                                    onClick={() => handleSourceSelect(actor)}
-                                    className={clsx("cursor-pointer transition duration-400 bg-card-background hover:bg-accent", {
-                                        "border-foreground": state[actorType]?.value?.id === actor.id,
-                                    })}
-                                >
-                                    <CardHeader className="p-3">
-                                        <CardTitle className="text-sm">
-                                            <div className="flex gap-2 items-center">
-                                                {IconComponent !== null ? (
-                                                    <IconComponent className="h-6 w-6 stroke-foreground fill-foreground" />
-                                                ) : (
-                                                    <img
-                                                        src={`https://ui-avatars.com/api/?name=${actor.actor.name}`}
-                                                        alt="icon"
-                                                        className="h-7 w-7 rounded-md"
-                                                    />
-                                                )}
-                                                <p>{actor.name}</p>
-                                            </div>
-                                        </CardTitle>
-                                        <CardDescription className="text-xs">
-                                            {capitalizeFirstLetter(actorType)} Type - {actor.actor.name}
-                                        </CardDescription>
-                                    </CardHeader>
-                                </Card>
-                            );
-                        })}
-                    </div>
-                    <div className="flex justify-center">
-                        {actors.length === 0 && (
-                            <div className="w-4/12 transition duration-400 bg-card-background hover:bg-accent p-4 rounded-xl shadow mt-4 mb-4">
-                                <h1 className="text-sm text-center">No {capitalizeFirstLetter(actorType)} found</h1>
-                            </div>
-                        )}
-                    </div>
+                    {loading ? (
+                        <div className="mt-4 p-3">
+                            <Loading height="100px" />
+                        </div>
+                    ) : filteredData.length === 0 ? (
+                        <div className="w-4/12 transition duration-400 bg-card-background hover:bg-accent mx-auto p-4 rounded-xl shadow mt-4 mb-4">
+                            <h1 className="text-sm text-center">No {capitalizeFirstLetter(actorType)} found</h1>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-4 gap-4 w-full mt-4 p-3">
+                            {filteredData.map((actor: any) => {
+                                const IconComponent = importIcon(actor.actor.icon);
+                                return (
+                                    <Card
+                                        onClick={() => handleSourceSelect(actor)}
+                                        className={clsx(
+                                            "cursor-pointer transition duration-400 bg-card-background hover:bg-accent",
+                                            {
+                                                "border-foreground": state[actorType]?.value?.id === actor.id,
+                                            }
+                                        )}
+                                    >
+                                        <CardHeader className="p-3">
+                                            <CardTitle className="text-sm">
+                                                <div className="flex gap-2 items-center">
+                                                    {IconComponent !== null ? (
+                                                        <IconComponent className="h-6 w-6 stroke-foreground" />
+                                                    ) : (
+                                                        <img
+                                                            src={`https://ui-avatars.com/api/?name=${actor.actor.name}`}
+                                                            alt="icon"
+                                                            className="h-7 w-7 rounded-md"
+                                                        />
+                                                    )}
+                                                    <p>{actor.name}</p>
+                                                </div>
+                                            </CardTitle>
+                                            <CardDescription className="text-xs">
+                                                {capitalizeFirstLetter(actorType)} Type - {actor.actor.name}
+                                            </CardDescription>
+                                        </CardHeader>
+                                    </Card>
+                                );
+                            })}
+                        </div>
+                    )}
                 </>
             )}
             {state[actorType].subStep === "createNew" && (

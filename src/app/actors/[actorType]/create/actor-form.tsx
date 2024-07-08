@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { ArrowLeftIcon } from "@radix-ui/react-icons";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { ArrowLeftIcon, ArrowRightIcon, ChevronLeftIcon } from "@radix-ui/react-icons";
 import FormGenerator from "@/components/ClientComponents/FormGenerator/FormGenerator";
 import { getFormDataForSource, getActors, createActorInstance } from "./api";
 import ActorListing from "./actors-listing";
 import DocWrapper from "@/components/commom/doc-wrapper";
 import { Button } from "@/components/ui/button";
-import { capitalizeFirstLetter, getIconComponent } from "@/lib/utils";
+import { capitalizeFirstLetter, importIcon } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { getActorData, getActorSpec } from "../../api";
 import { updateActorInstance } from "../[actorId]/api";
@@ -13,6 +13,11 @@ import { toast } from "sonner";
 import useApiCall from "@/hooks/useApiCall";
 import { getSession } from "next-auth/react";
 import Loading from "../../loading";
+import CircularLoader from "@/components/ui/circularLoader";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
 /**
  * Form structure for Creating/Editing an Actor
  * @param actorType - The type of the actor.
@@ -32,14 +37,18 @@ export default function ActorForm({
     editMode?: boolean;
     actorId?: any;
 }) {
+    const ifDocs = true;
+
     // For form input values in both Edit and Create Mode
-    const [formData, setFormData] = React.useState<any>(null);
+    const [formData, setFormData] = useState(null);
 
     // ************************************************ Create Form Logic *****************************************************
     const [step, setStep] = useState(1);
-    const [actors, setActors] = React.useState<any>(null);
-    const [selectedActor, setSelectedActor] = React.useState<any>(null);
-    const [error, setError] = React.useState<any>(null);
+    const [actors, setActors] = useState(null);
+    const [selectedActor, setSelectedActor] = useState(null);
+    const [error, setError] = useState(null);
+    const [actorInstanceIcon, setActorInstanceIcon] = useState(null);
+    const [actorInstanceName, setActorInstanceName] = useState(null);
 
     const { makeApiCall: createInstanceApi } = useApiCall(createActorInstance, "POST");
 
@@ -64,7 +73,6 @@ export default function ActorForm({
         };
 
         const res = await createInstanceApi(apiData);
-        console.log("res", res);
         if (res.status_code !== 200) {
             setError(res.responseData.detail);
         }
@@ -78,13 +86,12 @@ export default function ActorForm({
      */
     const { data: formStructure, loading: formStructureLoader, makeApiCall: formStructurApi } = useApiCall(getFormDataForSource);
     useEffect(() => {
-        !editMode &&
+        if (!editMode && selectedActor) {
             (async () => {
-                if (selectedActor) {
-                    await formStructurApi(selectedActor);
-                    setStep(2);
-                }
+                await formStructurApi(selectedActor);
+                setStep(2);
             })();
+        }
         return () => {
             setFormData(null);
         };
@@ -93,6 +100,7 @@ export default function ActorForm({
     useEffect(() => {
         if (formStructure) {
             setFormData(formStructure);
+            setActorInstanceName(formStructure?.title?.replace("Specification", ""));
         }
     }, [formStructure, setFormData]);
 
@@ -102,18 +110,27 @@ export default function ActorForm({
      */
     const { data: getActorsData, loading: getActorsLoader, makeApiCall: getActorsApi } = useApiCall(getActors, "GET");
     useEffect(() => {
-        !editMode &&
+        if (!editMode) {
             (async () => {
                 await getActorsApi(actorType);
             })();
+        }
     }, []);
 
     useEffect(() => {
         if (getActorsData) {
             setActors(getActorsData);
-            console.log(getActorsData);
         }
     }, [setActors, getActorsData]);
+
+    useEffect(() => {
+        if (!editMode && actors && actorInstanceName) {
+            const reqActor = actors?.find((a) => a.name === actorInstanceName);
+            if (reqActor) {
+                setActorInstanceIcon(reqActor.icon);
+            }
+        }
+    }, [actors, actorInstanceName]);
 
     /**
      * handles the state {selectedActor} and moves to step 2 of Actor creation
@@ -139,16 +156,18 @@ export default function ActorForm({
     const load = useCallback(async () => {
         const data = await actorDataApi(actorType, actorId);
         const jsonData = await actorSpecResApi(data?.actor.id);
-        setActorInstanceData(data); // fill the form when Edit Mode
-        setFormData(jsonData); // setting Form data when Edit executed
-    }, [actorType, setActorInstanceData, setFormData]);
+        setActorInstanceData(data);
+        setFormData(jsonData);
+    }, [actorType, actorId]);
 
     /**
      * Calls the load function when in Edit Mode
      */
-    React.useEffect(() => {
-        editMode && load();
-    }, []);
+    useEffect(() => {
+        if (editMode) {
+            load();
+        }
+    }, [editMode, load]);
 
     const {
         data: updateInstanceRes,
@@ -168,8 +187,6 @@ export default function ActorForm({
         };
 
         await updateInstanceApi(actorId, apiData);
-        console.log(updateInstanceRes);
-
         //TODO test status check
 
         if (updateInstanceStatus === 200) {
@@ -184,52 +201,85 @@ export default function ActorForm({
         }
     };
 
-    return (
-        <div className="flex p-5">
-            <div className="w-full">
-                {!editMode && step === 1 && (
-                    <div className="mb-4">
-                        <ActorListing
-                            actors={actors}
-                            onChangeHandler={actorHandler}
-                            actorType={actorType}
-                            selectedActor={selectedActor}
-                        />
-                    </div>
-                )}
-                {(editMode || step === 2) && (
-                    <DocWrapper doc={`${editMode ? "Edit" : "Create"}  Page doc`} url="google.com" editMode={editMode}>
-                        {/* Back button not needed in Edit Mode */}
-                        {!editMode && (
-                            <Button onClick={() => setStep(1)} variant="outline" className="mb-7">
-                                <ArrowLeftIcon className="mr-4" /> Back
-                            </Button>
-                        )}
+    const ActorIcon = importIcon(editMode ? actorInstanceData?.actor?.icon : actorInstanceIcon);
 
-                        {formStructureLoader || actorDataLoader || actorSpecResLoader ? (
-                            <div className="mr-8">
-                                <Loading height="400px" />
+    return (
+        <div className="w-full">
+            {!editMode && step === 1 && (
+                <div className="mb-4">
+                    <ActorListing
+                        actors={actors}
+                        onChangeHandler={actorHandler}
+                        actorType={actorType}
+                        selectedActor={selectedActor}
+                    />
+                </div>
+            )}
+
+            {(editMode || step === 2) && (
+                <ResizablePanelGroup direction="horizontal" className="min-h-[200px] w-full h-full">
+                    <ResizablePanel defaultSize={ifDocs ? 50 : 100} minSize={30} className="h-full">
+                        <div className={`flex flex-col h-full`}>
+                            <div className="flex flex-row items-center border-b py-3 pl-4 space-x-2">
+                                {ActorIcon !== null ? <ActorIcon className="h-6 w-6 stroke-foreground" /> : <CircularLoader />}
+                                <p className="text-gray-600">{editMode ? actorInstanceData?.actor.name : actorInstanceName}</p>
                             </div>
-                        ) : (
-                            //Form generator to create Or edit as per editMode value
-                            formData?.properties?.connection_specification?.properties && (
-                                <>
-                                    <p className="mb-2 font-bold">
-                                        {editMode ? "Edit" : "Create"} a {capitalizeFirstLetter(actorType)}
-                                    </p>
-                                    <FormGenerator
-                                        properties={formData?.properties?.connection_specification?.properties}
-                                        onSubmit={editMode ? handleEditFormSubmit : handleCreateFormSubmit}
-                                        submitButtonText={editMode ? "" : "Test and Save"}
-                                        errorText={!editMode && error}
-                                        defaultData={editMode && actorInstanceData?.configuration}
-                                    />
-                                </>
-                            )
-                        )}
-                    </DocWrapper>
-                )}
-            </div>
+                            <ScrollArea className={`w-full h-[610px]`}>
+                                {formStructureLoader || actorDataLoader || actorSpecResLoader ? (
+                                    <div className="w-11/12 mx-auto mt-4">
+                                        <Loading />
+                                    </div>
+                                ) : (
+                                    formData?.properties?.connection_specification?.properties && (
+                                        <div className="w-11/12 mx-auto">
+                                            {!editMode && (
+                                                <Button
+                                                    onClick={() => setStep(1)}
+                                                    variant="ghost"
+                                                    className="mt-4 p-0 font-semibold text-md"
+                                                >
+                                                    <ChevronLeftIcon className="mr-2" width={20} height={20} /> Back
+                                                </Button>
+                                            )}
+                                            <Card className="my-4">
+                                                <CardHeader>
+                                                    <CardTitle className="text-lg font-bold">
+                                                        {editMode ? "Edit" : "Create"} a {capitalizeFirstLetter(actorType)}
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent>
+                                                    <FormGenerator
+                                                        properties={formData?.properties?.connection_specification?.properties}
+                                                        onSubmit={editMode ? handleEditFormSubmit : handleCreateFormSubmit}
+                                                        submitButtonText={editMode ? "" : "Test and Save"}
+                                                        errorText={!editMode && error}
+                                                        defaultData={editMode && actorInstanceData?.configuration}
+                                                    />
+                                                </CardContent>
+                                            </Card>
+                                        </div>
+                                    )
+                                )}
+                            </ScrollArea>
+                        </div>
+                    </ResizablePanel>
+                    {ifDocs && <ResizableHandle withHandle />}
+
+                    {ifDocs && (
+                        <ResizablePanel defaultSize={50} minSize={30} className="h-full">
+                            <ScrollArea className={`w-full h-[660px]`}>
+                                <DocWrapper doc={`${editMode ? "Edit" : "Create"} Page doc`} url="google.com" editMode={editMode}>
+                                    {!editMode && (
+                                        <Button onClick={() => setStep(1)} variant="outline" className="mb-7">
+                                            <ArrowLeftIcon className="mr-4" /> Back
+                                        </Button>
+                                    )}
+                                </DocWrapper>
+                            </ScrollArea>
+                        </ResizablePanel>
+                    )}
+                </ResizablePanelGroup>
+            )}
         </div>
     );
 }

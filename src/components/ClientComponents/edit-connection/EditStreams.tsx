@@ -6,8 +6,11 @@ import { updateConnection } from "@/app/connections/[connectionId]/api";
 import useApiCall from "@/hooks/useApiCall";
 import CircularLoader from "@/components/ui/circularLoader";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function EditStreams({ connectionData }) {
+    const router = useRouter();
+
     const { state, updateState } = React.useContext(FromDataContext);
 
     const { data, error, loading, statusCode, makeApiCall } = useApiCall(updateConnection, "POST");
@@ -40,7 +43,13 @@ export default function EditStreams({ connectionData }) {
         };
         console.log(patchData);
         const res = await makeApiCall(connectionData.id, patchData);
-        toast(`Connection updated successfully.`);
+
+        if (res.status === 200) {
+            toast(`Connection updated successfully.`);
+            router.push("/connections");
+        } else {
+            toast.error("Failed to Update Connection");
+        }
     };
     React.useEffect(() => {
         if (state.configuration.name === null || state.configuration.schedule === null) {

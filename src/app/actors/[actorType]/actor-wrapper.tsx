@@ -13,7 +13,6 @@ const ActorWrapper = ({ actorType }: { actorType: any }) => {
     const [loadData, setLoadData] = useState([]);
 
     const load = useCallback(async () => {
-        console.log("Effect");
         const data = await getActorsData(actorType);
         setLoadData(data);
     }, [actorType, setLoadData]);

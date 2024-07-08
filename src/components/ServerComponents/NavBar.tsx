@@ -1,13 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import React, { Component, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import clsx from "clsx";
-import { ModeToggle } from "../ClientComponents/theme-toggle";
+import { ModeToggle } from "@/components/ClientComponents/theme-toggle";
 import { LogoBlack, ConnectionIcon, DestinationIcon, GeneratorIcon, SourceIcon } from "@/assets";
 import { usePathname } from "next/navigation";
-import LogoutButton from "../ClientComponents/Logout-button";
+import LogoutButton from "@/components/ClientComponents/Logout-button";
+import { getSession } from "next-auth/react";
+import CircularLoader from "../ui/circularLoader";
+import { CaretSortIcon } from "@radix-ui/react-icons";
+import Loading from "@/app/actors/loading";
 
 /**
  * NavItemComponent serves as a wrapper for navigation items.
@@ -72,6 +76,15 @@ const bottomNavItems = [
  */
 const Sidebar = () => {
     const pathname = usePathname();
+    const [session, setSession] = useState(null);
+
+    useEffect(() => {
+        const fetchSession = async () => {
+            const session = await getSession();
+            setSession(session);
+        };
+        fetchSession();
+    }, []);
 
     return (
         <div className="flex flex-col w-full h-screen p-4 bg-primary-foreground border-r">
@@ -82,47 +95,44 @@ const Sidebar = () => {
                 </Link>
             </div>
             <div className="flex flex-col py-2 border-y">
-                <h1 className="text-sm text-ellipsis">dat (default Workspace)</h1>
+                {session ? (
+                    <div className="flex flex-row items-center justify-between mx-2">
+                        <h1 className="text-sm text-ellipsis">{`Dat (${session?.user?.workspace_id})`}</h1>
+                        {/* To-Do -> Setup an onClick here -> */}
+                        <CaretSortIcon width={20} height={20} />
+                    </div>
+                ) : (
+                    <Loading height="50px" />
+                )}
             </div>
             <div className="flex-grow pt-8">
                 <nav className="flex flex-col space-y-4">
-                    {navItems.map((item) => {
-                        return (
-                            <Link
-                                key={item.label}
-                                className={clsx(
-                                    "!px-2 font-normal !justify-start !w-full !text-left hover:bg-primary/10",
-                                    buttonVariants({ variant: pathname.startsWith(item.url) ? "default" : "ghost" })
-                                )}
-                                href={item.url}
-                            >
-                                {/* <Image src={`/icons/${item.icon}`} width={24} height={24} alt={item.label}/> */}
-                                <item.icon
-                                    className={`h-6 w-6 ${
-                                        pathname.startsWith(item.url) ? `stroke-background` : `stroke-foreground`
-                                    } `}
-                                />
-                                <p className="ml-2">{item.label}</p>
-                            </Link>
-                        );
-                    })}
+                    {navItems.map((item) => (
+                        <Link
+                            key={item.label}
+                            className={clsx(
+                                "!px-2 font-normal !justify-start !w-full !text-left hover:bg-primary/10",
+                                buttonVariants({ variant: pathname.startsWith(item.url) ? "default" : "ghost" })
+                            )}
+                            href={item.url}
+                        >
+                            <item.icon
+                                className={`h-6 w-6 ${
+                                    pathname.startsWith(item.url) ? `stroke-background` : `stroke-foreground`
+                                } `}
+                            />
+                            <p className="ml-2">{item.label}</p>
+                        </Link>
+                    ))}
                 </nav>
             </div>
             <div className="pt-8">
                 <nav className="flex flex-col space-y-4">
-                    {bottomNavItems.map((item) => {
-                        return (
-                            <Link href={item.url ? item.url : ""}>
-                                <item.component key={item.label}>
-                                    {item.label && <p className="text-sm">{item.label}</p>}
-                                </item.component>
-                            </Link>
-                        );
-                    })}
-                    {/* <p className="text-sm">Help</p>
-                    <ModeToggle />
-                    <p className="text-sm">Settings</p>
-                    <p className="text-sm">Log out</p> */}
+                    {bottomNavItems.map((item) => (
+                        <Link href={item.url ? item.url : ""} key={item.label}>
+                            <item.component>{item.label && <p className="text-sm">{item.label}</p>}</item.component>
+                        </Link>
+                    ))}
                 </nav>
             </div>
         </div>

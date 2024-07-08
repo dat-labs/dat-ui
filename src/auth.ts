@@ -23,9 +23,21 @@ const credentialsConfig = CredentialsProvider({
         });
         if (res.ok) {
             const resJson = await res.json();
+            console.log(resJson);
             return resJson;
         }
         return null;
+
+        // const res = {
+        //     created_at: "2024-03-19T18:11:21.886584",
+        //     id: "09922bd9-7872-4664-99d0-08eae42fb554",
+        //     email: "user@dat.com",
+        //     password_hash: "$2a$10$9QnKOPnMgGTrxtwc/A2jW.dG8RAW13QFuTe7CsOKrNNVew6kiIVtO",
+        //     updated_at: "2024-06-13T13:06:23.855231",
+        //     workspace_id: "wkspc-uuid",
+        // };
+
+        // return res;
     },
 });
 

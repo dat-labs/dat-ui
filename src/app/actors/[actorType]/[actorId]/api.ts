@@ -14,7 +14,7 @@ export const updateActorInstance = async (actorId: string, data: any) => {
         body: JSON.stringify(data),
     });
     const responseData = await response.json();
-    return responseData;
+    return { responseData, status: response.status };
 };
 
 /**
@@ -24,21 +24,13 @@ export const updateActorInstance = async (actorId: string, data: any) => {
  * @returns {Promise<any|void>} The response data from the API or undefined if an error occurs.
  */
 export const deleteActorInstance = async (actorId: string) => {
-    try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/actor_instances/${actorId}`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
-
-        if (!response.ok) {
-            throw new Error("Api response was not ok");
-        }
-
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.log(`Failed to delete item: ${error.message}`);
-    }
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/actor_instances/${actorId}`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+    const responseData = await response.json();
+    const status = response.status;
+    return { responseData, status };
 };

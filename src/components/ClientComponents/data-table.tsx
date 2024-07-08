@@ -19,7 +19,7 @@ interface DataTableProps<TData, TValue> {
     actorType?: string;
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
-    clickHandler: (row: any) => void;
+    clickHandler?: (row: any) => void;
 }
 
 /**
@@ -75,7 +75,7 @@ export default function DataTable<TData, TValue>({ actorType, columns, data, cli
                             <TableRow key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => {
                                     return (
-                                        <TableHead key={header.id}>
+                                        <TableHead key={header.id} className="">
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(header.column.columnDef.header, header.getContext())}
@@ -95,7 +95,7 @@ export default function DataTable<TData, TValue>({ actorType, columns, data, cli
                                     style={{ cursor: "pointer" }} // Optional: change cursor to pointer to indicate row is clickable
                                 >
                                     {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
+                                        <TableCell key={cell.id} className="">
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </TableCell>
                                     ))}

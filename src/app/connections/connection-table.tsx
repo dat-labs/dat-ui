@@ -5,6 +5,7 @@ import { ConnectionActions } from "@/components/ClientComponents/action-button-g
 import { importIcon } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowRightIcon } from "@radix-ui/react-icons";
+import { Card } from "@/components/ui/card";
 
 interface Actor {
     name: string;
@@ -86,7 +87,9 @@ const getColumns = (): ColumnDef<ConnectionInstance>[] => {
                 return (
                     <div className="flex items-center">
                         {SourceIconComponent !== null ? (
-                            <SourceIconComponent className="h-6 w-6 stroke-foreground" />
+                            <Card className="p-1 rounded">
+                                <SourceIconComponent className="h-6 w-6 stroke-foreground" />
+                            </Card>
                         ) : (
                             <img
                                 src={`https://ui-avatars.com/api/?name=${row.original.source_instance.name}`}
@@ -96,7 +99,9 @@ const getColumns = (): ColumnDef<ConnectionInstance>[] => {
                         )}
                         <ArrowRightIcon className="mx-1" />
                         {GeneratorIconComponent !== null ? (
-                            <GeneratorIconComponent className="h-6 w-6 stroke-foreground" />
+                            <Card className="p-1 rounded">
+                                <GeneratorIconComponent className="h-6 w-6 stroke-foreground" />
+                            </Card>
                         ) : (
                             <img
                                 src={`https://ui-avatars.com/api/?name=${row.original.generator_instance.name}`}
@@ -106,7 +111,9 @@ const getColumns = (): ColumnDef<ConnectionInstance>[] => {
                         )}
                         <ArrowRightIcon className="mx-1" />
                         {DestinationComponent !== null ? (
-                            <DestinationComponent className="h-6 w-6 stroke-foreground" />
+                            <Card className="p-1 rounded">
+                                <DestinationComponent className="h-6 w-6 stroke-foreground" />
+                            </Card>
                         ) : (
                             <img
                                 src={`https://ui-avatars.com/api/?name=${row.original.destination_instance.name}`}

@@ -72,7 +72,7 @@ export default function ConnectionConfiguration() {
         updateState("configuration", { ...state.configuration, schedule: val });
     };
 
-    const { data, makeApiCall } = useApiCall(getStreamsForSource);
+    const { data, loading, makeApiCall } = useApiCall(getStreamsForSource);
     const streamsObj: any = {};
 
     useEffect(() => {
@@ -97,7 +97,6 @@ export default function ConnectionConfiguration() {
             };
         });
         updateState("streams", streamsObj);
-        console.log(state);
     }, [data]);
 
     return (
@@ -132,7 +131,7 @@ export default function ConnectionConfiguration() {
                 </Select>
             </div>
             <div className="mt-4">
-                <Streams data={getStreamsData(state.streams)} />
+                <Streams data={getStreamsData(state.streams)} loading={loading} />
             </div>
         </>
     );

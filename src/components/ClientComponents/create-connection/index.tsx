@@ -9,6 +9,7 @@ import { addConnection } from "./api";
 import useApiCall from "@/hooks/useApiCall";
 import { useRouter } from "next/navigation";
 import { getSession } from "next-auth/react";
+import { toast } from "sonner";
 
 const formDataValue = {
     step: 1,
@@ -111,6 +112,7 @@ const FormComponent = () => {
         updateState("step", state.step - 1);
     };
 
+    const router = useRouter();
     const { makeApiCall } = useApiCall(addConnection, "POST");
 
     /**
@@ -145,7 +147,16 @@ const FormComponent = () => {
             },
             schedule_type: "manual",
         };
-        await makeApiCall(postData);
+
+        console.log("Calling API", postData);
+        const res = await makeApiCall(postData);
+
+        if (res.status === 200) {
+            toast.success("Added Connection Successfully !!!");
+            router.push("/connections");
+        } else {
+            toast.error("Failed to add Connection !");
+        }
     };
 
     const shouldDisableNextButton = () => {
