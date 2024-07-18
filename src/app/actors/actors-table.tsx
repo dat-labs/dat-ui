@@ -111,8 +111,8 @@ const getColumns = (actorType: string): ColumnDef<ActorInstanceData>[] => {
                     <div className="flex items-center">
                         {getIconComponent(row.original.actor.icon).then((IconComponent) =>
                             IconComponent ? (
-                                <Card className="p-1 rounded">
-                                    <IconComponent className="h-7 w-7 stroke-foreground" />
+                                <Card className="p-1 bg-white">
+                                    <IconComponent className="h-7 w-7" />
                                 </Card>
                             ) : null
                         )}
@@ -159,53 +159,6 @@ const getColumns = (actorType: string): ColumnDef<ActorInstanceData>[] => {
  * @returns {JSX.Element} The rendered actors table component.
  */
 function ActorsTable({ actorType, loadData = [] }: { actorType: string; loadData: any }) {
-    //const [loadData, setLoadData] = useState([]);
-    // const data: ActorInstanceData[] = await getActorsData(actorType);
-
-    // const load = useCallback(async () => {
-    //     const data = await getActorsData(actorType);
-    //     setLoadData(data);
-    // }, [actorType, setLoadData]);
-    const getColumns = (actorType: string): ColumnDef<ActorInstanceData>[] => {
-        // var style = getComputedStyle(document.body);
-        return [
-            {
-                accessorKey: "actor.name",
-                header: capitalizeFirstLetter(actorType),
-                cell: ({ row }) => {
-                    return (
-                        <div className="flex items-center">
-                            {getIconComponent(row.original.actor.icon).then((IconComponent) =>
-                                IconComponent ? (
-                                    <IconComponent className="h-7 w-7 fill-foreground" />
-                                ) : (
-                                    <img
-                                        src={`https://ui-avatars.com/api/?name=${row.original.actor.name}`}
-                                        alt="icon"
-                                        className="h-7 w-7 rounded-md"
-                                    />
-                                )
-                            )}
-                            <span className="ml-2">{capitalizeFirstLetter(row.original.actor.name)}</span>
-                        </div>
-                    );
-                },
-            },
-            {
-                accessorKey: "name",
-                header: "Name",
-            },
-            {
-                accessorKey: "number_of_connections",
-                header: "No of Connections",
-            },
-        ];
-    };
-
-    // useEffect(() => {
-    //     load();
-    // }, []);
-
     const columns = useMemo(() => getColumns(actorType), []);
 
     /**
@@ -217,7 +170,6 @@ function ActorsTable({ actorType, loadData = [] }: { actorType: string; loadData
         const currentUrl = window.location.href;
 
         const newUrl = `${currentUrl}/${row?.original?.id}`;
-        console.log(newUrl);
         window.location.href = newUrl;
         // router.push(newUrl);
     };

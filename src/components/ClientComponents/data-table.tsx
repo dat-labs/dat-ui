@@ -31,7 +31,7 @@ interface DataTableProps<TData, TValue> {
  * @returns {JSX.Element} The rendered DataTable component.
  */
 export default function DataTable<TData, TValue>({ actorType, columns, data, clickHandler }: DataTableProps<TData, TValue>) {
-    const [sorting, setSorting] = React.useState([]);
+    const [sorting, setSorting] = React.useState<SortingState>([]);
 
     const table = useReactTable({
         data,
@@ -63,7 +63,7 @@ export default function DataTable<TData, TValue>({ actorType, columns, data, cli
             <Search
                 type="search"
                 placeholder={`Search your ${actorType}`}
-                className="mt-6 rounded-lg"
+                className="rounded-lg"
                 handleSearch={(e) => setQuery(e.target.value)}
                 search={query}
             />
@@ -92,10 +92,18 @@ export default function DataTable<TData, TValue>({ actorType, columns, data, cli
                                     key={row.id}
                                     data-state={row.getIsSelected() && "selected"}
                                     onClick={() => handleClickHandler(row)}
-                                    style={{ cursor: "pointer" }} // Optional: change cursor to pointer to indicate row is clickable
+                                    style={{ cursor: "pointer" }}
                                 >
                                     {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id} className="">
+                                        <TableCell
+                                            key={cell.id}
+                                            className=""
+                                            onClick={(event) => {
+                                                if (cell.column.id === "actions") {
+                                                    event.stopPropagation();
+                                                }
+                                            }}
+                                        >
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </TableCell>
                                     ))}

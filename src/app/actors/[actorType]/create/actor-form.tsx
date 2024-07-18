@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeftIcon, ArrowRightIcon, ChevronLeftIcon } from "@radix-ui/react-icons";
 import FormGenerator from "@/components/ClientComponents/FormGenerator/FormGenerator";
-import { getFormDataForSource, getActors, createActorInstance } from "./api";
+import { getFormDataForSource, getActors, createActorInstance, getActorDocumentation } from "./api";
 import ActorListing from "./actors-listing";
 import DocWrapper from "@/components/commom/doc-wrapper";
 import { Button } from "@/components/ui/button";
@@ -37,10 +37,9 @@ export default function ActorForm({
     editMode?: boolean;
     actorId?: any;
 }) {
-    const ifDocs = true;
-
     // For form input values in both Edit and Create Mode
     const [formData, setFormData] = useState(null);
+    const [actorDoc, setActorDoc] = useState(null);
 
     // ************************************************ Create Form Logic *****************************************************
     const [step, setStep] = useState(1);
@@ -51,7 +50,6 @@ export default function ActorForm({
     const [actorInstanceName, setActorInstanceName] = useState(null);
 
     const { makeApiCall: createInstanceApi } = useApiCall(createActorInstance, "POST");
-
     /**
      * Handles form submission for creating a new actor.
      * @param data - The form data.
@@ -73,10 +71,10 @@ export default function ActorForm({
         };
 
         const res = await createInstanceApi(apiData);
-        if (res.status_code !== 200) {
+        if (res.status !== 200) {
             setError(res.responseData.detail);
         }
-        if (res.status_code === 200 && postFormSubmitActions) {
+        if (res.status === 200 && postFormSubmitActions) {
             await postFormSubmitActions();
         }
     };
@@ -85,15 +83,24 @@ export default function ActorForm({
      * @ if creating actor then fetches data for selectedActors
      */
     const { data: formStructure, loading: formStructureLoader, makeApiCall: formStructurApi } = useApiCall(getFormDataForSource);
+    const {
+        data: docData,
+        statusCode: docStatus,
+        loading: docLoading,
+        makeApiCall: getDocApi,
+    } = useApiCall(getActorDocumentation);
+
     useEffect(() => {
         if (!editMode && selectedActor) {
             (async () => {
                 await formStructurApi(selectedActor);
+                await getDocApi(selectedActor);
                 setStep(2);
             })();
         }
         return () => {
             setFormData(null);
+            setActorDoc(null);
         };
     }, [selectedActor]);
 
@@ -116,7 +123,6 @@ export default function ActorForm({
             })();
         }
     }, []);
-
     useEffect(() => {
         if (getActorsData) {
             setActors(getActorsData);
@@ -156,6 +162,7 @@ export default function ActorForm({
     const load = useCallback(async () => {
         const data = await actorDataApi(actorType, actorId);
         const jsonData = await actorSpecResApi(data?.actor.id);
+        await getDocApi(data?.actor.id);
         setActorInstanceData(data);
         setFormData(jsonData);
     }, [actorType, actorId]);
@@ -201,6 +208,13 @@ export default function ActorForm({
         }
     };
 
+    /** If documentation present for the actor then it sets it */
+    useEffect(() => {
+        if (docData) {
+            setActorDoc(docData.responseData);
+        }
+    }, [docData, setActorDoc]);
+
     const ActorIcon = importIcon(editMode ? actorInstanceData?.actor?.icon : actorInstanceIcon);
 
     return (
@@ -217,14 +231,23 @@ export default function ActorForm({
             )}
 
             {(editMode || step === 2) && (
-                <ResizablePanelGroup direction="horizontal" className="min-h-[200px] w-full h-full">
-                    <ResizablePanel defaultSize={ifDocs ? 50 : 100} minSize={30} className="h-full">
-                        <div className={`flex flex-col h-full`}>
+                <ResizablePanelGroup direction="horizontal" className="w-full h-screen">
+                    <ResizablePanel defaultSize={docStatus == 200 ? 50 : 100} minSize={30}>
+                        <div className="flex flex-col h-[90vh]">
                             <div className="flex flex-row items-center border-b py-3 pl-4 space-x-2">
-                                {ActorIcon !== null ? <ActorIcon className="h-6 w-6 stroke-foreground" /> : <CircularLoader />}
-                                <p className="text-gray-600">{editMode ? actorInstanceData?.actor.name : actorInstanceName}</p>
+                                {ActorIcon !== null ? (
+                                    <Card className="p-1 bg-white">
+                                        <ActorIcon className="h-6 w-6" />
+                                    </Card>
+                                ) : (
+                                    <CircularLoader />
+                                )}
+
+                                <p className="text-muted-foreground text-lg">
+                                    {editMode ? actorInstanceData?.actor.name : actorInstanceName}
+                                </p>
                             </div>
-                            <ScrollArea className={`w-full h-[610px]`}>
+                            <ScrollArea className="w-full pb-5 flex-grow overflow-hidden">
                                 {formStructureLoader || actorDataLoader || actorSpecResLoader ? (
                                     <div className="w-11/12 mx-auto mt-4">
                                         <Loading />
@@ -263,18 +286,15 @@ export default function ActorForm({
                             </ScrollArea>
                         </div>
                     </ResizablePanel>
-                    {ifDocs && <ResizableHandle withHandle />}
+                    {docStatus == 200 && <ResizableHandle className="h-[92vh] min-[1900px]:h-[93vh] min-[2200px]:h-[95vh]" />}
 
-                    {ifDocs && (
-                        <ResizablePanel defaultSize={50} minSize={30} className="h-full">
-                            <ScrollArea className={`w-full h-[660px]`}>
-                                <DocWrapper doc={`${editMode ? "Edit" : "Create"} Page doc`} url="google.com" editMode={editMode}>
-                                    {!editMode && (
-                                        <Button onClick={() => setStep(1)} variant="outline" className="mb-7">
-                                            <ArrowLeftIcon className="mr-4" /> Back
-                                        </Button>
-                                    )}
-                                </DocWrapper>
+                    {docStatus == 200 && (
+                        <ResizablePanel defaultSize={50} minSize={30}>
+                            <ScrollArea className="h-[90vh] overflow-hidden">
+                                <DocWrapper
+                                    doc={docLoading ? "loading" : actorDoc}
+                                    url={formData?.properties?.documentation_url?.default}
+                                ></DocWrapper>
                             </ScrollArea>
                         </ResizablePanel>
                     )}

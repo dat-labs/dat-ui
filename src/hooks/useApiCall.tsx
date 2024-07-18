@@ -38,7 +38,7 @@ const useApiCall = (apiCallFunction, method = "GET") => {
         try {
             const response = await apiCallFunction(...args);
             setData(response);
-            setStatusCode(response.status);
+            setStatusCode(response?.status);
             return response;
         } catch (err) {
             setError(err);

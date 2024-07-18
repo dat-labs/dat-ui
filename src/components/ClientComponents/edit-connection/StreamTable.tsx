@@ -19,7 +19,7 @@ export function StreamTable<TData, TValue>({ columns, data }: DataTableProps<TDa
     return (
         <div className="rounded-md border">
             <Table>
-                <TableHeader className="bg-[#E4E4E7]">
+                <TableHeader className="bg-muted">
                     {table.getHeaderGroups().map((headerGroup) => (
                         <TableRow key={headerGroup.id}>
                             {headerGroup.headers.map((header) => {
@@ -35,11 +35,11 @@ export function StreamTable<TData, TValue>({ columns, data }: DataTableProps<TDa
                     ))}
                 </TableHeader>
                 <TableBody>
-                    {table.getRowModel().rows?.length ? (
+                    {table.getRowModel().rows?.length > 0 ? (
                         table.getRowModel().rows.map((row) => (
                             <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                                 {row.getVisibleCells().map((cell) => (
-                                    <TableCell key={cell.id} className="text-[#64748B] text-center">
+                                    <TableCell key={cell.id} className="text-muted-foreground text-center">
                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                     </TableCell>
                                 ))}

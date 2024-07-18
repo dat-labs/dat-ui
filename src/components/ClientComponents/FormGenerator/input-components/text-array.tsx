@@ -1,17 +1,19 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import Chip from "@/components/commom/chip";
 
 export default function TextArray({ field_name, description, defaultValue }) {
-    const { getValues, setValue, watch } = useFormContext();
+    const { setValue, watch, register } = useFormContext();
 
     const values = watch(field_name) || [];
 
     // Initialize default values only if the field is not already set
-    if (values.length === 0 && defaultValue && defaultValue.length > 0) {
-        setValue(field_name, defaultValue);
-    }
+    useEffect(() => {
+        if (values.length === 0 && defaultValue && defaultValue.length > 0) {
+            setValue(field_name, defaultValue);
+        }
+    }, [defaultValue, field_name, setValue]);
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
@@ -29,6 +31,10 @@ export default function TextArray({ field_name, description, defaultValue }) {
         const updatedValues = values.filter((_, i) => i !== index);
         setValue(field_name, updatedValues);
     };
+
+    useEffect(() => {
+        register(field_name, { required: `Add required ${field_name}` });
+    }, [field_name, register]);
 
     return (
         <div>

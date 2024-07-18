@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense } from "react";
+import React, { Suspense, useState } from "react";
 import SelectActor from "./select-actor";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -74,7 +74,7 @@ const formSteps = [
     },
     {
         title: "Configure Connection",
-        component: <ConnectionConfiguration />,
+        component: <ConnectionConfiguration editMode={false} />,
     },
 ];
 
@@ -103,6 +103,7 @@ export const getStremsData = (streamsObj: any) => {
 
 const FormComponent = () => {
     const { state, updateState } = React.useContext(FromDataContext);
+    const [saveError, setSaveError] = useState("");
 
     const handleNext = () => {
         updateState("step", state.step + 1);
@@ -112,6 +113,28 @@ const FormComponent = () => {
         updateState("step", state.step - 1);
     };
 
+    /** Check if connection is having Name , Schedule and atleast one stream configured */
+    const checkConnectionForError = () => {
+        let flag = false;
+        for (let key in state.streams) {
+            if (state.streams.hasOwnProperty(key) && state.streams[key].configuration?.name) {
+                flag = true;
+                break;
+            }
+        }
+
+        if (!state.configuration.name) {
+            setSaveError("Provide a Name for connection.");
+            return true;
+        } else if (!state.configuration.schedule) {
+            setSaveError("Select a Schedule for connection.");
+            return true;
+        } else if (!flag) {
+            setSaveError("Atleast one Stream should be configured.");
+            return true;
+        }
+    };
+
     const router = useRouter();
     const { makeApiCall } = useApiCall(addConnection, "POST");
 
@@ -119,6 +142,7 @@ const FormComponent = () => {
      * Handles the action when the "Save" button is clicked to save the connection configuration.
      * Makes an API call with the configured connection data.
      */
+
     const handleSave = async () => {
         const session = await getSession();
 
@@ -148,14 +172,15 @@ const FormComponent = () => {
             schedule_type: "manual",
         };
 
-        console.log("Calling API", postData);
-        const res = await makeApiCall(postData);
+        if (!checkConnectionForError()) {
+            const res = await makeApiCall(postData);
 
-        if (res.status === 200) {
-            toast.success("Added Connection Successfully !!!");
-            router.push("/connections");
-        } else {
-            toast.error("Failed to add Connection !");
+            if (res.status === 200) {
+                toast.success("Added Connection Successfully !!!");
+                router.push("/connections");
+            } else {
+                toast.error("Failed to add Connection !");
+            }
         }
     };
 
@@ -174,47 +199,43 @@ const FormComponent = () => {
 
     return (
         <>
-            <div className="">
-                <div className="flex mt-3">
-                    <div className=" w-full">
-                        <div className="flex justify-start gap-5">
-                            {formSteps.map((step, index) => (
-                                <>
-                                    <div key={index} className="flex items-center ml-2">
-                                        <div
-                                            className={`w-5 h-5 rounded-full ${
-                                                index === state.step - 1
-                                                    ? "bg-primary text-primary-foreground"
-                                                    : index < state.step - 1
-                                                    ? "dark:bg-green-500 bg-green-400"
-                                                    : "bg-gray-300 "
-                                            } flex items-center justify-center`}
-                                        >
-                                            {index < state.step - 1 ? (
-                                                <span className="text-sm font-bold">&#10003;</span>
-                                            ) : (
-                                                index + 1
-                                            )}
-                                        </div>
-                                        <span className="ml-2 text-sm">{step.title}</span>
-                                        <img
-                                            width="15"
-                                            height="10px"
-                                            alt="seperator icon"
-                                            className="h-3 w-3 ml-4"
-                                            src="https://cdn0.iconfinder.com/data/icons/mintab-outline-for-ios-4/30/toward-forward-more-than-angle-bracket-512.png"
-                                        />
+            <div className="flex mt-3">
+                <div className="w-full">
+                    <div className="flex justify-start gap-5">
+                        {formSteps.map((step, index) => (
+                            <>
+                                <div key={index} className="flex items-center ml-2">
+                                    <div
+                                        className={`w-5 h-5 rounded-full ${
+                                            index === state.step - 1
+                                                ? "bg-primary text-primary-foreground"
+                                                : index < state.step - 1
+                                                ? "dark:bg-green-500 bg-green-400"
+                                                : "bg-gray-300 "
+                                        } flex items-center justify-center`}
+                                    >
+                                        {index < state.step - 1 ? <span className="text-sm font-bold">&#10003;</span> : index + 1}
                                     </div>
-                                </>
-                            ))}
-                        </div>
-                        <Separator className="mt-3" />
+                                    <span className="ml-2 text-sm">{step.title}</span>
+                                    <img
+                                        width="15"
+                                        height="10px"
+                                        alt="seperator icon"
+                                        className="h-3 w-3 ml-4"
+                                        src="https://cdn0.iconfinder.com/data/icons/mintab-outline-for-ios-4/30/toward-forward-more-than-angle-bracket-512.png"
+                                    />
+                                </div>
+                            </>
+                        ))}
                     </div>
+                    <Separator className="mt-3" />
                 </div>
-                <div className="p-6">
-                    <div>{formSteps[state.step - 1].component}</div>
+            </div>
+            <div className="p-6">
+                <div>{formSteps[state.step - 1].component}</div>
 
-                    {state.showNavButtons && (
+                {state.showNavButtons && (
+                    <div className="flex flex-col ">
                         <div className="flex justify-center mt-4 gap-2">
                             <Button disabled={state.step === 1} size="sm" variant="outline" onClick={handleBack}>
                                 Back
@@ -229,8 +250,10 @@ const FormComponent = () => {
                                 </Button>
                             )}
                         </div>
-                    )}
-                </div>
+
+                        {saveError && <p className="text-red-600 text-center mt-2">{saveError}</p>}
+                    </div>
+                )}
             </div>
         </>
     );

@@ -58,6 +58,9 @@ const config = {
             }
             return session;
         },
+        redirect: async ({ url, baseUrl }) => {
+            return baseUrl + "/connections";
+        },
     },
 } satisfies NextAuthConfig;
 

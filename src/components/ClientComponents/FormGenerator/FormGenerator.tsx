@@ -42,7 +42,6 @@ export default function FormGenerator({
      * @returns form submission
      */
     const onSubmitForm = async (data: any) => {
-        console.log(data);
         await onSubmit(data);
     };
 

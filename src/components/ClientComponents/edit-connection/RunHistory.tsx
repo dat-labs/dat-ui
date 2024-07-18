@@ -7,15 +7,7 @@ import { Button } from "@/components/ui/button";
 import { addDays, format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import {
-    CalendarIcon,
-    CheckCircledIcon,
-    ChevronDownIcon,
-    ChevronRightIcon,
-    CubeIcon,
-    DotsVerticalIcon,
-    FileTextIcon,
-} from "@radix-ui/react-icons";
+import { CalendarIcon } from "@radix-ui/react-icons";
 import { getConnectionAggRunLogs } from "@/app/connections/[connectionId]/api";
 import useApiCall from "@/hooks/useApiCall";
 import RunLogTable from "./RunLogTable";
@@ -28,6 +20,7 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination";
+import Loading from "@/app/connections/[connectionId]/loading";
 
 export function DatePickerWithRange({ className }: React.HTMLAttributes<HTMLDivElement>) {
     const [date, setDate] = React.useState<DateRange | undefined>({
@@ -76,7 +69,7 @@ export function DatePickerWithRange({ className }: React.HTMLAttributes<HTMLDivE
 export default function RunHistory({ connectionData }) {
     const [logData, setLogData] = React.useState([]);
 
-    const { data, makeApiCall } = useApiCall(getConnectionAggRunLogs, "GET");
+    const { data, loading, makeApiCall } = useApiCall(getConnectionAggRunLogs, "GET");
 
     React.useEffect(() => {
         (async () => {
@@ -91,40 +84,49 @@ export default function RunHistory({ connectionData }) {
     }, [data]);
 
     return (
-        <div className="p-5 mr-12 bg-[#FFFFFF]">
-            <div className="flex flex-col border rounded-md">
-                <div className="flex flex-row justify-between items-center border-b px-5 py-3">
-                    <p className="text-xl font-semibold font-inter">Run History</p>
-                    <div>
-                        <DatePickerWithRange />
+        <div className="p-5 mr-12">
+            {loading ? (
+                <Loading />
+            ) : (
+                <div className="flex flex-col border rounded-md">
+                    <div className="flex flex-row justify-between items-center border-b px-5 py-3">
+                        <p className="text-xl font-semibold font-inter">Run History</p>
+                        <div>
+                            <DatePickerWithRange />
+                        </div>
                     </div>
+                    {logData.length > 0 ? (
+                        logData.map((log, index) => <RunLogTable key={index} logInstance={log} />)
+                    ) : (
+                        <div className="w-full border-b">
+                            <p className="text-center py-10"> No Run History Found</p>
+                        </div>
+                    )}
+
+                    <Pagination>
+                        <PaginationContent>
+                            <PaginationItem>
+                                <PaginationPrevious href="#" />
+                            </PaginationItem>
+                            <PaginationItem>
+                                <PaginationLink href="#">1</PaginationLink>
+                            </PaginationItem>
+                            <PaginationItem>
+                                <PaginationLink href="#" isActive>
+                                    2
+                                </PaginationLink>
+                            </PaginationItem>
+                            <PaginationItem>
+                                <PaginationLink href="#">3</PaginationLink>
+                            </PaginationItem>
+
+                            <PaginationItem>
+                                <PaginationNext href="#" />
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
                 </div>
-
-                {logData.length > 0 && logData.map((log, index) => <RunLogTable key={index} logInstance={log} />)}
-
-                <Pagination>
-                    <PaginationContent>
-                        <PaginationItem>
-                            <PaginationPrevious href="#" />
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationLink href="#">1</PaginationLink>
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationLink href="#" isActive>
-                                2
-                            </PaginationLink>
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationLink href="#">3</PaginationLink>
-                        </PaginationItem>
-
-                        <PaginationItem>
-                            <PaginationNext href="#" />
-                        </PaginationItem>
-                    </PaginationContent>
-                </Pagination>
-            </div>
+            )}
         </div>
     );
 }

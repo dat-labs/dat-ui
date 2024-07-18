@@ -1,18 +1,5 @@
 import React from "react";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuPortal,
-    DropdownMenuSeparator,
-    DropdownMenuShortcut,
-    DropdownMenuSub,
-    DropdownMenuSubContent,
-    DropdownMenuSubTrigger,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import { StreamTable } from "./StreamTable";
 import {
@@ -25,6 +12,17 @@ import {
     ExclamationTriangleIcon,
     FileTextIcon,
 } from "@radix-ui/react-icons";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import { Card } from "@/components/ui/card";
+import { LazyLog, ScrollFollow } from "react-lazylog";
 
 export type Streams = {
     name: string;
@@ -54,6 +52,9 @@ function RunLogTable({ logInstance }: { logInstance: any }) {
         setArrow(!arrow);
     };
 
+    const logs =
+        "Jul 08 11:48:31 gunicorn[3568132]: 2024-07-08 11:48:31.157 | DEBUG    | datachannel.accounts.account_feature_service:fill_plan_features:39 - feature_id \nJul 08 11:48:31 gunicorn[3568132]: 2024-07-08 11:48:31.157 | DEBUG    | datachannel.accounts.account_feature_service:fill_plan_features:40 - \n19Jul 08 11:48:31 gunicorn[3568132]: 2024-07-08 11:48:31.158 | DEBUG    | datachannel.accounts.account_feature_service:fill_plan_features:42 - not in account plan";
+
     return (
         <div className="flex-col py-6 px-5 border-b">
             <div className="flex xl:flex-row flex-col xl:justify-between space-y-2">
@@ -76,11 +77,17 @@ function RunLogTable({ logInstance }: { logInstance: any }) {
                         <ExclamationTriangleIcon width={30} height={30} color="#A16207" />
                     )}
 
-                    <p className="font-semibold">{logInstance?.status === "success" ? "Run Successful" : "Run Failed"} </p>
-                    {logInstance.status != "failed" && <p className="text-[#64748B]"> Size : {logInstance?.size}</p>}
+                    <p className="font-semibold">
+                        {logInstance?.status === "success"
+                            ? "Run Successful"
+                            : logInstance.status === "failed"
+                            ? "Run Failed"
+                            : "Partial Success"}{" "}
+                    </p>
+                    {logInstance.status != "failed" && <p className="text-muted-foreground"> Size : {logInstance?.size}</p>}
                 </div>
 
-                <div className="flex flex-row space-x-3 items-center">
+                <div className="flex flex-row space-x-3 items-center ml-9 xl:ml-0">
                     {logInstance.status != "failed" && (
                         <>
                             <div className="flex flex-row items-center space-x-1 border px-2 py-1 rounded-lg font-semibold hover:shadow-md">
@@ -94,23 +101,43 @@ function RunLogTable({ logInstance }: { logInstance: any }) {
                         </>
                     )}
 
-                    <p className="text-[#64748B]"> {logInstance?.start_time}</p>
+                    <p className="text-muted-foreground"> {logInstance?.start_time}</p>
 
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <DotsVerticalIcon width={20} height={20} className="cursor-pointer" />
-                        </DropdownMenuTrigger>
+                    <Dialog>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <DotsVerticalIcon width={20} height={20} className="cursor-pointer" />
+                            </DropdownMenuTrigger>
 
-                        <DropdownMenuContent className="w-28 border-[#E4E4E7] bg-[#FFFFFF] text-[#64748B]">
-                            <DropdownMenuItem>
-                                <span>View Logs</span>
-                            </DropdownMenuItem>
+                            <DropdownMenuContent className="w-28 text-muted-foreground">
+                                <DialogTrigger className="w-full">
+                                    <DropdownMenuItem>
+                                        <span>View Logs</span>
+                                    </DropdownMenuItem>
+                                </DialogTrigger>
 
-                            <DropdownMenuItem>
-                                <span>Download Logs</span>
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                                <DropdownMenuItem>
+                                    <span>Download Logs</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        <DialogContent className="size-10/12 max-w-none">
+                            <Card className="p-5 m-2">
+                                <DialogHeader>
+                                    <DialogTitle className="mb-2">Run Logs</DialogTitle>
+                                    <DialogDescription className="h-[470px]">
+                                        <ScrollFollow
+                                            startFollowing
+                                            render={({ follow }) => (
+                                                <LazyLog extraLines={1} enableSearch text={logs} stream follow={follow} />
+                                            )}
+                                        />
+                                    </DialogDescription>
+                                </DialogHeader>
+                            </Card>
+                        </DialogContent>
+                    </Dialog>
                 </div>
             </div>
 

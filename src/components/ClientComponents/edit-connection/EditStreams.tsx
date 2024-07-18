@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import ConnectionConfiguration from "../create-connection/connection-configuration";
 import { FromDataContext, getStremsData } from "../create-connection";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,28 @@ export default function EditStreams({ connectionData }) {
     const router = useRouter();
 
     const { state, updateState } = React.useContext(FromDataContext);
+    const [saveError, setSaveError] = useState("");
+
+    const checkConnectionForError = () => {
+        let flag = false;
+        for (let key in state.streams) {
+            if (state.streams.hasOwnProperty(key) && state.streams[key].configuration?.name) {
+                flag = true;
+                break;
+            }
+        }
+
+        if (!state.configuration.name) {
+            setSaveError("Provide a Name for connection.");
+            return true;
+        } else if (!state.configuration.schedule) {
+            setSaveError("Select a Schedule for connection.");
+            return true;
+        } else if (!flag) {
+            setSaveError("Atleast one Stream should be configured.");
+            return true;
+        }
+    };
 
     const { data, error, loading, statusCode, makeApiCall } = useApiCall(updateConnection, "POST");
 
@@ -41,14 +63,16 @@ export default function EditStreams({ connectionData }) {
             },
             schedule_type: "manual",
         };
-        console.log(patchData);
-        const res = await makeApiCall(connectionData.id, patchData);
 
-        if (res.status === 200) {
-            toast(`Connection updated successfully.`);
-            router.push("/connections");
-        } else {
-            toast.error("Failed to Update Connection");
+        if (!checkConnectionForError()) {
+            const res = await makeApiCall(connectionData.id, patchData);
+
+            if (res.status === 200) {
+                toast(`Connection updated successfully.`);
+                router.push("/connections");
+            } else {
+                toast.error("Failed to Update Connection");
+            }
         }
     };
     React.useEffect(() => {
@@ -61,12 +85,15 @@ export default function EditStreams({ connectionData }) {
     }, [state.configuration.name, state]);
     return (
         <div>
-            <ConnectionConfiguration />
-            <div className="flex justify-center">
-                <Button onClick={handleSave} disabled={loading}>
-                    {" "}
-                    {loading && <CircularLoader />}Save
-                </Button>
+            <ConnectionConfiguration editMode={true} />
+            <div className="flex flex-col justify-center">
+                <div className="flex justify-center">
+                    <Button size="sm" onClick={handleSave} disabled={loading}>
+                        {loading && <CircularLoader />}Save
+                    </Button>
+                </div>
+
+                {saveError && <p className="text-red-600 text-center text-sm">{saveError}</p>}
             </div>
         </div>
     );

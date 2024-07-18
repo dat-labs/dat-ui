@@ -37,7 +37,7 @@ const PaginationLink = ({ className, isActive, size = "icon", ...props }: Pagina
                 variant: isActive ? "outline" : "ghost",
                 size,
             }),
-            `${isActive && "text-[#020617]"}`,
+            `${isActive && "text-primary"}`,
             className
         )}
         {...props}

@@ -54,8 +54,7 @@ const navItems = [
 const bottomNavItems = [
     {
         label: "Help",
-        url: "/help",
-        component: NavItemComponent,
+        url: "https://datlabs.gitbook.io/datlabs",
     },
     {
         component: ModeToggle,
@@ -87,16 +86,16 @@ const Sidebar = () => {
     }, []);
 
     return (
-        <div className="flex flex-col w-full h-screen p-4 bg-primary-foreground border-r">
-            <div className="flex flex-col">
+        <div className="flex flex-col w-full h-screen py-4 bg-primary-foreground border-r">
+            <div className="flex flex-col px-4">
                 <Link href="/connections">
                     {/* <Image src={LogoWhite} width={100} height={100} alt="logo"/> */}
                     <LogoBlack className="h-10 w-24 fill-foreground mb-4" />
                 </Link>
             </div>
-            <div className="flex flex-col py-2 border-y">
+            <div className="flex flex-col py-2 mx-2 border-y">
                 {session ? (
-                    <div className="flex flex-row items-center justify-between mx-2">
+                    <div className="flex flex-row items-center justify-between px-4">
                         <h1 className="text-sm text-ellipsis">{`Dat (${session?.user?.workspace_id})`}</h1>
                         {/* To-Do -> Setup an onClick here -> */}
                         <CaretSortIcon width={20} height={20} />
@@ -105,7 +104,7 @@ const Sidebar = () => {
                     <Loading height="50px" />
                 )}
             </div>
-            <div className="flex-grow pt-8">
+            <div className="flex-grow pt-8 px-4">
                 <nav className="flex flex-col space-y-4">
                     {navItems.map((item) => (
                         <Link
@@ -126,13 +125,19 @@ const Sidebar = () => {
                     ))}
                 </nav>
             </div>
-            <div className="pt-8">
+            <div className="pt-8 px-4">
                 <nav className="flex flex-col space-y-4">
-                    {bottomNavItems.map((item) => (
-                        <Link href={item.url ? item.url : ""} key={item.label}>
-                            <item.component>{item.label && <p className="text-sm">{item.label}</p>}</item.component>
-                        </Link>
-                    ))}
+                    {bottomNavItems.map((item) =>
+                        item.component ? (
+                            <Link href={item.url ? item.url : ""} key={item.label}>
+                                <item.component>{item.label && <p className="text-sm">{item.label}</p>}</item.component>
+                            </Link>
+                        ) : (
+                            <Link href={item.url ? item.url : ""} key={item.label} target="_blank" rel="noopener noreferrer">
+                                {item.label && <p className="text-sm">{item.label}</p>}
+                            </Link>
+                        )
+                    )}
                 </nav>
             </div>
         </div>

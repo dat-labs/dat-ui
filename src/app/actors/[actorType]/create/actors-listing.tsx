@@ -66,22 +66,24 @@ const ActorListing = ({ actors, onChangeHandler, actorType, selectedActor }) => 
                             >
                                 <CardHeader>
                                     <CardTitle className="text-sm">
-                                        <div className="flex md:flex-row flex-col justify-between">
-                                            <div className="flex gap-2 items-center">
+                                        <div className="flex lg:flex-row flex-col justify-between">
+                                            <div className="flex items-center">
                                                 <Suspense fallback={<CircularLoader />}>
-                                                    {IconComponent ? (
-                                                        <IconComponent className="h-7 w-7" />
-                                                    ) : (
-                                                        <img
-                                                            src={`https://ui-avatars.com/api/?name=${actor.name}`}
-                                                            alt="icon"
-                                                            className="h-7 w-7 rounded-md"
-                                                        />
-                                                    )}
+                                                    <Card className="p-1 bg-white">
+                                                        {IconComponent ? (
+                                                            <IconComponent className="h-7 w-7" />
+                                                        ) : (
+                                                            <img
+                                                                src={`https://ui-avatars.com/api/?name=${actor.name}`}
+                                                                alt="icon"
+                                                                className="h-7 w-7 rounded-md"
+                                                            />
+                                                        )}
+                                                    </Card>
                                                 </Suspense>
                                                 <p className="ml-2 font-normal">{actor.name}</p>
                                             </div>
-                                            <p className="rounded-xl text-center uppercase bg-zinc-100 text-gray-500 p-2 mt-3 md:mt-0 border-2">
+                                            <p className="rounded-xl text-center uppercase bg-muted text-gray-500 p-2 mt-3 lg:mt-0 border-2">
                                                 Verified
                                             </p>
                                         </div>
