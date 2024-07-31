@@ -232,7 +232,7 @@ export default function ActorForm({
 
             {(editMode || step === 2) && (
                 <ResizablePanelGroup direction="horizontal" className="w-full h-screen">
-                    <ResizablePanel defaultSize={docStatus == 200 ? 50 : 100} minSize={30}>
+                    <ResizablePanel defaultSize={docStatus === 200 || docLoading ? 50 : 100} minSize={30}>
                         <div className="flex flex-col h-[90vh]">
                             <div className="flex flex-row items-center border-b py-3 pl-4 space-x-2">
                                 {ActorIcon !== null ? (
@@ -286,9 +286,12 @@ export default function ActorForm({
                             </ScrollArea>
                         </div>
                     </ResizablePanel>
-                    {docStatus == 200 && <ResizableHandle className="h-[92vh] min-[1900px]:h-[93vh] min-[2200px]:h-[95vh]" />}
 
-                    {docStatus == 200 && (
+                    {(docStatus === 200 || docLoading) && (
+                        <ResizableHandle className="h-[92vh] min-[1900px]:h-[93vh] min-[2200px]:h-[95vh]" />
+                    )}
+
+                    {(docStatus === 200 || docLoading) && (
                         <ResizablePanel defaultSize={50} minSize={30}>
                             <ScrollArea className="h-[90vh] overflow-hidden">
                                 <DocWrapper

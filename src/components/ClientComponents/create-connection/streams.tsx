@@ -16,6 +16,7 @@ import { Card } from "@/components/ui/card";
 
 export default function Streams({ data }: { data: any }) {
     const { state, updateState } = React.useContext(FromDataContext);
+    console.log(state);
 
     const [actorDoc, setActorDoc] = useState(null);
     const { data: docData, makeApiCall } = useApiCall(getActorDocumentation);
@@ -84,8 +85,11 @@ export default function Streams({ data }: { data: any }) {
             id: "actions",
             header: "Actions",
             cell: ({ row }) => {
-                const name = row.original?.name;
-                const jsonSchema = row.original?.streamProperties?.properties?.json_schema?.default[name]?.properties;
+                const rowName = row?.original?.name;
+                let jsonSchema = null;
+                if (row?.original?.streamProperties?.properties?.json_schema?.default) {
+                    jsonSchema = row?.original?.streamProperties?.properties?.json_schema?.default[rowName].properties;
+                }
                 return (
                     <Dialog>
                         <DialogTrigger disabled={!state.streams[row.getValue("name")]?.configured}>
@@ -185,7 +189,7 @@ export default function Streams({ data }: { data: any }) {
 
                                         <TabsContent value="stream" className="w-full h-full">
                                             <StreamPanel
-                                                srcDocs={actorDoc}
+                                                srcDocs={"Doc"}
                                                 row={row}
                                                 handleStreamConfigrationSave={handleStreamConfigrationSave}
                                                 state={state}
@@ -193,12 +197,12 @@ export default function Streams({ data }: { data: any }) {
                                         </TabsContent>
 
                                         <TabsContent value="schema" className="w-full h-full">
-                                            <EditSchemaPanel jsonSchema={jsonSchema} />
+                                            <EditSchemaPanel jsonSchema={jsonSchema} name={rowName} />
                                         </TabsContent>
                                     </Tabs>
                                 ) : (
                                     <StreamPanel
-                                        srcDocs={actorDoc}
+                                        srcDocs={"Doc"}
                                         row={row}
                                         handleStreamConfigrationSave={handleStreamConfigrationSave}
                                         state={state}

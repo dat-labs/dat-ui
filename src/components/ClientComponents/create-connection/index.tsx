@@ -91,10 +91,8 @@ export const getStremsData = (streamsObj: any) => {
             arrToReturn.push({
                 ...streamsObj[streamName].configuration,
                 name: streamName,
-                json_schema: {},
                 read_sync_mode: "INCREMENTAL",
                 write_sync_mode: "APPEND",
-                cursor_field: "string",
             });
         }
     });

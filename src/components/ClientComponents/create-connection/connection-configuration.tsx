@@ -98,7 +98,6 @@ export default function ConnectionConfiguration({ editMode }: { editMode: boolea
      */
     useEffect(() => {
         if (data) {
-            // For postgreSQL stream , change to data to file 
             data?.properties.document_streams.items.anyOf.forEach((stream: any) => {
                 streamsObj[stream.properties.name.default] = {
                     streamProperties: stream,

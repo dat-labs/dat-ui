@@ -7,9 +7,9 @@ import DocWrapper from "@/components/commom/doc-wrapper";
 
 interface StreamPanelProps {
     srcDocs: string | null;
-    row: any; // Adjust type as per your data structure
+    row: any;
     handleStreamConfigrationSave: (values: any, streamName: string) => void;
-    state: any; // Adjust type as per your data structure
+    state: any;
 }
 
 const StreamPanel: React.FC<StreamPanelProps> = ({ srcDocs, row, handleStreamConfigrationSave, state }) => {

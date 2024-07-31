@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Search } from "../commom/search-bar";
 import useSearch from "@/hooks/useSearch";
 import React from "react";
+import { ScrollArea } from "../ui/scroll-area";
 
 interface DataTableProps<TData, TValue> {
     actorType?: string;
@@ -69,57 +70,59 @@ export default function DataTable<TData, TValue>({ actorType, columns, data, cli
             />
 
             <div className="rounded-md border mt-4">
-                <Table>
-                    <TableHeader className="bg-primary-foreground">
-                        {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => {
-                                    return (
-                                        <TableHead key={header.id} className="">
-                                            {header.isPlaceholder
-                                                ? null
-                                                : flexRender(header.column.columnDef.header, header.getContext())}
-                                        </TableHead>
-                                    );
-                                })}
-                            </TableRow>
-                        ))}
-                    </TableHeader>
-                    <TableBody>
-                        {filteredData.length > 0 ? (
-                            filteredData.map((row) => (
-                                <TableRow
-                                    key={row.id}
-                                    data-state={row.getIsSelected() && "selected"}
-                                    onClick={() => handleClickHandler(row)}
-                                    style={{ cursor: "pointer" }}
-                                >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell
-                                            key={cell.id}
-                                            className=""
-                                            onClick={(event) => {
-                                                if (cell.column.id === "actions") {
-                                                    event.stopPropagation();
-                                                }
-                                            }}
-                                        >
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                        </TableCell>
-                                    ))}
+                <ScrollArea className="max-h-[340px] overflow-auto">
+                    <Table>
+                        <TableHeader className="bg-primary-foreground">
+                            {table.getHeaderGroups().map((headerGroup) => (
+                                <TableRow key={headerGroup.id}>
+                                    {headerGroup.headers.map((header) => {
+                                        return (
+                                            <TableHead key={header.id} className="">
+                                                {header.isPlaceholder
+                                                    ? null
+                                                    : flexRender(header.column.columnDef.header, header.getContext())}
+                                            </TableHead>
+                                        );
+                                    })}
                                 </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    No results.
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
+                            ))}
+                        </TableHeader>
+                        <TableBody>
+                            {filteredData.length > 0 ? (
+                                filteredData.map((row) => (
+                                    <TableRow
+                                        key={row.id}
+                                        data-state={row.getIsSelected() && "selected"}
+                                        onClick={() => handleClickHandler(row)}
+                                        style={{ cursor: "pointer" }}
+                                    >
+                                        {row.getVisibleCells().map((cell) => (
+                                            <TableCell
+                                                key={cell.id}
+                                                className=""
+                                                onClick={(event) => {
+                                                    if (cell.column.id === "actions") {
+                                                        event.stopPropagation();
+                                                    }
+                                                }}
+                                            >
+                                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                                        No results.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </ScrollArea>
             </div>
-            <div className="flex items-center justify-end space-x-2 py-4">
+            <div className="flex items-center justify-end space-x-2 pt-4">
                 <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
                     Previous
                 </Button>
