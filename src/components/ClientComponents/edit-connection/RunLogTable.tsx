@@ -45,15 +45,28 @@ export const columns: ColumnDef<Streams>[] = [
     },
 ];
 
-function RunLogTable({ logInstance }: { logInstance: any }) {
+function RunLogTable({ logInstance, viewLogs }: { logInstance: any; viewLogs: any }) {
     const [arrow, setArrow] = React.useState(false);
 
     const toggleArrow = () => {
         setArrow(!arrow);
     };
 
-    const logs =
-        "Jul 08 11:48:31 gunicorn[3568132]: 2024-07-08 11:48:31.157 | DEBUG    | datachannel.accounts.account_feature_service:fill_plan_features:39 - feature_id \nJul 08 11:48:31 gunicorn[3568132]: 2024-07-08 11:48:31.157 | DEBUG    | datachannel.accounts.account_feature_service:fill_plan_features:40 - \n19Jul 08 11:48:31 gunicorn[3568132]: 2024-07-08 11:48:31.158 | DEBUG    | datachannel.accounts.account_feature_service:fill_plan_features:42 - not in account plan";
+    const convertLogs = () => {
+        let allLogs = "";
+
+        viewLogs.forEach((log) => {
+            const json_msg = JSON.parse(log.message);
+            const curLog = `${log.created_at} : ${log.updated_at} | ${json_msg.level} | ${json_msg.message}`;
+            allLogs += `${curLog}\n`;
+        });
+
+        return allLogs;
+    };
+
+    let showLogs = convertLogs();
+    // const logs =
+    //     "Jul 08 11:48:31 gunicorn[3568132]: 2024-07-08 11:48:31.157 | DEBUG | datachannel.accounts.account_feature_service:fill_plan_features:39 - feature_id \nJul 08 11:48:31 gunicorn[3568132]: 2024-07-08 11:48:31.157 | DEBUG | datachannel.accounts.account_feature_service:fill_plan_features:40 - \n19Jul 08 11:48:31 gunicorn[3568132]: 2024-07-08 11:48:31.158 | DEBUG | datachannel.accounts.account_feature_service:fill_plan_features:42 - not in account plan";
 
     return (
         <div className="flex-col py-6 px-5 border-b">
@@ -123,17 +136,23 @@ function RunLogTable({ logInstance }: { logInstance: any }) {
                         </DropdownMenu>
 
                         <DialogContent className="size-10/12 max-w-none">
-                            <Card className="p-5 m-2">
+                            <Card className="p-5 m-4">
                                 <DialogHeader>
                                     <DialogTitle className="mb-2">Run Logs</DialogTitle>
-                                    <DialogDescription className="h-[470px]">
-                                        <ScrollFollow
-                                            startFollowing
-                                            render={({ follow }) => (
-                                                <LazyLog extraLines={1} enableSearch text={logs} stream follow={follow} />
-                                            )}
-                                        />
-                                    </DialogDescription>
+                                    {showLogs.length > 0 ? (
+                                        <DialogDescription className="h-[470px]">
+                                            <ScrollFollow
+                                                startFollowing
+                                                render={({ follow }) => (
+                                                    <LazyLog extraLines={1} enableSearch text={showLogs} stream follow={follow} />
+                                                )}
+                                            />
+                                        </DialogDescription>
+                                    ) : (
+                                        <DialogDescription className="flex justify-center">
+                                            <div>No Run Logs to Display</div>
+                                        </DialogDescription>
+                                    )}
                                 </DialogHeader>
                             </Card>
                         </DialogContent>

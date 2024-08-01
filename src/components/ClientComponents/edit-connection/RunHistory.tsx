@@ -8,7 +8,7 @@ import { addDays, format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon } from "@radix-ui/react-icons";
-import { getConnectionAggRunLogs } from "@/app/connections/[connectionId]/api";
+import { getConnectionAggRunLogs, getConnectionViewLogs } from "@/app/connections/[connectionId]/api";
 import useApiCall from "@/hooks/useApiCall";
 import RunLogTable from "./RunLogTable";
 import {
@@ -33,6 +33,8 @@ export function DatePickerWithRange({ className }: React.HTMLAttributes<HTMLDivE
             <Popover>
                 <PopoverTrigger asChild>
                     <Button
+                        className="w-10"
+                        variant={"ghost"}
                         id="date"
                         variant={"outline"}
                         className={cn("w-[230px] justify-start text-left font-normal", !date && "text-muted-foreground")}
@@ -68,20 +70,115 @@ export function DatePickerWithRange({ className }: React.HTMLAttributes<HTMLDivE
 
 export default function RunHistory({ connectionData }) {
     const [logData, setLogData] = React.useState([]);
+    const [viewlogs, setViewlogs] = React.useState([]);
 
-    const { data, loading, makeApiCall } = useApiCall(getConnectionAggRunLogs, "GET");
+    const { data: runHistoryData, loading, makeApiCall } = useApiCall(getConnectionAggRunLogs, "GET");
+    const {
+        data: viewLogsData,
+        loading: viewLogsLoader,
+        makeApiCall: getViewLogsCall,
+    } = useApiCall(getConnectionViewLogs, "GET");
 
     React.useEffect(() => {
         (async () => {
             await makeApiCall(connectionData.id);
+            await getViewLogsCall(connectionData.id);
         })();
     }, []);
 
     React.useEffect(() => {
-        if (data) {
-            setLogData(data.data.runs);
+        if (runHistoryData) {
+            setLogData(runHistoryData.data.runs);
         }
-    }, [data]);
+    }, [runHistoryData]);
+
+    React.useEffect(() => {
+        if (viewLogsData) {
+            setViewlogs(viewLogsData.data);
+        }
+    }, [viewLogsData]);
+
+    const TestlogData = [
+        {
+            id: "1",
+            status: "success",
+            start_time: "10:00 AM 2021/09/01 ",
+            end_time: "2021-09-01 10:30:00",
+            duration: "30 mins",
+            size: "10 MB",
+            documents_fetched: 8,
+            destination_record_updated: 14,
+            records_per_stream: [
+                {
+                    stream: "pdf",
+                    documents_fetched: 500,
+                    destination_record_updated: 500,
+                },
+                {
+                    stream: "csv",
+                    documents_fetched: 500,
+                    destination_record_updated: 500,
+                },
+            ],
+        },
+        {
+            id: "2",
+            status: "partial",
+            start_time: "10:00 AM 2021/09/01 ",
+            end_time: "2021-09-01 10:30:00",
+            duration: "30 mins",
+            size: "10 MB",
+            documents_fetched: 8,
+            destination_record_updated: 14,
+            records_per_stream: [
+                {
+                    stream: "pdf",
+                    documents_fetched: 500,
+                    destination_record_updated: 500,
+                },
+                {
+                    stream: "csv",
+                    documents_fetched: 500,
+                    destination_record_updated: 500,
+                },
+            ],
+        },
+        {
+            id: "3",
+            status: "failed",
+            start_time: "10:00 AM 2021/09/01 ",
+            end_time: "2021-09-01 10:30:00",
+            duration: "30 mins",
+            size: "10 MB",
+            documents_fetched: 8,
+            destination_record_updated: 14,
+            records_per_stream: [
+                {
+                    stream: "pdf",
+                    documents_fetched: 500,
+                    destination_record_updated: 500,
+                },
+                {
+                    stream: "csv",
+                    documents_fetched: 500,
+                    destination_record_updated: 500,
+                },
+            ],
+        },
+    ];
+
+    const [currentPage, setCurrentPage] = React.useState(1);
+    const logsPerPage = 5;
+
+    const totalPages = Math.ceil(logData.length / logsPerPage);
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
+
+    const startIndex = (currentPage - 1) * logsPerPage;
+    const endIndex = startIndex + logsPerPage;
+    const currentLogs = logData.slice(startIndex, endIndex);
 
     return (
         <div className="p-5 mr-12">
@@ -96,32 +193,35 @@ export default function RunHistory({ connectionData }) {
                         </div>
                     </div>
                     {logData.length > 0 ? (
-                        logData.map((log, index) => <RunLogTable key={index} logInstance={log} />)
+                        currentLogs.map((log, index) => <RunLogTable key={index} logInstance={log} viewLogs={viewlogs} />)
                     ) : (
                         <div className="w-full border-b">
-                            <p className="text-center py-10"> No Run History Found</p>
+                            <p className="text-center py-10">No Run History Found</p>
                         </div>
                     )}
 
                     <Pagination>
                         <PaginationContent>
                             <PaginationItem>
-                                <PaginationPrevious href="#" />
+                                <Button className="w-10" variant={"ghost"} disabled={currentPage === 1}>
+                                    <PaginationPrevious onClick={() => handlePageChange(currentPage - 1)} />
+                                </Button>
                             </PaginationItem>
+                            {Array.from({ length: totalPages }, (_, index) => (
+                                <PaginationItem key={index}>
+                                    <PaginationLink
+                                        href="#"
+                                        isActive={currentPage === index + 1}
+                                        onClick={() => handlePageChange(index + 1)}
+                                    >
+                                        {index + 1}
+                                    </PaginationLink>
+                                </PaginationItem>
+                            ))}
                             <PaginationItem>
-                                <PaginationLink href="#">1</PaginationLink>
-                            </PaginationItem>
-                            <PaginationItem>
-                                <PaginationLink href="#" isActive>
-                                    2
-                                </PaginationLink>
-                            </PaginationItem>
-                            <PaginationItem>
-                                <PaginationLink href="#">3</PaginationLink>
-                            </PaginationItem>
-
-                            <PaginationItem>
-                                <PaginationNext href="#" />
+                                <Button className="w-10" variant={"ghost"} disabled={currentPage === totalPages}>
+                                    <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
+                                </Button>
                             </PaginationItem>
                         </PaginationContent>
                     </Pagination>
