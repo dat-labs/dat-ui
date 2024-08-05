@@ -244,7 +244,7 @@ const FormComponent = () => {
                                 </Button>
                             ) : (
                                 <Button size="sm" onClick={handleSave}>
-                                    Save
+                                    Submit
                                 </Button>
                             )}
                         </div>

@@ -34,7 +34,7 @@ const StreamPanel: React.FC<StreamPanelProps> = ({ srcDocs, row, handleStreamCon
                 </ScrollArea>
             </ResizablePanel>
 
-            {srcDocs && <ResizableHandle className="ml-2" />}
+            {srcDocs && <ResizableHandle withHandle className="ml-2" />}
 
             {srcDocs && (
                 <ResizablePanel defaultSize={50} minSize={30} className="h-full">

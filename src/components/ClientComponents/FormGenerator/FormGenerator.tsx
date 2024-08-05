@@ -32,7 +32,7 @@ export default function FormGenerator({
     onSubmit: any;
     defaultData?: any;
     submitButtonText?: string;
-    errorText?: string;
+    errorText?: string | null;
 }) {
     const form = useForm({ defaultValues: defaultData });
 

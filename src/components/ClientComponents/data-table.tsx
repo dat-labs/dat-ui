@@ -21,6 +21,7 @@ interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
     clickHandler?: (row: any) => void;
+    inDialog?: boolean;
 }
 
 /**
@@ -31,7 +32,13 @@ interface DataTableProps<TData, TValue> {
  * @param {(row: any) => void} [clickHandler] Optional click handler for table rows.
  * @returns {JSX.Element} The rendered DataTable component.
  */
-export default function DataTable<TData, TValue>({ actorType, columns, data, clickHandler }: DataTableProps<TData, TValue>) {
+export default function DataTable<TData, TValue>({
+    actorType,
+    columns,
+    data,
+    clickHandler,
+    inDialog = false,
+}: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = React.useState<SortingState>([]);
 
     const table = useReactTable({
@@ -70,7 +77,7 @@ export default function DataTable<TData, TValue>({ actorType, columns, data, cli
             />
 
             <div className="rounded-md border mt-4">
-                <ScrollArea className="max-h-[340px] overflow-auto">
+                <ScrollArea className={`${inDialog && "max-h-[340px] overflow-auto"}`}>
                     <Table>
                         <TableHeader className="bg-primary-foreground">
                             {table.getHeaderGroups().map((headerGroup) => (
