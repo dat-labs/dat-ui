@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { addDays, format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon } from "@radix-ui/react-icons";
+import { CalendarIcon, ReloadIcon } from "@radix-ui/react-icons";
 import { getConnectionAggRunLogs, getConnectionViewLogs } from "@/app/connections/[connectionId]/api";
 import useApiCall from "@/hooks/useApiCall";
 import RunLogTable from "./RunLogTable";
@@ -71,6 +71,7 @@ export function DatePickerWithRange({ className }: React.HTMLAttributes<HTMLDivE
 export default function RunHistory({ connectionData }) {
     const [logData, setLogData] = React.useState([]);
     const [viewlogs, setViewlogs] = React.useState([]);
+    const [refresh, setRefresh] = React.useState(false);
 
     const { data: runHistoryData, loading, makeApiCall } = useApiCall(getConnectionAggRunLogs, "GET");
     const {
@@ -80,11 +81,17 @@ export default function RunHistory({ connectionData }) {
     } = useApiCall(getConnectionViewLogs, "GET");
 
     React.useEffect(() => {
-        (async () => {
+        const fetchData = async () => {
             await makeApiCall(connectionData.id);
             await getViewLogsCall(connectionData.id);
-        })();
-    }, []);
+        };
+
+        fetchData();
+
+        const intervalId = setInterval(fetchData, 5000); // 1min
+
+        return () => clearInterval(intervalId);
+    }, [connectionData.id, refresh]);
 
     React.useEffect(() => {
         if (runHistoryData) {
@@ -172,7 +179,7 @@ export default function RunHistory({ connectionData }) {
 
     const totalPages = Math.ceil(logData.length / logsPerPage);
 
-    const handlePageChange = (pageNumber) => {
+    const handlePageChange = (pageNumber: number) => {
         setCurrentPage(pageNumber);
     };
 
@@ -187,7 +194,14 @@ export default function RunHistory({ connectionData }) {
             ) : (
                 <div className="flex flex-col border rounded-md">
                     <div className="flex flex-row justify-between items-center border-b px-5 py-3">
-                        <p className="text-xl font-semibold font-inter">Run History</p>
+                        <div className="flex gap-6">
+                            <p className="text-xl font-semibold font-inter">Run History</p>
+                            <Button size={"sm"} onClick={() => setRefresh(!refresh)}>
+                                <ReloadIcon className="mr-2" />
+                                Refresh
+                            </Button>
+                        </div>
+
                         <div>
                             <DatePickerWithRange />
                         </div>

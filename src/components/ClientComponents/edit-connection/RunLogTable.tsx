@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import { LazyLog, ScrollFollow } from "react-lazylog";
+import CircularLoader from "@/components/ui/circularLoader";
 
 export type Streams = {
     name: string;
@@ -72,7 +73,7 @@ function RunLogTable({ logInstance, viewLogs }: { logInstance: any; viewLogs: an
         <div className="flex-col py-6 px-5 border-b">
             <div className="flex xl:flex-row flex-col xl:justify-between space-y-2">
                 <div className="flex flex-row space-x-3 items-center">
-                    {logInstance.status != "failed" && (
+                    {logInstance.status != "FAILED" && (
                         <>
                             {arrow ? (
                                 <ChevronDownIcon className="cursor-pointer" width={25} height={25} onClick={toggleArrow} />
@@ -82,34 +83,40 @@ function RunLogTable({ logInstance, viewLogs }: { logInstance: any; viewLogs: an
                         </>
                     )}
 
-                    {logInstance.status === "success" ? (
+                    {logInstance.status === "SUCCESS" ? (
                         <CheckCircledIcon width={30} height={30} color="#047857" />
-                    ) : logInstance.status === "failed" ? (
+                    ) : logInstance.status === "FAILED" ? (
                         <CrossCircledIcon width={30} height={30} color="#DC2626" />
+                    ) : logInstance.status === "RUNNING" ? (
+                        <CircularLoader />
                     ) : (
                         <ExclamationTriangleIcon width={30} height={30} color="#A16207" />
                     )}
 
                     <p className="font-semibold">
-                        {logInstance?.status === "success"
+                        {logInstance?.status === "SUCCESS"
                             ? "Run Successful"
-                            : logInstance.status === "failed"
+                            : logInstance.status === "FAILED"
                             ? "Run Failed"
-                            : "Partial Success"}{" "}
+                            : logInstance.status === "RUNNING"
+                            ? "Running..."
+                            : "Partial Success"}
                     </p>
-                    {logInstance.status != "failed" && <p className="text-muted-foreground"> Size : {logInstance?.size}</p>}
+                    {logInstance.status != "FAILED" && (
+                        <p className="text-muted-foreground"> Duration : {logInstance?.duration}</p>
+                    )}
                 </div>
 
                 <div className="flex flex-row space-x-3 items-center ml-9 xl:ml-0">
-                    {logInstance.status != "failed" && (
+                    {logInstance.status != "FAILED" && (
                         <>
-                            <div className="flex flex-row items-center space-x-1 border px-2 py-1 rounded-lg font-semibold hover:shadow-md">
+                            {/* <div className="flex flex-row items-center space-x-1 border px-2 py-1 rounded-lg font-semibold hover:shadow-md">
                                 <FileTextIcon width={15} height={15} />
                                 <p>{logInstance?.documents_fetched} Documents</p>
-                            </div>
+                            </div> */}
                             <div className="flex flex-row items-center space-x-1 border px-2 py-1 rounded-lg font-semibold hover:shadow-md">
                                 <CubeIcon width={15} height={15} />
-                                <p>{logInstance?.destination_record_updated} Records</p>
+                                <p>{logInstance?.records_updated} Records</p>
                             </div>
                         </>
                     )}

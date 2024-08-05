@@ -32,3 +32,9 @@ export const getConnectionAggRunLogs = async (connectionId: string) => {
     const responseData = await response.json();
     return { data: responseData, status: response.status };
 };
+
+export const getConnectionViewLogs = async (connectionId: string) => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/connection-run-logs/${connectionId}/runs`);
+    const responseData = await response.json();
+    return { data: responseData, status: response.status };
+};
