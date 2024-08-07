@@ -13,6 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import "./runLoader.css";
+import useApiCall from "@/hooks/useApiCall";
+import { manualRunConnection } from "@/app/connections/[connectionId]/api";
+import { toast } from "sonner";
 
 const tabComponentMapper = {
     streams: EditStreams,
@@ -75,7 +78,18 @@ const EditConnectionComponent = ({ connectionData }) => {
     const SourceIcon = importIcon(connectionData.source_instance.actor.icon);
     const TabComponent = tabComponentMapper[tab];
 
-    const [isActive, setIsActive] = useState(false);
+    const [isActive, setIsActive] = useState(true);
+
+    const { loading, makeApiCall: runConnectionCall } = useApiCall(manualRunConnection, "POST");
+
+    const handleConnectionRun = async () => {
+        const res = await runConnectionCall(connectionData.id);
+        if (res.status == 200) {
+            toast.success("Run Initiated");
+        } else {
+            toast.error("Run Failed to Initiate!");
+        }
+    };
 
     return (
         <div>

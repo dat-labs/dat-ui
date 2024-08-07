@@ -66,8 +66,18 @@ function RunLogTable({ logInstance, viewLogs }: { logInstance: any; viewLogs: an
     };
 
     let showLogs = convertLogs();
-    // const logs =
-    //     "Jul 08 11:48:31 gunicorn[3568132]: 2024-07-08 11:48:31.157 | DEBUG | datachannel.accounts.account_feature_service:fill_plan_features:39 - feature_id \nJul 08 11:48:31 gunicorn[3568132]: 2024-07-08 11:48:31.157 | DEBUG | datachannel.accounts.account_feature_service:fill_plan_features:40 - \n19Jul 08 11:48:31 gunicorn[3568132]: 2024-07-08 11:48:31.158 | DEBUG | datachannel.accounts.account_feature_service:fill_plan_features:42 - not in account plan";
+
+    const downloadLogs = () => {
+        const blob = new Blob([showLogs], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `Logs-${logInstance?.start_time}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
 
     return (
         <div className="flex-col py-6 px-5 border-b">
@@ -136,7 +146,7 @@ function RunLogTable({ logInstance, viewLogs }: { logInstance: any; viewLogs: an
                                     </DropdownMenuItem>
                                 </DialogTrigger>
 
-                                <DropdownMenuItem>
+                                <DropdownMenuItem onClick={downloadLogs}>
                                     <span>Download Logs</span>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
