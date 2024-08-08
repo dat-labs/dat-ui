@@ -104,7 +104,6 @@ const getColumns = (actorType: string): ColumnDef<ActorInstanceData>[] => {
     // var style = getComputedStyle(document.body);
     return [
         {
-            accessorKey: "actor.name",
             header: capitalizeFirstLetter(actorType),
             cell: ({ row }) => {
                 return (
@@ -122,7 +121,7 @@ const getColumns = (actorType: string): ColumnDef<ActorInstanceData>[] => {
             },
         },
         {
-            accessorKey: "name",
+            accessorKey: "configuration.dat_name",
             header: "Name",
         },
         {

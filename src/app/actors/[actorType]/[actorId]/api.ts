@@ -7,7 +7,7 @@
  */
 export const updateActorInstance = async (actorId: string, data: any) => {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/actor_instances/${actorId}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: {
             "Content-Type": "application/json",
         },

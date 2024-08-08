@@ -231,7 +231,7 @@ export const getActors = async (actorType: string) => {
 };
 
 export const createActorInstance = async (data: any) => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/actor_instances/test_and_save`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/actor_instances`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

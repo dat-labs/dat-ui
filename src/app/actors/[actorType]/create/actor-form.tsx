@@ -176,11 +176,7 @@ export default function ActorForm({
         }
     }, [editMode, load]);
 
-    const {
-        data: updateInstanceRes,
-        statusCode: updateInstanceStatus,
-        makeApiCall: updateInstanceApi,
-    } = useApiCall(updateActorInstance, "PUT");
+    const { makeApiCall: updateInstanceApi } = useApiCall(updateActorInstance, "PUT");
 
     /**
      * Handles form submission for editing an existing actor.
@@ -192,16 +188,16 @@ export default function ActorForm({
             name: savedData["dat-name"],
             configuration: savedData,
         };
+        error && setError(null);
+        const updateRes = await updateInstanceApi(actorId, apiData);
 
-        await updateInstanceApi(actorId, apiData);
-        //TODO test status check
-
-        if (updateInstanceStatus === 200) {
+        if (updateRes.status === 200) {
             router.push(`/actors/${actorType}`);
             toast(`${actorType} updated successfully.`, {
                 description: `${actorType} updated successfully.`,
             });
         } else {
+            setError(updateRes?.responseData.detail);
             toast(`${actorType} update failed.`, {
                 description: `${actorType} update failed.`,
             });
@@ -274,8 +270,8 @@ export default function ActorForm({
                                                     <FormGenerator
                                                         properties={formData?.properties?.connection_specification?.properties}
                                                         onSubmit={editMode ? handleEditFormSubmit : handleCreateFormSubmit}
-                                                        submitButtonText={editMode ? "" : "Test and Save"}
-                                                        errorText={!editMode && error}
+                                                        submitButtonText={editMode ? "Test and Save" : "Test and Submit"}
+                                                        errorText={error}
                                                         defaultData={editMode && actorInstanceData?.configuration}
                                                     />
                                                 </CardContent>
@@ -288,7 +284,7 @@ export default function ActorForm({
                     </ResizablePanel>
 
                     {(docStatus === 200 || docLoading) && (
-                        <ResizableHandle className="h-[92vh] min-[1900px]:h-[93vh] min-[2200px]:h-[95vh]" />
+                        <ResizableHandle withHandle className="h-[92vh] min-[1900px]:h-[93vh] min-[2200px]:h-[95vh]" />
                     )}
 
                     {(docStatus === 200 || docLoading) && (
