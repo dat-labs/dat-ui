@@ -70,27 +70,19 @@ export function DatePickerWithRange({ className }: React.HTMLAttributes<HTMLDivE
 
 export default function RunHistory({ connectionData }) {
     const [logData, setLogData] = React.useState([]);
-    const [viewlogs, setViewlogs] = React.useState([]);
     const [refresh, setRefresh] = React.useState(false);
 
     const { data: runHistoryData, loading, makeApiCall } = useApiCall(getConnectionAggRunLogs, "GET");
-    const {
-        data: viewLogsData,
-        loading: viewLogsLoader,
-        makeApiCall: getViewLogsCall,
-    } = useApiCall(getConnectionViewLogs, "GET");
 
     React.useEffect(() => {
         const fetchData = async () => {
             await makeApiCall(connectionData.id);
-            await getViewLogsCall(connectionData.id);
         };
 
         fetchData();
 
-        const intervalId = setInterval(fetchData, 5000); // 1min
-
-        return () => clearInterval(intervalId);
+        // const intervalId = setInterval(fetchData, 5000); // 1min
+        // return () => clearInterval(intervalId);
     }, [connectionData.id, refresh]);
 
     React.useEffect(() => {
@@ -98,12 +90,6 @@ export default function RunHistory({ connectionData }) {
             setLogData(runHistoryData.data.runs);
         }
     }, [runHistoryData]);
-
-    React.useEffect(() => {
-        if (viewLogsData) {
-            setViewlogs(viewLogsData.data);
-        }
-    }, [viewLogsData]);
 
     const TestlogData = [
         {
@@ -207,7 +193,7 @@ export default function RunHistory({ connectionData }) {
                         </div>
                     </div>
                     {logData.length > 0 ? (
-                        currentLogs.map((log, index) => <RunLogTable key={index} logInstance={log} viewLogs={viewlogs} />)
+                        currentLogs.map((log, index) => <RunLogTable key={index} logInstance={log} />)
                     ) : (
                         <div className="w-full border-b">
                             <p className="text-center py-10">No Run History Found</p>

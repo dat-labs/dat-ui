@@ -155,7 +155,9 @@ const EditConnectionComponent = ({ connectionData }) => {
                         </Label>
                         <Switch id="schedule" onClick={() => setIsActive(!isActive)} />
                         <p className="ml-2 w-[60px] text-center">{isActive ? "Active" : "Inactive"}</p>
-                        <Button className="my-auto ml-10">Run Now</Button>
+                        <Button className="my-auto ml-10" onClick={handleConnectionRun}>
+                            Run Now
+                        </Button>
                     </div>
                 </div>
             </div>

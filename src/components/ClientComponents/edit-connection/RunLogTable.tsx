@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import { StreamTable } from "./StreamTable";
@@ -24,6 +24,8 @@ import {
 import { Card } from "@/components/ui/card";
 import { LazyLog, ScrollFollow } from "react-lazylog";
 import CircularLoader from "@/components/ui/circularLoader";
+import useApiCall from "@/hooks/useApiCall";
+import { getConnectionRunLogs } from "@/app/connections/[connectionId]/api";
 
 export type Streams = {
     name: string;
@@ -46,8 +48,25 @@ export const columns: ColumnDef<Streams>[] = [
     },
 ];
 
-function RunLogTable({ logInstance, viewLogs }: { logInstance: any; viewLogs: any }) {
+function RunLogTable({ logInstance }: { logInstance: any }) {
     const [arrow, setArrow] = React.useState(false);
+    const [runLogs, setRunLogs] = useState([]);
+
+    const { data: runLogInstance, makeApiCall: getRunLogInstance } = useApiCall(getConnectionRunLogs);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            await getRunLogInstance(logInstance.id);
+        };
+
+        fetchData();
+    }, [logInstance]);
+
+    useEffect(() => {
+        if (runLogInstance) {
+            setRunLogs(runLogInstance?.data);
+        }
+    }, [runLogInstance]);
 
     const toggleArrow = () => {
         setArrow(!arrow);
@@ -56,10 +75,12 @@ function RunLogTable({ logInstance, viewLogs }: { logInstance: any; viewLogs: an
     const convertLogs = () => {
         let allLogs = "";
 
-        viewLogs.forEach((log) => {
-            const json_msg = JSON.parse(log.message);
-            const curLog = `${log.created_at} : ${log.updated_at} | ${json_msg.level} | ${json_msg.message}`;
-            allLogs += `${curLog}\n`;
+        runLogs?.forEach((log) => {
+            if (log.message_type === "LOG") {
+                const json_msg = JSON.parse(log.message);
+                const curLog = `${json_msg.emitted_at} | ${json_msg.level} | ${json_msg.message}`;
+                allLogs += `${curLog}\n`;
+            }
         });
 
         return allLogs;
@@ -83,7 +104,7 @@ function RunLogTable({ logInstance, viewLogs }: { logInstance: any; viewLogs: an
         <div className="flex-col py-6 px-5 border-b">
             <div className="flex xl:flex-row flex-col xl:justify-between space-y-2">
                 <div className="flex flex-row space-x-3 items-center">
-                    {logInstance.status != "FAILED" && (
+                    {/* {logInstance.status != "FAILED" && (
                         <>
                             {arrow ? (
                                 <ChevronDownIcon className="cursor-pointer" width={25} height={25} onClick={toggleArrow} />
@@ -91,7 +112,7 @@ function RunLogTable({ logInstance, viewLogs }: { logInstance: any; viewLogs: an
                                 <ChevronRightIcon className="cursor-pointer" width={25} height={25} onClick={toggleArrow} />
                             )}
                         </>
-                    )}
+                    )} */}
 
                     {logInstance.status === "SUCCESS" ? (
                         <CheckCircledIcon width={30} height={30} color="#047857" />
