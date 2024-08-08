@@ -3,7 +3,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function RadioButton({ form, oneOf, originalFieldName, field_name }) {
-    console.log(form);
     return (
         <FormField
             control={form.control}

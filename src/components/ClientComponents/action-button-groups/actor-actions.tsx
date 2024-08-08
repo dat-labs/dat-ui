@@ -29,8 +29,8 @@ export default function ActorActions({ actorId, connection_count }) {
     const handleActorInstanceDelete = async (e) => {
         e.stopPropagation();
         const res = await makeApiCall(actorId);
-        console.log(res.status);
         if (res.status == 200) {
+            toast.success("Succesfully Deleted Actor Instance !");
             router.refresh();
         } else {
             toast.error("Deletion Failed", res.error);

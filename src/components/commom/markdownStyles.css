@@ -1,0 +1,59 @@
+.markdown h1 {
+    @apply text-3xl font-bold mt-2 mb-4;
+}
+
+.markdown h2 {
+    @apply text-2xl font-bold mt-6;
+}
+
+.markdown h3 {
+    @apply text-lg font-semibold my-2;
+}
+
+.markdown h4 {
+    @apply text-base font-semibold my-2;
+}
+
+.markdown p {
+    @apply text-base leading-6 my-3;
+}
+
+.markdown ul {
+    @apply list-disc list-outside my-1 ml-5;
+}
+
+.markdown ol {
+    @apply list-decimal list-outside;
+}
+
+.markdown li {
+    @apply mb-2;
+}
+
+.markdown a {
+    @apply text-blue-600 hover:underline;
+}
+
+.markdown table {
+    @apply w-full border-collapse;
+}
+
+.markdown th {
+    @apply border  p-2 text-left;
+}
+
+.markdown td {
+    @apply border  p-2;
+}
+
+.markdown blockquote {
+    @apply border-l-4  pl-4;
+}
+
+.markdown code {
+    @apply font-mono p-1 rounded;
+}
+
+.markdown pre {
+    @apply font-mono p-4 rounded overflow-x-auto bg-primary-foreground;
+}

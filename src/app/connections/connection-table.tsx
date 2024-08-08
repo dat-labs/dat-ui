@@ -87,8 +87,8 @@ const getColumns = (): ColumnDef<ConnectionInstance>[] => {
                 return (
                     <div className="flex items-center">
                         {SourceIconComponent !== null ? (
-                            <Card className="p-1 rounded">
-                                <SourceIconComponent className="h-6 w-6 stroke-foreground" />
+                            <Card className="p-1  bg-white">
+                                <SourceIconComponent className="h-6 w-6" />
                             </Card>
                         ) : (
                             <img
@@ -99,8 +99,8 @@ const getColumns = (): ColumnDef<ConnectionInstance>[] => {
                         )}
                         <ArrowRightIcon className="mx-1" />
                         {GeneratorIconComponent !== null ? (
-                            <Card className="p-1 rounded">
-                                <GeneratorIconComponent className="h-6 w-6 stroke-foreground" />
+                            <Card className="p-1  bg-white">
+                                <GeneratorIconComponent className="h-6 w-6" />
                             </Card>
                         ) : (
                             <img
@@ -111,8 +111,8 @@ const getColumns = (): ColumnDef<ConnectionInstance>[] => {
                         )}
                         <ArrowRightIcon className="mx-1" />
                         {DestinationComponent !== null ? (
-                            <Card className="p-1 rounded">
-                                <DestinationComponent className="h-6 w-6 stroke-foreground" />
+                            <Card className="p-1  bg-white">
+                                <DestinationComponent className="h-6 w-6" />
                             </Card>
                         ) : (
                             <img

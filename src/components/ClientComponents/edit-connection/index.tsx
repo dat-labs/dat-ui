@@ -1,6 +1,6 @@
 import { importIcon } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ArrowRightIcon } from "@radix-ui/react-icons";
 import clsx from "clsx";
 import EditStreams from "./EditStreams";
@@ -12,6 +12,10 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import "./runLoader.css";
+import useApiCall from "@/hooks/useApiCall";
+import { manualRunConnection } from "@/app/connections/[connectionId]/api";
+import { toast } from "sonner";
 
 const tabComponentMapper = {
     streams: EditStreams,
@@ -22,9 +26,7 @@ const tabComponentMapper = {
 const EditConnectionComponent = ({ connectionData }) => {
     const { state, updateState } = React.useContext(FromDataContext);
     const [tab, setTab] = React.useState("streams");
-    console.log(state);
     const handleStreamConfigrationSave = (values: any, streamName: string) => {
-        console.log(Object.keys(state.streams[streamName].configuration).length);
         if (Object.keys(state.streams[streamName].configuration).length === 0) {
             const objToUpdate = {
                 ...state.streams,
@@ -35,7 +37,6 @@ const EditConnectionComponent = ({ connectionData }) => {
                     streamProperties: state.streams[streamName].streamProperties,
                 },
             };
-            console.log(objToUpdate);
             updateState("streams", objToUpdate);
         }
     };
@@ -53,22 +54,42 @@ const EditConnectionComponent = ({ connectionData }) => {
 
     React.useEffect(() => {
         updateState("source", { ...state["source"], value: connectionData.source_instance });
-        console.log(state);
     }, []);
+
+    useEffect(() => {
+        if (state.source.value) {
+            updateState("generator", { ...state["generator"], value: connectionData.generator_instance });
+        }
+    }, [state.source.value]);
+
+    useEffect(() => {
+        if (state.generator.value) {
+            updateState("destination", { ...state["destination"], value: connectionData.destination_instance });
+        }
+    }, [state.generator.value]);
 
     const router = useRouter();
     const OpenActor = (actorType: string, actor_id: string) => {
         router.push(`/actors/${actorType}/${actor_id}`);
     };
 
-    console.log(connectionData);
-
     const DestinationIcon = importIcon(connectionData.destination_instance.actor.icon);
     const GeneratorIcon = importIcon(connectionData.generator_instance.actor.icon);
     const SourceIcon = importIcon(connectionData.source_instance.actor.icon);
     const TabComponent = tabComponentMapper[tab];
 
-    const [isActive, setIsActive] = useState(false);
+    const [isActive, setIsActive] = useState(true);
+
+    const { loading, makeApiCall: runConnectionCall } = useApiCall(manualRunConnection, "POST");
+
+    const handleConnectionRun = async () => {
+        const res = await runConnectionCall(connectionData.id);
+        if (res.status == 200) {
+            toast.success("Run Initiated");
+        } else {
+            toast.error("Run Failed to Initiate!");
+        }
+    };
 
     return (
         <div>
@@ -78,7 +99,7 @@ const EditConnectionComponent = ({ connectionData }) => {
                         <p className="text-xl font-bold text-foreground capitalize">{connectionData.name}</p>
                         <div className="flex mt-3 mb-3 gap-4">
                             <Card
-                                className="flex items-center p-1 cursor-pointer"
+                                className="flex items-center p-1 cursor-pointer bg-white"
                                 onClick={() => OpenActor("source", connectionData.source_instance.id)}
                             >
                                 {SourceIcon ? (
@@ -95,7 +116,7 @@ const EditConnectionComponent = ({ connectionData }) => {
                                 <ArrowRightIcon />
                             </div>
                             <Card
-                                className="flex items-center p-1 cursor-pointer"
+                                className="flex items-center p-1 cursor-pointer bg-white"
                                 onClick={() => OpenActor("generator", connectionData.generator_instance.id)}
                             >
                                 {GeneratorIcon ? (
@@ -112,7 +133,7 @@ const EditConnectionComponent = ({ connectionData }) => {
                                 <ArrowRightIcon />
                             </div>
                             <Card
-                                className="flex items-center p-1 cursor-pointer"
+                                className="flex items-center p-1 cursor-pointer bg-white"
                                 onClick={() => OpenActor("destination", connectionData.destination_instance.id)}
                             >
                                 {DestinationIcon ? (
@@ -134,7 +155,9 @@ const EditConnectionComponent = ({ connectionData }) => {
                         </Label>
                         <Switch id="schedule" onClick={() => setIsActive(!isActive)} />
                         <p className="ml-2 w-[60px] text-center">{isActive ? "Active" : "Inactive"}</p>
-                        <Button className="my-auto ml-10">Run Now</Button>
+                        <Button className="my-auto ml-10" onClick={handleConnectionRun}>
+                            Run Now
+                        </Button>
                     </div>
                 </div>
             </div>

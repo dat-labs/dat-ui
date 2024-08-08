@@ -52,8 +52,6 @@ export default function SelectSource({ actorType }: { actorType: string }) {
     React.useEffect(() => {
         const fetchData = async () => {
             await makeApiCall(actorType);
-            // const data = await getActorsData(actorType);
-            // setActors(data);
         };
         fetchData();
     }, [actorType]);
@@ -143,7 +141,7 @@ export default function SelectSource({ actorType }: { actorType: string }) {
                             <h1 className="text-sm text-center">No {capitalizeFirstLetter(actorType)} found</h1>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-4 gap-4 w-full mt-4 p-3">
+                        <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-4 w-full mt-4 p-3">
                             {filteredData.map((actor: any) => {
                                 const IconComponent = importIcon(actor.actor.icon);
                                 return (
@@ -159,15 +157,18 @@ export default function SelectSource({ actorType }: { actorType: string }) {
                                         <CardHeader className="p-3">
                                             <CardTitle className="text-sm">
                                                 <div className="flex gap-2 items-center">
-                                                    {IconComponent !== null ? (
-                                                        <IconComponent className="h-6 w-6 stroke-foreground" />
-                                                    ) : (
-                                                        <img
-                                                            src={`https://ui-avatars.com/api/?name=${actor.actor.name}`}
-                                                            alt="icon"
-                                                            className="h-7 w-7 rounded-md"
-                                                        />
-                                                    )}
+                                                    <Card className="p-1 bg-white">
+                                                        {IconComponent !== null ? (
+                                                            <IconComponent className="h-6 w-6" />
+                                                        ) : (
+                                                            <img
+                                                                src={`https://ui-avatars.com/api/?name=${actor.actor.name}`}
+                                                                alt="icon"
+                                                                className="h-7 w-7 rounded-md"
+                                                            />
+                                                        )}
+                                                    </Card>
+
                                                     <p>{actor.name}</p>
                                                 </div>
                                             </CardTitle>

@@ -1,18 +1,5 @@
-import React from "react";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuPortal,
-    DropdownMenuSeparator,
-    DropdownMenuShortcut,
-    DropdownMenuSub,
-    DropdownMenuSubContent,
-    DropdownMenuSubTrigger,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import React, { useEffect, useState } from "react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import { StreamTable } from "./StreamTable";
 import {
@@ -25,6 +12,20 @@ import {
     ExclamationTriangleIcon,
     FileTextIcon,
 } from "@radix-ui/react-icons";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import { Card } from "@/components/ui/card";
+import { LazyLog, ScrollFollow } from "react-lazylog";
+import CircularLoader from "@/components/ui/circularLoader";
+import useApiCall from "@/hooks/useApiCall";
+import { getConnectionRunLogs } from "@/app/connections/[connectionId]/api";
 
 export type Streams = {
     name: string;
@@ -49,16 +50,61 @@ export const columns: ColumnDef<Streams>[] = [
 
 function RunLogTable({ logInstance }: { logInstance: any }) {
     const [arrow, setArrow] = React.useState(false);
+    const [runLogs, setRunLogs] = useState([]);
+
+    const { data: runLogInstance, makeApiCall: getRunLogInstance } = useApiCall(getConnectionRunLogs);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            await getRunLogInstance(logInstance.id);
+        };
+
+        fetchData();
+    }, [logInstance]);
+
+    useEffect(() => {
+        if (runLogInstance) {
+            setRunLogs(runLogInstance?.data);
+        }
+    }, [runLogInstance]);
 
     const toggleArrow = () => {
         setArrow(!arrow);
+    };
+
+    const convertLogs = () => {
+        let allLogs = "";
+
+        runLogs?.forEach((log) => {
+            if (log.message_type === "LOG") {
+                const json_msg = JSON.parse(log.message);
+                const curLog = `${json_msg.emitted_at} | ${json_msg.level} | ${json_msg.message}`;
+                allLogs += `${curLog}\n`;
+            }
+        });
+
+        return allLogs;
+    };
+
+    let showLogs = convertLogs();
+
+    const downloadLogs = () => {
+        const blob = new Blob([showLogs], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `Logs-${logInstance?.start_time}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     };
 
     return (
         <div className="flex-col py-6 px-5 border-b">
             <div className="flex xl:flex-row flex-col xl:justify-between space-y-2">
                 <div className="flex flex-row space-x-3 items-center">
-                    {logInstance.status != "failed" && (
+                    {/* {logInstance.status != "FAILED" && (
                         <>
                             {arrow ? (
                                 <ChevronDownIcon className="cursor-pointer" width={25} height={25} onClick={toggleArrow} />
@@ -66,51 +112,89 @@ function RunLogTable({ logInstance }: { logInstance: any }) {
                                 <ChevronRightIcon className="cursor-pointer" width={25} height={25} onClick={toggleArrow} />
                             )}
                         </>
-                    )}
+                    )} */}
 
-                    {logInstance.status === "success" ? (
+                    {logInstance.status === "SUCCESS" ? (
                         <CheckCircledIcon width={30} height={30} color="#047857" />
-                    ) : logInstance.status === "failed" ? (
+                    ) : logInstance.status === "FAILED" ? (
                         <CrossCircledIcon width={30} height={30} color="#DC2626" />
+                    ) : logInstance.status === "RUNNING" ? (
+                        <CircularLoader />
                     ) : (
                         <ExclamationTriangleIcon width={30} height={30} color="#A16207" />
                     )}
 
-                    <p className="font-semibold">{logInstance?.status === "success" ? "Run Successful" : "Run Failed"} </p>
-                    {logInstance.status != "failed" && <p className="text-[#64748B]"> Size : {logInstance?.size}</p>}
+                    <p className="font-semibold">
+                        {logInstance?.status === "SUCCESS"
+                            ? "Run Successful"
+                            : logInstance.status === "FAILED"
+                            ? "Run Failed"
+                            : logInstance.status === "RUNNING"
+                            ? "Running..."
+                            : "Partial Success"}
+                    </p>
+                    {logInstance.status != "FAILED" && (
+                        <p className="text-muted-foreground"> Duration : {logInstance?.duration}</p>
+                    )}
                 </div>
 
-                <div className="flex flex-row space-x-3 items-center">
-                    {logInstance.status != "failed" && (
+                <div className="flex flex-row space-x-3 items-center ml-9 xl:ml-0">
+                    {logInstance.status != "FAILED" && (
                         <>
-                            <div className="flex flex-row items-center space-x-1 border px-2 py-1 rounded-lg font-semibold hover:shadow-md">
+                            {/* <div className="flex flex-row items-center space-x-1 border px-2 py-1 rounded-lg font-semibold hover:shadow-md">
                                 <FileTextIcon width={15} height={15} />
                                 <p>{logInstance?.documents_fetched} Documents</p>
-                            </div>
+                            </div> */}
                             <div className="flex flex-row items-center space-x-1 border px-2 py-1 rounded-lg font-semibold hover:shadow-md">
                                 <CubeIcon width={15} height={15} />
-                                <p>{logInstance?.destination_record_updated} Records</p>
+                                <p>{logInstance?.records_updated} Records</p>
                             </div>
                         </>
                     )}
 
-                    <p className="text-[#64748B]"> {logInstance?.start_time}</p>
+                    <p className="text-muted-foreground"> {logInstance?.start_time}</p>
 
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <DotsVerticalIcon width={20} height={20} className="cursor-pointer" />
-                        </DropdownMenuTrigger>
+                    <Dialog>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <DotsVerticalIcon width={20} height={20} className="cursor-pointer" />
+                            </DropdownMenuTrigger>
 
-                        <DropdownMenuContent className="w-28 border-[#E4E4E7] bg-[#FFFFFF] text-[#64748B]">
-                            <DropdownMenuItem>
-                                <span>View Logs</span>
-                            </DropdownMenuItem>
+                            <DropdownMenuContent className="w-28 text-muted-foreground">
+                                <DialogTrigger className="w-full">
+                                    <DropdownMenuItem>
+                                        <span>View Logs</span>
+                                    </DropdownMenuItem>
+                                </DialogTrigger>
 
-                            <DropdownMenuItem>
-                                <span>Download Logs</span>
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                                <DropdownMenuItem onClick={downloadLogs}>
+                                    <span>Download Logs</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        <DialogContent className="size-10/12 max-w-none">
+                            <Card className="p-5 m-4">
+                                <DialogHeader>
+                                    <DialogTitle className="mb-2">Run Logs</DialogTitle>
+                                    {showLogs.length > 0 ? (
+                                        <DialogDescription className="h-[470px]">
+                                            <ScrollFollow
+                                                startFollowing
+                                                render={({ follow }) => (
+                                                    <LazyLog extraLines={1} enableSearch text={showLogs} stream follow={follow} />
+                                                )}
+                                            />
+                                        </DialogDescription>
+                                    ) : (
+                                        <DialogDescription className="flex justify-center">
+                                            <div>No Run Logs to Display</div>
+                                        </DialogDescription>
+                                    )}
+                                </DialogHeader>
+                            </Card>
+                        </DialogContent>
+                    </Dialog>
                 </div>
             </div>
 

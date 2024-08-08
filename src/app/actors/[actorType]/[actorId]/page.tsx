@@ -39,27 +39,6 @@ function ActorDetailsPage({ params }: ActorDetailsPageProps) {
                 </div>
             </div>
         </main>
-        // <main className="h-screen flex flex-col">
-        //     <div className="flex flex-col flex-grow overflow-hidden">
-        //         <PageBreadcrumb
-        //             breadCrumbData={[
-        //                 {
-        //                     pageName: `${capitalizeFirstLetter(actorType)}`,
-        //                     pageUrl: `/actors/${actorType}`,
-        //                 },
-        //                 {
-        //                     pageName: "Edit",
-        //                 },
-        //             ]}
-        //         />
-        //         <div className="flex flex-row w-full flex-grow overflow-hidden">
-        //             <div className="w-full h-full overflow-auto">
-        //                 {/* Edit Mode Actor Form */}
-        //                 <ActorForm actorType={actorType} actorId={actorId} editMode={true} />
-        //             </div>
-        //         </div>
-        //     </div>
-        // </main>
     );
 }
 

@@ -32,7 +32,7 @@ export default function FormGenerator({
     onSubmit: any;
     defaultData?: any;
     submitButtonText?: string;
-    errorText?: string;
+    errorText?: string | null;
 }) {
     const form = useForm({ defaultValues: defaultData });
 
@@ -42,7 +42,6 @@ export default function FormGenerator({
      * @returns form submission
      */
     const onSubmitForm = async (data: any) => {
-        console.log(data);
         await onSubmit(data);
     };
 

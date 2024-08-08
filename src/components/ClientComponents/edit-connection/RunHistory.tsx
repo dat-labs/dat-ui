@@ -7,16 +7,8 @@ import { Button } from "@/components/ui/button";
 import { addDays, format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import {
-    CalendarIcon,
-    CheckCircledIcon,
-    ChevronDownIcon,
-    ChevronRightIcon,
-    CubeIcon,
-    DotsVerticalIcon,
-    FileTextIcon,
-} from "@radix-ui/react-icons";
-import { getConnectionAggRunLogs } from "@/app/connections/[connectionId]/api";
+import { CalendarIcon, ReloadIcon } from "@radix-ui/react-icons";
+import { getConnectionAggRunLogs, getConnectionViewLogs } from "@/app/connections/[connectionId]/api";
 import useApiCall from "@/hooks/useApiCall";
 import RunLogTable from "./RunLogTable";
 import {
@@ -28,6 +20,7 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination";
+import Loading from "@/app/connections/[connectionId]/loading";
 
 export function DatePickerWithRange({ className }: React.HTMLAttributes<HTMLDivElement>) {
     const [date, setDate] = React.useState<DateRange | undefined>({
@@ -40,6 +33,8 @@ export function DatePickerWithRange({ className }: React.HTMLAttributes<HTMLDivE
             <Popover>
                 <PopoverTrigger asChild>
                     <Button
+                        className="w-10"
+                        variant={"ghost"}
                         id="date"
                         variant={"outline"}
                         className={cn("w-[230px] justify-start text-left font-normal", !date && "text-muted-foreground")}
@@ -75,56 +70,163 @@ export function DatePickerWithRange({ className }: React.HTMLAttributes<HTMLDivE
 
 export default function RunHistory({ connectionData }) {
     const [logData, setLogData] = React.useState([]);
+    const [refresh, setRefresh] = React.useState(false);
 
-    const { data, makeApiCall } = useApiCall(getConnectionAggRunLogs, "GET");
+    const { data: runHistoryData, loading, makeApiCall } = useApiCall(getConnectionAggRunLogs, "GET");
 
     React.useEffect(() => {
-        (async () => {
+        const fetchData = async () => {
             await makeApiCall(connectionData.id);
-        })();
-    }, []);
+        };
+
+        fetchData();
+
+        // const intervalId = setInterval(fetchData, 5000); // 1min
+        // return () => clearInterval(intervalId);
+    }, [connectionData.id, refresh]);
 
     React.useEffect(() => {
-        if (data) {
-            setLogData(data.data.runs);
+        if (runHistoryData) {
+            setLogData(runHistoryData.data.runs);
         }
-    }, [data]);
+    }, [runHistoryData]);
+
+    const TestlogData = [
+        {
+            id: "1",
+            status: "success",
+            start_time: "10:00 AM 2021/09/01 ",
+            end_time: "2021-09-01 10:30:00",
+            duration: "30 mins",
+            size: "10 MB",
+            documents_fetched: 8,
+            destination_record_updated: 14,
+            records_per_stream: [
+                {
+                    stream: "pdf",
+                    documents_fetched: 500,
+                    destination_record_updated: 500,
+                },
+                {
+                    stream: "csv",
+                    documents_fetched: 500,
+                    destination_record_updated: 500,
+                },
+            ],
+        },
+        {
+            id: "2",
+            status: "partial",
+            start_time: "10:00 AM 2021/09/01 ",
+            end_time: "2021-09-01 10:30:00",
+            duration: "30 mins",
+            size: "10 MB",
+            documents_fetched: 8,
+            destination_record_updated: 14,
+            records_per_stream: [
+                {
+                    stream: "pdf",
+                    documents_fetched: 500,
+                    destination_record_updated: 500,
+                },
+                {
+                    stream: "csv",
+                    documents_fetched: 500,
+                    destination_record_updated: 500,
+                },
+            ],
+        },
+        {
+            id: "3",
+            status: "failed",
+            start_time: "10:00 AM 2021/09/01 ",
+            end_time: "2021-09-01 10:30:00",
+            duration: "30 mins",
+            size: "10 MB",
+            documents_fetched: 8,
+            destination_record_updated: 14,
+            records_per_stream: [
+                {
+                    stream: "pdf",
+                    documents_fetched: 500,
+                    destination_record_updated: 500,
+                },
+                {
+                    stream: "csv",
+                    documents_fetched: 500,
+                    destination_record_updated: 500,
+                },
+            ],
+        },
+    ];
+
+    const [currentPage, setCurrentPage] = React.useState(1);
+    const logsPerPage = 5;
+
+    const totalPages = Math.ceil(logData.length / logsPerPage);
+
+    const handlePageChange = (pageNumber: number) => {
+        setCurrentPage(pageNumber);
+    };
+
+    const startIndex = (currentPage - 1) * logsPerPage;
+    const endIndex = startIndex + logsPerPage;
+    const currentLogs = logData.slice(startIndex, endIndex);
 
     return (
-        <div className="p-5 mr-12 bg-[#FFFFFF]">
-            <div className="flex flex-col border rounded-md">
-                <div className="flex flex-row justify-between items-center border-b px-5 py-3">
-                    <p className="text-xl font-semibold font-inter">Run History</p>
-                    <div>
-                        <DatePickerWithRange />
+        <div className="p-5 mr-12">
+            {loading ? (
+                <Loading />
+            ) : (
+                <div className="flex flex-col border rounded-md">
+                    <div className="flex flex-row justify-between items-center border-b px-5 py-3">
+                        <div className="flex gap-6">
+                            <p className="text-xl font-semibold font-inter">Run History</p>
+                            <Button size={"sm"} onClick={() => setRefresh(!refresh)}>
+                                <ReloadIcon className="mr-2" />
+                                Refresh
+                            </Button>
+                        </div>
+
+                        <div>
+                            <DatePickerWithRange />
+                        </div>
                     </div>
+                    {logData.length > 0 ? (
+                        currentLogs.map((log, index) => <RunLogTable key={index} logInstance={log} />)
+                    ) : (
+                        <div className="w-full border-b">
+                            <p className="text-center py-10">No Run History Found</p>
+                        </div>
+                    )}
+
+                    <Pagination>
+                        <PaginationContent>
+                            <PaginationItem>
+                                <Button className="w-10" variant={"ghost"} disabled={currentPage === 1}>
+                                    <PaginationPrevious onClick={() => handlePageChange(currentPage - 1)} />
+                                </Button>
+                            </PaginationItem>
+                            {Array.from({ length: totalPages }, (_, index) => (
+                                <PaginationItem key={index}>
+                                    <PaginationLink
+                                        href="#"
+                                        isActive={currentPage === index + 1}
+                                        onClick={() => handlePageChange(index + 1)}
+                                    >
+                                        {index + 1}
+                                    </PaginationLink>
+                                </PaginationItem>
+                            ))}
+                            <PaginationItem>
+                                <Button className="w-10" variant={"ghost"} disabled={currentPage === totalPages}>
+                                    <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
+                                </Button>
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
                 </div>
-
-                {logData.length > 0 && logData.map((log, index) => <RunLogTable key={index} logInstance={log} />)}
-
-                <Pagination>
-                    <PaginationContent>
-                        <PaginationItem>
-                            <PaginationPrevious href="#" />
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationLink href="#">1</PaginationLink>
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationLink href="#" isActive>
-                                2
-                            </PaginationLink>
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationLink href="#">3</PaginationLink>
-                        </PaginationItem>
-
-                        <PaginationItem>
-                            <PaginationNext href="#" />
-                        </PaginationItem>
-                    </PaginationContent>
-                </Pagination>
-            </div>
+            )}
         </div>
     );
 }

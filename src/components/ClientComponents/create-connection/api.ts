@@ -25,9 +25,5 @@ export const deleteConnection = async (connection_id: string) => {
             "Content-Type": "application/json",
         },
     });
-
-    console.log("API response :", response);
-
-    const responseData = await response.json();
-    return { responseData, status: response.status, ok: response.ok };
+    return response;
 };

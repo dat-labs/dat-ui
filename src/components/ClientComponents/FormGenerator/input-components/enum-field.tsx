@@ -9,7 +9,11 @@ export default function EnumField({ form, field_name, fieldEnum }) {
             render={({ field }) => (
                 <>
                     <FormItem>
-                        <Select value={field.value} onValueChange={field.onChange}>
+                        <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            {...form.register(field_name, { required: `Select an option!` })}
+                        >
                             <SelectTrigger>
                                 <SelectValue placeholder="Select an option" />
                             </SelectTrigger>
@@ -23,7 +27,6 @@ export default function EnumField({ form, field_name, fieldEnum }) {
                                 ))}
                             </SelectContent>
                         </Select>
-                        <FormMessage />
                     </FormItem>
                 </>
             )}

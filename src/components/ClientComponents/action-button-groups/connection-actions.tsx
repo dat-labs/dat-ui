@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import useApiCall from "@/hooks/useApiCall";
 import { PlayIcon, TrashIcon } from "@radix-ui/react-icons";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { deleteConnection } from "../create-connection/api";
 import CircularLoader from "@/components/ui/circularLoader";
 import { useRouter } from "next/navigation";
@@ -47,9 +47,10 @@ export default function ConnectionActions({ connectionId }) {
     const router = useRouter();
     const {
         data: connectionData,
-        error: runConnectionError,
+        statusCode: runStatus,
         makeApiCall: runConnectionCall,
     } = useApiCall(manualRunConnection, "POST");
+
     const {
         data: deleteRes,
         error: deleteConnectionError,
@@ -59,14 +60,19 @@ export default function ConnectionActions({ connectionId }) {
 
     const handleConnectionRun = async (e) => {
         e.stopPropagation();
-        const res = await runConnectionCall(connectionId);
-
-        if (res.status == 200) {
-            toast.success("Succesful Run!");
-        } else {
-            toast.error("Run Connection Failed!");
-        }
+        await runConnectionCall(connectionId);
     };
+
+    useEffect(() => {
+        if (connectionData) {
+            if (runStatus == 200) {
+                toast.success("Run Initiated");
+            } else {
+                toast.error("Run Failed to Initiate!");
+            }
+        }
+    }, [connectionData]);
+
     const handleDelete = async (e) => {
         e.stopPropagation();
         const res = await deleteConnectionCall(connectionId);

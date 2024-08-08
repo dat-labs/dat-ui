@@ -25,7 +25,6 @@ export default async function EditConnectionPage({ params }: { params: any }) {
     const load = useCallback(async () => {
         const res = await makeApiCall(params.connectionId);
         setConnectionData(res.data);
-        console.log(connectionData);
     }, [params.connectionId, setConnectionData]);
 
     /**

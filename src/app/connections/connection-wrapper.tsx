@@ -8,6 +8,7 @@ import ConnectionsTable from "./connection-table";
 import { getConnectionsData } from "./api";
 import Empty from "@/components/commom/empty-component";
 import useApiCall from "@/hooks/useApiCall";
+import Loading from "./[connectionId]/loading";
 
 /**
  * A wrapper component to fetch and display connections data.
@@ -19,7 +20,7 @@ import useApiCall from "@/hooks/useApiCall";
 const ConnectionWrapper = () => {
     const [loadData, setLoadData] = useState([]);
 
-    const { data, makeApiCall } = useApiCall(getConnectionsData);
+    const { data: allConnectionsData, statusCode, loading, makeApiCall } = useApiCall(getConnectionsData);
     /**
      * Makes the API call to fetch connections data on component mount.
      */
@@ -33,17 +34,16 @@ const ConnectionWrapper = () => {
      * Updates the state with the fetched data when it becomes available.
      */
     useEffect(() => {
-        if (data) {
-            setLoadData(data);
-            console.log(data);
+        if (allConnectionsData) {
+            setLoadData(allConnectionsData.data);
         }
-    }, [data, setLoadData]);
+    }, [allConnectionsData, setLoadData]);
 
     return (
         <div>
-            {loadData.length === 0 ? (
-                <Empty configKey="connection" />
-            ) : (
+            {loading ? (
+                <Loading />
+            ) : loadData.length > 0 ? (
                 <div>
                     <div className="my-4 flex justify-between align-middle">
                         <p className="text-lg font-medium">List of Connections:</p>
@@ -52,8 +52,11 @@ const ConnectionWrapper = () => {
                             Create Connection
                         </Link>
                     </div>
+
                     <ConnectionsTable loadData={loadData} />
                 </div>
+            ) : (
+                statusCode == 200 && <Empty configKey="connection" />
             )}
         </div>
     );
