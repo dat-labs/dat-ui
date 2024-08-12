@@ -16,6 +16,7 @@ import "./runLoader.css";
 import useApiCall from "@/hooks/useApiCall";
 import { manualRunConnection } from "@/app/connections/[connectionId]/api";
 import { toast } from "sonner";
+import CircularLoader from "@/components/ui/circularLoader";
 
 const tabComponentMapper = {
     streams: EditStreams,
@@ -81,7 +82,6 @@ const EditConnectionComponent = ({ connectionData }) => {
     const [isActive, setIsActive] = useState(true);
 
     const { loading, makeApiCall: runConnectionCall } = useApiCall(manualRunConnection, "POST");
-
     const handleConnectionRun = async () => {
         const res = await runConnectionCall(connectionData.id);
         if (res.status == 200) {
@@ -150,14 +150,12 @@ const EditConnectionComponent = ({ connectionData }) => {
                         </div>
                     </div>
                     <div className="flex items-center">
-                        <Label className="mr-2" htmlFor="schedule">
-                            Schedule :
-                        </Label>
                         <Switch id="schedule" onClick={() => setIsActive(!isActive)} />
                         <p className="ml-2 w-[60px] text-center">{isActive ? "Active" : "Inactive"}</p>
-                        <Button className="my-auto ml-10" onClick={handleConnectionRun}>
+                        <Button className="my-auto ml-6" onClick={handleConnectionRun} disabled={isActive}>
                             Run Now
                         </Button>
+                        <span className="size-4 ml-6">{state.configuration.status === "RUNNING" && <CircularLoader />}</span>
                     </div>
                 </div>
             </div>

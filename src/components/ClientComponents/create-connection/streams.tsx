@@ -169,7 +169,6 @@ export default function Streams({ data }: { data: any }) {
                                             )}
                                         </Card>
                                     </div>
-                                    <p className="ml-4">{`${sourceName}_${genName}_${desName}`}</p>
                                 </div>
                             </div>
 

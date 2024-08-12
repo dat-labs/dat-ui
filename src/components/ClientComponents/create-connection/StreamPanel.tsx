@@ -19,9 +19,6 @@ const StreamPanel: React.FC<StreamPanelProps> = ({ srcDocs, row, handleStreamCon
                 <ScrollArea className="h-full overflow-auto">
                     <div className="w-11/12 mx-auto">
                         <Card className="mt-2 mb-12">
-                            <CardHeader>
-                                <CardTitle className="text-lg font-bold">Edit stream configuration</CardTitle>
-                            </CardHeader>
                             <CardContent>
                                 <FormGenerator
                                     properties={row.original.streamProperties.properties}
