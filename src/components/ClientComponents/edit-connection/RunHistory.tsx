@@ -21,6 +21,7 @@ import {
     PaginationPrevious,
 } from "@/components/ui/pagination";
 import Loading from "@/app/connections/[connectionId]/loading";
+import { FromDataContext } from "../create-connection";
 
 export function DatePickerWithRange({ className }: React.HTMLAttributes<HTMLDivElement>) {
     const [date, setDate] = React.useState<DateRange | undefined>({
@@ -71,6 +72,7 @@ export function DatePickerWithRange({ className }: React.HTMLAttributes<HTMLDivE
 export default function RunHistory({ connectionData }) {
     const [logData, setLogData] = React.useState([]);
     const [refresh, setRefresh] = React.useState(false);
+    const { state, updateState } = React.useContext(FromDataContext);
 
     const { data: runHistoryData, loading, makeApiCall } = useApiCall(getConnectionAggRunLogs, "GET");
 
@@ -80,9 +82,6 @@ export default function RunHistory({ connectionData }) {
         };
 
         fetchData();
-
-        // const intervalId = setInterval(fetchData, 5000); // 1min
-        // return () => clearInterval(intervalId);
     }, [connectionData.id, refresh]);
 
     React.useEffect(() => {
@@ -90,75 +89,6 @@ export default function RunHistory({ connectionData }) {
             setLogData(runHistoryData.data.runs);
         }
     }, [runHistoryData]);
-
-    const TestlogData = [
-        {
-            id: "1",
-            status: "success",
-            start_time: "10:00 AM 2021/09/01 ",
-            end_time: "2021-09-01 10:30:00",
-            duration: "30 mins",
-            size: "10 MB",
-            documents_fetched: 8,
-            destination_record_updated: 14,
-            records_per_stream: [
-                {
-                    stream: "pdf",
-                    documents_fetched: 500,
-                    destination_record_updated: 500,
-                },
-                {
-                    stream: "csv",
-                    documents_fetched: 500,
-                    destination_record_updated: 500,
-                },
-            ],
-        },
-        {
-            id: "2",
-            status: "partial",
-            start_time: "10:00 AM 2021/09/01 ",
-            end_time: "2021-09-01 10:30:00",
-            duration: "30 mins",
-            size: "10 MB",
-            documents_fetched: 8,
-            destination_record_updated: 14,
-            records_per_stream: [
-                {
-                    stream: "pdf",
-                    documents_fetched: 500,
-                    destination_record_updated: 500,
-                },
-                {
-                    stream: "csv",
-                    documents_fetched: 500,
-                    destination_record_updated: 500,
-                },
-            ],
-        },
-        {
-            id: "3",
-            status: "failed",
-            start_time: "10:00 AM 2021/09/01 ",
-            end_time: "2021-09-01 10:30:00",
-            duration: "30 mins",
-            size: "10 MB",
-            documents_fetched: 8,
-            destination_record_updated: 14,
-            records_per_stream: [
-                {
-                    stream: "pdf",
-                    documents_fetched: 500,
-                    destination_record_updated: 500,
-                },
-                {
-                    stream: "csv",
-                    documents_fetched: 500,
-                    destination_record_updated: 500,
-                },
-            ],
-        },
-    ];
 
     const [currentPage, setCurrentPage] = React.useState(1);
     const logsPerPage = 5;
@@ -172,6 +102,12 @@ export default function RunHistory({ connectionData }) {
     const startIndex = (currentPage - 1) * logsPerPage;
     const endIndex = startIndex + logsPerPage;
     const currentLogs = logData.slice(startIndex, endIndex);
+
+    React.useEffect(() => {
+        if (logData.length > 0) {
+            updateState("configuration", { ...state.configuration, status: logData[0].status });
+        }
+    }, [logData]);
 
     return (
         <div className="p-5 mr-12">
