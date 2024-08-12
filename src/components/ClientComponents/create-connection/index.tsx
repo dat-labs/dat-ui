@@ -115,9 +115,24 @@ const FormComponent = () => {
     const checkConnectionForError = () => {
         let flag = false;
         for (let key in state.streams) {
-            if (state.streams.hasOwnProperty(key) && state.streams[key].configuration?.name) {
+            if (state.streams.hasOwnProperty(key) && state.streams[key].configured == true) {
                 flag = true;
                 break;
+            }
+        }
+
+        let stream_name = "";
+        for (let key in state.streams) {
+            if (state.streams.hasOwnProperty(key)) {
+                if (
+                    state.streams[key].configured &&
+                    (Object.keys(state.streams[key].configuration).length === 0 ||
+                        !state.streams[key].configuration.namespace ||
+                        !state.streams[key].configuration.advanced)
+                ) {
+                    stream_name = key;
+                    break;
+                }
             }
         }
 
@@ -130,7 +145,20 @@ const FormComponent = () => {
         } else if (!flag) {
             setSaveError("Atleast one Stream should be configured.");
             return true;
+        } else if (stream_name.length > 0) {
+            setSaveError(`Selected stream - ${stream_name} is not configured completely.`);
+            return true;
         }
+    };
+
+    const getCronString = (schedule: string) => {
+        const match = schedule.match(/\d+/);
+        const n = match ? parseInt(match[0], 10) : null;
+
+        const minute = Math.floor(Math.random() * 60);
+        const cronString = `${minute} */${n} * * *`;
+
+        return cronString;
     };
 
     const router = useRouter();
@@ -140,37 +168,43 @@ const FormComponent = () => {
      * Handles the action when the "Save" button is clicked to save the connection configuration.
      * Makes an API call with the configured connection data.
      */
-
     const handleSave = async () => {
         const session = await getSession();
 
-        const postData = {
-            source_instance_id: state.source.value.id,
-            generator_instance_id: state.generator.value.id,
-            destination_instance_id: state.destination.value.id,
-            source_instance: state.source.value,
-            generator_instance: state.generator.value,
-            destination_instance: state.destination.value,
-            workspace_id: session?.user?.workspace_id,
-            user_id: session?.user?.id,
-            name: state.configuration.name,
-            namespace_format: "",
-            prefix: "",
-            configuration: {},
-            status: "active",
-            catalog: {
-                document_streams: getStremsData(state.streams),
-            },
-            schedule: {
-                cron: {
-                    cron_expression: "5 * * * *",
-                    timezone: "UTC",
-                },
-            },
-            schedule_type: "manual",
-        };
-
         if (!checkConnectionForError()) {
+            let patchCronString;
+            if (state.configuration.schedule === "No Schedule") {
+                patchCronString = "";
+            } else {
+                patchCronString = getCronString(state.configuration.schedule);
+            }
+
+            const postData = {
+                source_instance_id: state.source.value.id,
+                generator_instance_id: state.generator.value.id,
+                destination_instance_id: state.destination.value.id,
+                source_instance: state.source.value,
+                generator_instance: state.generator.value,
+                destination_instance: state.destination.value,
+                workspace_id: session?.user?.workspace_id,
+                user_id: session?.user?.id,
+                name: state.configuration.name,
+                namespace_format: "",
+                prefix: "",
+                configuration: {},
+                status: "active",
+                catalog: {
+                    document_streams: getStremsData(state.streams),
+                },
+                schedule: {
+                    cron: {
+                        cron_expression: patchCronString,
+                        timezone: "UTC",
+                    },
+                },
+                schedule_type: "manual",
+            };
+
             const res = await makeApiCall(postData);
 
             if (res.status === 200) {

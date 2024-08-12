@@ -6,9 +6,10 @@ import Streams from "./streams";
 import { getStreamsForSource } from "./api";
 import useApiCall from "@/hooks/useApiCall";
 import Loading from "@/app/connections/[connectionId]/loading";
-import file from "./json_schems";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+//import cron from "cron-validate";
 
 const scheduleOptions = [
     {
@@ -32,6 +33,9 @@ const scheduleOptions = [
     {
         title: "Every 24 hour",
     },
+    // {
+    //     title: "Advance Scheduling",
+    // },
 ];
 
 /**
@@ -43,6 +47,8 @@ export default function ConnectionConfiguration({ editMode }: { editMode: boolea
     const { state, updateState } = useContext(FromDataContext);
     const [refresh, setRefresh] = useState(false);
     const [connectionName, setConnectionName] = useState(state.configuration.name);
+    const [cronSchedule, setCronSchedule] = useState(state.configuration.cronSchedule);
+    const [cronError, setCronError] = useState("");
 
     /**
      * Retrieves streams data from the state and formats it for rendering.
@@ -69,6 +75,17 @@ export default function ConnectionConfiguration({ editMode }: { editMode: boolea
     const handleNameChange = (e) => {
         setConnectionName(e.target.value);
         updateState("configuration", { ...state.configuration, name: e.target.value });
+    };
+
+    const handleCronScheduleChange = (e) => {
+        setCronSchedule(e.target.value);
+        // const exp = cron(e.target.value);
+        // if (exp.isValid()) {
+        //     updateState("configuration", { ...state.configuration, cronSchedule: e.target.value });
+        //     setCronError("");
+        // } else {
+        //     setCronError("Cron string not valid");
+        // }
     };
 
     /**
@@ -113,11 +130,12 @@ export default function ConnectionConfiguration({ editMode }: { editMode: boolea
     useEffect(() => {
         if (editMode && state.configuration.name) {
             setConnectionName(state.configuration.name);
+            setCronSchedule(state.configuration.cronSchedule);
         } else if (!editMode && !state.configuration.name) {
             const getActorName = (actorType) => {
                 return state[actorType]?.value?.name || actorType;
             };
-            const dummyName = `${getActorName("source")}->${getActorName("generator")}->${getActorName("destination")}`;
+            const dummyName = `${getActorName("source")} -> ${getActorName("generator")} -> ${getActorName("destination")}`;
             setConnectionName(dummyName);
             updateState("configuration", { ...state.configuration, name: dummyName });
         }
@@ -127,9 +145,11 @@ export default function ConnectionConfiguration({ editMode }: { editMode: boolea
         <>
             <div className="w-6/12">
                 <Card className="p-4">
-                    <label htmlFor="dat_name">Name</label>
+                    <Label className="ml-1" htmlFor="dat_name">
+                        Name
+                    </Label>
                     <Input
-                        className="mt-2 mb-2"
+                        className="my-2"
                         name="dat_name"
                         id="dat_name"
                         value={connectionName}
@@ -137,9 +157,9 @@ export default function ConnectionConfiguration({ editMode }: { editMode: boolea
                         type="text"
                         onChange={handleNameChange}
                     />
-                    <label className="mt-2" htmlFor="schedule">
+                    <Label className="ml-1 mt-2" htmlFor="schedule">
                         Schedule
-                    </label>
+                    </Label>
                     <Select onValueChange={(val) => handleScheduleChange(val)} value={state.configuration.schedule}>
                         <SelectTrigger className="mt-2" id="schedule">
                             <SelectValue placeholder="Select a schedule" />
@@ -154,6 +174,24 @@ export default function ConnectionConfiguration({ editMode }: { editMode: boolea
                             ))}
                         </SelectContent>
                     </Select>
+
+                    <div
+                        className={`${
+                            state.configuration.schedule === "Advance Scheduling" ? "block" : "hidden"
+                        } xl:w-1/2 ml-1 mt-2`}
+                    >
+                        <Label htmlFor="cron_schedule">Cron Schedule</Label>
+                        <Input
+                            id="cron_schedule"
+                            name="cron_schedule"
+                            type="text"
+                            placeholder="Enter Cron Schedule Expression"
+                            value={cronSchedule}
+                            onChange={handleCronScheduleChange}
+                            className="mt-1"
+                        />
+                        {cronError.length > 0 && <div className="text-red-600 ml-1">cronError</div>}
+                    </div>
                 </Card>
             </div>
             <div className="my-4">
