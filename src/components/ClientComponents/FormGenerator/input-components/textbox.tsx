@@ -9,7 +9,7 @@ export default function TextBox({ field, form, field_name, defaultValue, uiOpts 
             <Textarea
                 id={field_name}
                 type={uiOpts?.masked ? "password" : "text"}
-                {...form.register(field_name, { required: "This is a required field." })}
+                {...form.register(field_name)}
                 defaultValue={defaultValue}
             />
         );
@@ -19,7 +19,7 @@ export default function TextBox({ field, form, field_name, defaultValue, uiOpts 
             <Input
                 id={field_name}
                 type={uiOpts?.masked ? "password" : "text"}
-                {...form.register(field_name, { required: "This is a required field." })}
+                {...form.register(field_name)}
                 defaultValue={defaultValue}
             />
         </>
