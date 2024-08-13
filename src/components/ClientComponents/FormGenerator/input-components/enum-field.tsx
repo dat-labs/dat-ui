@@ -1,7 +1,12 @@
 import React from "react";
 import { FormField, FormItem, FormMessage, Form } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-export default function EnumField({ form, field_name, fieldEnum }) {
+export default function EnumField({ form, field_name, fieldEnum, required = false }) {
+    const validationRules = {};
+    if (required) {
+        validationRules.required = "Select an option!";
+    }
+
     return (
         <FormField
             control={form.control}
@@ -12,18 +17,16 @@ export default function EnumField({ form, field_name, fieldEnum }) {
                         <Select
                             value={field.value}
                             onValueChange={field.onChange}
-                            {...form.register(field_name, { required: `Select an option!` })}
+                            {...form.register(field_name, validationRules)}
                         >
                             <SelectTrigger>
                                 <SelectValue placeholder="Select an option" />
                             </SelectTrigger>
                             <SelectContent>
                                 {fieldEnum.map((option: any, index: number) => (
-                                    <>
-                                        <SelectItem key={index} value={option}>
-                                            {option}
-                                        </SelectItem>
-                                    </>
+                                    <SelectItem key={index} value={option}>
+                                        {option}
+                                    </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>

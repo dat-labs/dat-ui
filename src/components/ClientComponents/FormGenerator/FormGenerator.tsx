@@ -23,18 +23,28 @@ import RadioButton from "./input-components/radio-button";
  */
 export default function FormGenerator({
     properties,
+    required_fields,
     onSubmit,
     defaultData,
     submitButtonText,
     errorText,
 }: {
     properties: any;
+    required_fields?: any;
     onSubmit: any;
     defaultData?: any;
     submitButtonText?: string;
     errorText?: string | null;
 }) {
     const form = useForm({ defaultValues: defaultData });
+
+    const checkrequired = (field_name: string) => {
+        if (required_fields) {
+            return required_fields?.includes(field_name);
+        } else {
+            return false;
+        }
+    };
 
     /**
      * Function to handle form submission
@@ -141,7 +151,12 @@ export default function FormGenerator({
 
                     {(type === "string" || uiOpts?.widget === "textbox") &&
                         (field.enum ? (
-                            <EnumField form={form} field_name={field_name} fieldEnum={field.enum} />
+                            <EnumField
+                                form={form}
+                                field_name={field_name}
+                                fieldEnum={field.enum}
+                                required={checkrequired(field_name)}
+                            />
                         ) : (
                             <TextBox
                                 field={field}
@@ -149,6 +164,7 @@ export default function FormGenerator({
                                 field_name={field_name}
                                 defaultValue={defaultValue}
                                 uiOpts={uiOpts}
+                                required={checkrequired(field_name)}
                             />
                         ))}
 

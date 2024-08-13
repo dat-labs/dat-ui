@@ -11,35 +11,29 @@ import StreamPanel from "./StreamPanel";
 import useApiCall from "@/hooks/useApiCall";
 import { getActorDocumentation } from "@/app/actors/[actorType]/create/api";
 import EditSchemaPanel from "./editSchemaPanel";
-import { importIcon } from "@/lib/utils";
+import { capitalizeFirstLetter, importIcon } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 
 export default function Streams({ data }: { data: any }) {
     const { state, updateState } = React.useContext(FromDataContext);
     console.log(state);
 
-    const [actorDoc, setActorDoc] = useState(null);
-    const { data: docData, makeApiCall } = useApiCall(getActorDocumentation);
-
-    const DestinationIcon = importIcon(state.destination?.value?.actor?.icon);
-    const GeneratorIcon = importIcon(state.generator?.value?.actor?.icon);
-    const SourceIcon = importIcon(state.source?.value?.actor?.icon);
-
-    const sourceName = state.source?.value?.actor ? state.source?.value?.actor?.name : "Source";
-    const genName = state.generator?.value?.actor ? state.generator?.value?.actor?.name : "Generator";
-    const desName = state.destination?.value?.actor ? state.destination?.value?.actor?.name : "Destination";
+    const [streamDoc, setStreamDoc] = useState(null);
+    const { data: docData, statusCode: docStatus, loading: docLoading, makeApiCall } = useApiCall(getActorDocumentation);
 
     useEffect(() => {
         (async () => {
-            await makeApiCall(state.source.value.actor_id);
+            const actorName = state.source?.value?.actor?.module_name?.replace("_", "-");
+            const docPath = `sources/${actorName}/stream-configuration`;
+            await makeApiCall(docPath);
         })();
     }, []);
 
     useEffect(() => {
         if (docData) {
-            setActorDoc(docData.responseData);
+            setStreamDoc(docData.responseData);
         }
-    }, [docData, setActorDoc]);
+    }, [docData, setStreamDoc]);
 
     const handleStreamConfigrationSave = (values: any, streamName: string) => {
         updateState("streams", {
@@ -128,47 +122,9 @@ export default function Streams({ data }: { data: any }) {
                                     }
                                 />
                                 <div className="flex flex-1 justify-center items-center text-muted-foreground">
-                                    <div className="flex mt-3 mb-3 gap-2">
-                                        <Card className="flex items-center p-1 bg-white">
-                                            {SourceIcon ? (
-                                                <SourceIcon className="h-6 w-6" />
-                                            ) : (
-                                                <img
-                                                    src={`https://ui-avatars.com/api/?name=${sourceName}`}
-                                                    alt="icon"
-                                                    className="h-6 w-6 rounded-md"
-                                                />
-                                            )}
-                                        </Card>
-                                        <div className="flex items-center">
-                                            <ArrowRightIcon />
-                                        </div>
-                                        <Card className="flex items-center p-1 bg-white">
-                                            {GeneratorIcon ? (
-                                                <GeneratorIcon className="h-6 w-6" />
-                                            ) : (
-                                                <img
-                                                    src={`https://ui-avatars.com/api/?name=${genName}`}
-                                                    alt="icon"
-                                                    className="h-6 w-6 rounded-md"
-                                                />
-                                            )}
-                                        </Card>
-                                        <div className="flex items-center">
-                                            <ArrowRightIcon />
-                                        </div>
-                                        <Card className="flex items-center p-1 bg-white">
-                                            {DestinationIcon ? (
-                                                <DestinationIcon className="h-6 w-6" />
-                                            ) : (
-                                                <img
-                                                    src={`https://ui-avatars.com/api/?name=${desName}`}
-                                                    alt="icon"
-                                                    className="h-6 w-6 rounded-md"
-                                                />
-                                            )}
-                                        </Card>
-                                    </div>
+                                    <p className="text-md text-foreground font-semibold">
+                                        Configure <span className="font-bold">{capitalizeFirstLetter(rowName)}</span> Stream
+                                    </p>
                                 </div>
                             </div>
 
@@ -188,7 +144,7 @@ export default function Streams({ data }: { data: any }) {
 
                                         <TabsContent value="stream" className="w-full h-full">
                                             <StreamPanel
-                                                srcDocs={"Doc"}
+                                                srcDocs={docStatus === 200 ? streamDoc : ""}
                                                 row={row}
                                                 handleStreamConfigrationSave={handleStreamConfigrationSave}
                                                 state={state}
@@ -201,7 +157,7 @@ export default function Streams({ data }: { data: any }) {
                                     </Tabs>
                                 ) : (
                                     <StreamPanel
-                                        srcDocs={"Doc"}
+                                        srcDocs={docStatus === 200 ? streamDoc : ""}
                                         row={row}
                                         handleStreamConfigrationSave={handleStreamConfigrationSave}
                                         state={state}

@@ -242,8 +242,8 @@ export const createActorInstance = async (data: any) => {
     return { responseData, status: response.status };
 };
 
-export const getActorDocumentation = async (actorId: string) => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/actors/${actorId}/doc`);
+export const getActorDocumentation = async (path: string) => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/actors/doc/?path=${path}`);
     const responseData = await response.json();
     return { responseData, status: response.status };
 };

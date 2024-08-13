@@ -152,7 +152,7 @@ const EditConnectionComponent = ({ connectionData }) => {
                     <div className="flex items-center">
                         <Switch id="schedule" onClick={() => setIsActive(!isActive)} />
                         <p className="ml-2 w-[60px] text-center">{isActive ? "Active" : "Inactive"}</p>
-                        <Button className="my-auto ml-6" onClick={handleConnectionRun} disabled={isActive}>
+                        <Button className="my-auto ml-6" onClick={handleConnectionRun}>
                             Run Now
                         </Button>
                         <span className="size-4 ml-6">{state.configuration.status === "RUNNING" && <CircularLoader />}</span>

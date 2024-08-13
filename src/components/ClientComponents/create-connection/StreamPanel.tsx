@@ -22,6 +22,7 @@ const StreamPanel: React.FC<StreamPanelProps> = ({ srcDocs, row, handleStreamCon
                             <CardContent>
                                 <FormGenerator
                                     properties={row.original.streamProperties.properties}
+                                    required_fields={row.original.streamProperties.required}
                                     defaultData={state.streams[row.getValue("name")]?.configuration}
                                     onSubmit={(values: any) => handleStreamConfigrationSave(values, row.getValue("name"))}
                                 />

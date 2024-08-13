@@ -91,8 +91,8 @@ export const getStremsData = (streamsObj: any) => {
             arrToReturn.push({
                 ...streamsObj[streamName].configuration,
                 name: streamName,
-                read_sync_mode: "INCREMENTAL",
-                write_sync_mode: "APPEND",
+                read_sync_mode: streamsObj[streamName].configuration.read_sync_mode,
+                write_sync_mode: streamsObj[streamName].configuration.write_sync_mode,
             });
         }
     });

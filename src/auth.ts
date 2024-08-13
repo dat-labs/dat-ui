@@ -23,7 +23,6 @@ const credentialsConfig = CredentialsProvider({
         });
         if (res.ok) {
             const resJson = await res.json();
-            console.log(resJson);
             return resJson;
         }
         return null;

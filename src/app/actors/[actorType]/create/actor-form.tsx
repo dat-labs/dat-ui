@@ -93,8 +93,10 @@ export default function ActorForm({
     useEffect(() => {
         if (!editMode && selectedActor) {
             (async () => {
-                await formStructurApi(selectedActor);
-                await getDocApi(selectedActor);
+                const actorStruc = await formStructurApi(selectedActor);
+                const actorName = actorStruc.properties?.module_name?.const?.replace("_", "-");
+                const docPath = `${actorType}s/${actorName}`;
+                await getDocApi(docPath);
                 setStep(2);
             })();
         }
@@ -162,7 +164,12 @@ export default function ActorForm({
     const load = useCallback(async () => {
         const data = await actorDataApi(actorType, actorId);
         const jsonData = await actorSpecResApi(data?.actor.id);
-        await getDocApi(data?.actor.id);
+        console.log(jsonData);
+
+        const actorName = jsonData.properties?.module_name?.const?.replace("_", "-");
+        const docPath = `${actorType}s/${actorName}`;
+
+        await getDocApi(docPath);
         setActorInstanceData(data);
         setFormData(jsonData);
     }, [actorType, actorId]);
@@ -269,6 +276,7 @@ export default function ActorForm({
                                                 <CardContent>
                                                     <FormGenerator
                                                         properties={formData?.properties?.connection_specification?.properties}
+                                                        required_fields={formData?.properties?.connection_specification?.required}
                                                         onSubmit={editMode ? handleEditFormSubmit : handleCreateFormSubmit}
                                                         submitButtonText={editMode ? "Test and Save" : "Test and Submit"}
                                                         errorText={error}
