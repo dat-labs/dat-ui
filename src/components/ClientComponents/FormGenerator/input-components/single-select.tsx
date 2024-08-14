@@ -1,7 +1,11 @@
 import React from "react";
 import { FormField, FormItem, FormMessage, Form } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-export default function SingleSelect({ form, field_name, originalFieldName, oneOf }) {
+export default function SingleSelect({ form, field_name, originalFieldName, oneOf, required = false }) {
+    const validationRules = {};
+    if (required) {
+        validationRules.required = "Select an option!";
+    }
     return (
         <>
             <FormField
@@ -10,7 +14,11 @@ export default function SingleSelect({ form, field_name, originalFieldName, oneO
                 render={({ field }) => (
                     <>
                         <FormItem>
-                            <Select value={field.value} onValueChange={field.onChange}>
+                            <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                {...form.register(field_name, validationRules)}
+                            >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select an option" />
                                 </SelectTrigger>
