@@ -40,3 +40,22 @@ export const importIcon = (iconName: string) => {
         return null;
     }
 };
+
+export const getCronString = (schedule: string) => {
+    const match = schedule.match(/\d+/);
+    const n = match ? parseInt(match[0], 10) : null;
+
+    const minute = Math.floor(Math.random() * 60);
+    const cronString = `${minute} */${n} * * *`;
+
+    return cronString;
+};
+
+export const getScheduleString = (cronString: string) => {
+    const match = cronString.match(/\*\/(\d+)/);
+    const n = match ? parseInt(match[1], 10) : null;
+
+    let scheduleString = `Every ${n} hour`;
+
+    return scheduleString;
+};

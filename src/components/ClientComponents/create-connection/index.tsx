@@ -10,6 +10,8 @@ import useApiCall from "@/hooks/useApiCall";
 import { useRouter } from "next/navigation";
 import { getSession } from "next-auth/react";
 import { toast } from "sonner";
+import { getCronString } from "@/lib/utils";
+import useCheckConnection from "@/hooks/checkConnectionError";
 
 const formDataValue = {
     step: 1,
@@ -101,7 +103,7 @@ export const getStremsData = (streamsObj: any) => {
 
 const FormComponent = () => {
     const { state, updateState } = React.useContext(FromDataContext);
-    const [saveError, setSaveError] = useState("");
+    const { saveError, checkConnectionForError } = useCheckConnection(state);
 
     const handleNext = () => {
         updateState("step", state.step + 1);
@@ -109,56 +111,6 @@ const FormComponent = () => {
 
     const handleBack = () => {
         updateState("step", state.step - 1);
-    };
-
-    /** Check if connection is having Name , Schedule and atleast one stream configured */
-    const checkConnectionForError = () => {
-        let flag = false;
-        for (let key in state.streams) {
-            if (state.streams.hasOwnProperty(key) && state.streams[key].configured == true) {
-                flag = true;
-                break;
-            }
-        }
-
-        let stream_name = "";
-        for (let key in state.streams) {
-            if (state.streams.hasOwnProperty(key)) {
-                if (
-                    state.streams[key].configured &&
-                    (Object.keys(state.streams[key].configuration).length === 0 ||
-                        !state.streams[key].configuration.namespace ||
-                        !state.streams[key].configuration.advanced)
-                ) {
-                    stream_name = key;
-                    break;
-                }
-            }
-        }
-
-        if (!state.configuration.name) {
-            setSaveError("Provide a Name for connection.");
-            return true;
-        } else if (!state.configuration.schedule) {
-            setSaveError("Select a Schedule for connection.");
-            return true;
-        } else if (!flag) {
-            setSaveError("Atleast one Stream should be configured.");
-            return true;
-        } else if (stream_name.length > 0) {
-            setSaveError(`Selected stream - ${stream_name} is not configured completely.`);
-            return true;
-        }
-    };
-
-    const getCronString = (schedule: string) => {
-        const match = schedule.match(/\d+/);
-        const n = match ? parseInt(match[0], 10) : null;
-
-        const minute = Math.floor(Math.random() * 60);
-        const cronString = `${minute} */${n} * * *`;
-
-        return cronString;
     };
 
     const router = useRouter();
@@ -169,14 +121,17 @@ const FormComponent = () => {
      * Makes an API call with the configured connection data.
      */
     const handleSave = async () => {
-        const session = await getSession();
-
         if (!checkConnectionForError()) {
-            let patchCronString;
-            if (state.configuration.schedule === "No Schedule") {
-                patchCronString = "";
+            const session = await getSession();
+            let scheduleText, cronExpression;
+
+            if (state.configuration.schedule === "Advanced Scheduling") {
+                scheduleText = "Advanced Scheduling";
+                cronExpression = state.configuration.cronSchedule;
             } else {
-                patchCronString = getCronString(state.configuration.schedule);
+                scheduleText = null;
+                cronExpression =
+                    state.configuration.schedule === "No Schedule" ? "" : getCronString(state.configuration.schedule);
             }
 
             const postData = {
@@ -198,7 +153,8 @@ const FormComponent = () => {
                 },
                 schedule: {
                     cron: {
-                        cron_expression: patchCronString,
+                        advanced_scheduling: scheduleText,
+                        cron_expression: cronExpression,
                         timezone: "UTC",
                     },
                 },

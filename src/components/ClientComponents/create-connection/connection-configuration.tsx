@@ -9,7 +9,7 @@ import Loading from "@/app/connections/[connectionId]/loading";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-//import cron from "cron-validate";
+import cron from "cron-validate";
 
 const scheduleOptions = [
     {
@@ -33,9 +33,9 @@ const scheduleOptions = [
     {
         title: "Every 24 hour",
     },
-    // {
-    //     title: "Advance Scheduling",
-    // },
+    {
+        title: "Advanced Scheduling",
+    },
 ];
 
 /**
@@ -76,16 +76,16 @@ export default function ConnectionConfiguration({ editMode }: { editMode: boolea
         setConnectionName(e.target.value);
         updateState("configuration", { ...state.configuration, name: e.target.value });
     };
-
     const handleCronScheduleChange = (e) => {
         setCronSchedule(e.target.value);
-        // const exp = cron(e.target.value);
-        // if (exp.isValid()) {
-        //     updateState("configuration", { ...state.configuration, cronSchedule: e.target.value });
-        //     setCronError("");
-        // } else {
-        //     setCronError("Cron string not valid");
-        // }
+        updateState("configuration", { ...state.configuration, cronSchedule: e.target.value });
+
+        const exp = cron(e.target.value);
+        if (exp.isValid()) {
+            setCronError("");
+        } else {
+            setCronError("Invalid Cron Schedule");
+        }
     };
 
     /**
@@ -177,7 +177,7 @@ export default function ConnectionConfiguration({ editMode }: { editMode: boolea
 
                     <div
                         className={`${
-                            state.configuration.schedule === "Advance Scheduling" ? "block" : "hidden"
+                            state.configuration.schedule === "Advanced Scheduling" ? "block" : "hidden"
                         } xl:w-1/2 ml-1 mt-2`}
                     >
                         <Label htmlFor="cron_schedule">Cron Schedule</Label>
@@ -190,7 +190,7 @@ export default function ConnectionConfiguration({ editMode }: { editMode: boolea
                             onChange={handleCronScheduleChange}
                             className="mt-1"
                         />
-                        {cronError.length > 0 && <div className="text-red-600 ml-1">cronError</div>}
+                        {cronError.length > 0 && <div className="text-red-600 ml-1">{cronError}</div>}
                     </div>
                 </Card>
             </div>

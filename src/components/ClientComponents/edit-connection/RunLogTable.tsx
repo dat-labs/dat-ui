@@ -26,6 +26,7 @@ import { LazyLog, ScrollFollow } from "react-lazylog";
 import CircularLoader from "@/components/ui/circularLoader";
 import useApiCall from "@/hooks/useApiCall";
 import { getConnectionRunLogs } from "@/app/connections/[connectionId]/api";
+import moment from "moment";
 
 export type Streams = {
     name: string;
@@ -78,7 +79,8 @@ function RunLogTable({ logInstance }: { logInstance: any }) {
         runLogs?.forEach((log) => {
             if (log.message_type === "LOG") {
                 const json_msg = JSON.parse(log.message);
-                const curLog = `${json_msg.emitted_at} | ${json_msg.level} | ${json_msg.message}`;
+                const time = moment.unix(json_msg.emitted_at).utc().format("YYYY-MM-DD HH:mm:ss");
+                const curLog = `${time} | ${json_msg.level} | ${json_msg.message}`;
                 allLogs += `${curLog}\n`;
             }
         });
@@ -152,7 +154,7 @@ function RunLogTable({ logInstance }: { logInstance: any }) {
                         </>
                     )}
 
-                    <p className="text-muted-foreground"> {logInstance?.start_time}</p>
+                    <p className="text-muted-foreground"> {moment(logInstance?.start_time).format("YYYY-MM-DD HH:mm:ss")}</p>
 
                     <Dialog>
                         <DropdownMenu>
