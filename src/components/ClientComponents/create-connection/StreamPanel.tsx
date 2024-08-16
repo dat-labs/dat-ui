@@ -10,9 +10,10 @@ interface StreamPanelProps {
     row: any;
     handleStreamConfigrationSave: (values: any, streamName: string) => void;
     state: any;
+    handleDialogClose: any;
 }
 
-const StreamPanel: React.FC<StreamPanelProps> = ({ srcDocs, row, handleStreamConfigrationSave, state }) => {
+const StreamPanel: React.FC<StreamPanelProps> = ({ srcDocs, row, handleStreamConfigrationSave, state, handleDialogClose }) => {
     return (
         <ResizablePanelGroup direction="horizontal" className="w-full h-full">
             <ResizablePanel defaultSize={srcDocs ? 50 : 100} minSize={30} className="h-full">
@@ -24,7 +25,10 @@ const StreamPanel: React.FC<StreamPanelProps> = ({ srcDocs, row, handleStreamCon
                                     properties={row.original.streamProperties.properties}
                                     required_fields={row.original.streamProperties.required}
                                     defaultData={state.streams[row.getValue("name")]?.configuration}
-                                    onSubmit={(values: any) => handleStreamConfigrationSave(values, row.getValue("name"))}
+                                    onSubmit={(values: any) => {
+                                        handleStreamConfigrationSave(values, row.getValue("name"));
+                                        handleDialogClose();
+                                    }}
                                     submitButtonText="Save"
                                 />
                             </CardContent>

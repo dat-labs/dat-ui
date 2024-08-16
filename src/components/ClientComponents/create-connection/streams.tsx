@@ -19,7 +19,18 @@ export default function Streams({ data }: { data: any }) {
     console.log(state);
 
     const [streamDoc, setStreamDoc] = useState(null);
-    const { data: docData, statusCode: docStatus, loading: docLoading, makeApiCall } = useApiCall(getActorDocumentation);
+    const { data: docData, statusCode: docStatus, makeApiCall } = useApiCall(getActorDocumentation);
+
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [activeRow, setActiveRow] = useState<any>(null);
+
+    const DestinationIcon = importIcon(state.destination?.value?.actor?.icon);
+    const GeneratorIcon = importIcon(state.generator?.value?.actor?.icon);
+    const SourceIcon = importIcon(state.source?.value?.actor?.icon);
+
+    const sourceName = state.source?.value?.actor ? state.source?.value?.actor?.name : "Source";
+    const genName = state.generator?.value?.actor ? state.generator?.value?.actor?.name : "Generator";
+    const desName = state.destination?.value?.actor ? state.destination?.value?.actor?.name : "Destination";
 
     useEffect(() => {
         (async () => {
@@ -27,7 +38,7 @@ export default function Streams({ data }: { data: any }) {
             const docPath = `sources/${actorName}/stream-configuration`;
             await makeApiCall(docPath);
         })();
-    }, []);
+    }, [state.source.value.actor_id]);
 
     useEffect(() => {
         if (docData) {
@@ -51,23 +62,31 @@ export default function Streams({ data }: { data: any }) {
         });
     };
 
+    const handleDialogOpen = (row: any) => {
+        setActiveRow(row);
+        setIsDialogOpen(true);
+    };
+
+    const handleDialogClose = () => {
+        setIsDialogOpen(false);
+        setActiveRow(null);
+    };
+
     const columns = [
         {
             header: "Configured",
             cell: ({ row }: { row: any }) => {
                 return (
-                    <>
-                        <Switch
-                            id={`configured-${row.getValue("name")}`}
-                            checked={row.original.configured}
-                            onCheckedChange={(ch: any) =>
-                                updateState("streams", {
-                                    ...state.streams,
-                                    [row.getValue("name")]: { ...state.streams[row.getValue("name")], configured: ch },
-                                })
-                            }
-                        />
-                    </>
+                    <Switch
+                        id={`configured-${row.getValue("name")}`}
+                        checked={row.original.configured}
+                        onCheckedChange={(ch: any) =>
+                            updateState("streams", {
+                                ...state.streams,
+                                [row.getValue("name")]: { ...state.streams[row.getValue("name")], configured: ch },
+                            })
+                        }
+                    />
                 );
             },
         },
@@ -82,90 +101,35 @@ export default function Streams({ data }: { data: any }) {
                 const rowName = row?.original?.name;
                 let jsonSchema = null;
                 if (row?.original?.streamProperties?.properties?.json_schema?.default) {
-                    jsonSchema = row?.original?.streamProperties?.properties?.json_schema?.default[rowName].properties;
+                    jsonSchema =
+                        row?.original?.streamProperties?.properties?.json_schema?.default[row?.original?.name].properties;
                 }
                 return (
-                    <Dialog>
-                        <DialogTrigger disabled={!state.streams[row.getValue("name")]?.configured}>
-                            <TooltipProvider>
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <Button
-                                            variant="outline"
-                                            size="icon"
-                                            disabled={!state.streams[row.getValue("name")]?.configured}
-                                            onClick={(event) =>
-                                                !state.streams[row.getValue("name")]?.configured && event.stopPropagation()
+                    <>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        disabled={!state.streams[row.getValue("name")]?.configured}
+                                        onClick={(event) => {
+                                            if (!state.streams[row.getValue("name")]?.configured) {
+                                                event.stopPropagation();
+                                                return;
                                             }
-                                        >
-                                            <Pencil2Icon className="w-4 h-4" />
-                                        </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        <p>Edit stream configuration.</p>
-                                    </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
-                        </DialogTrigger>
-
-                        <DialogContent className="size-10/12 flex flex-col max-w-none">
-                            <div className="flex items-center bg-secondary rounded border h-12 mx-4">
-                                <Switch
-                                    className="ml-5"
-                                    id={`configured-${row.getValue("name")}`}
-                                    checked={row.original.configured}
-                                    onCheckedChange={(ch: any) =>
-                                        updateState("streams", {
-                                            ...state.streams,
-                                            [row.getValue("name")]: { ...state.streams[row.getValue("name")], configured: ch },
-                                        })
-                                    }
-                                />
-                                <div className="flex flex-1 justify-center items-center text-muted-foreground">
-                                    <p className="text-md text-foreground font-semibold">
-                                        Configure <span className="font-bold">{capitalizeFirstLetter(rowName)}</span> Stream
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="h-full justify-start overflow-hidden mx-4">
-                                {jsonSchema ? (
-                                    <Tabs defaultValue="stream" className="w-full h-full">
-                                        <div className="flex justify-center">
-                                            <TabsList className="w-full border">
-                                                <TabsTrigger value="stream" className="w-full text-md py-1">
-                                                    Edit Stream Configuration
-                                                </TabsTrigger>
-                                                <TabsTrigger value="schema" className="w-full text-md py-1">
-                                                    Edit Schema
-                                                </TabsTrigger>
-                                            </TabsList>
-                                        </div>
-
-                                        <TabsContent value="stream" className="w-full h-full">
-                                            <StreamPanel
-                                                srcDocs={docStatus === 200 ? streamDoc : ""}
-                                                row={row}
-                                                handleStreamConfigrationSave={handleStreamConfigrationSave}
-                                                state={state}
-                                            />
-                                        </TabsContent>
-
-                                        <TabsContent value="schema" className="w-full h-full">
-                                            <EditSchemaPanel jsonSchema={jsonSchema} name={rowName} />
-                                        </TabsContent>
-                                    </Tabs>
-                                ) : (
-                                    <StreamPanel
-                                        srcDocs={docStatus === 200 ? streamDoc : ""}
-                                        row={row}
-                                        handleStreamConfigrationSave={handleStreamConfigrationSave}
-                                        state={state}
-                                    />
-                                )}
-                            </div>
-                        </DialogContent>
-                    </Dialog>
+                                            handleDialogOpen(row);
+                                        }}
+                                    >
+                                        <Pencil2Icon className="w-4 h-4" />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>Edit stream configuration.</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </>
                 );
             },
         },
@@ -174,6 +138,120 @@ export default function Streams({ data }: { data: any }) {
     return (
         <div>
             <DataTable actorType="Stream" columns={columns} data={data} clickHandler={handleRowClick} />
+
+            <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
+                {activeRow && (
+                    <DialogContent className="size-10/12 flex flex-col max-w-none">
+                        <div className="flex items-center bg-secondary rounded border h-12 mx-4">
+                            <Switch
+                                className="ml-5"
+                                id={`configured-${activeRow.getValue("name")}`}
+                                checked={state.streams[activeRow.getValue("name")].configured}
+                                onCheckedChange={(ch: any) =>
+                                    updateState("streams", {
+                                        ...state.streams,
+                                        [activeRow.getValue("name")]: {
+                                            ...state.streams[activeRow.getValue("name")],
+                                            configured: ch,
+                                        },
+                                    })
+                                }
+                            />
+                            <div className="flex flex-1 justify-center items-center text-muted-foreground">
+                                <div className="flex mt-3 mb-3 gap-2">
+                                    <Card className="flex items-center p-1 bg-white">
+                                        {SourceIcon ? (
+                                            <SourceIcon className="h-6 w-6" />
+                                        ) : (
+                                            <img
+                                                src={`https://ui-avatars.com/api/?name=${sourceName}`}
+                                                alt="icon"
+                                                className="h-6 w-6 rounded-md"
+                                            />
+                                        )}
+                                    </Card>
+                                    <div className="flex items-center">
+                                        <ArrowRightIcon />
+                                    </div>
+                                    <Card className="flex items-center p-1 bg-white">
+                                        {GeneratorIcon ? (
+                                            <GeneratorIcon className="h-6 w-6" />
+                                        ) : (
+                                            <img
+                                                src={`https://ui-avatars.com/api/?name=${genName}`}
+                                                alt="icon"
+                                                className="h-6 w-6 rounded-md"
+                                            />
+                                        )}
+                                    </Card>
+                                    <div className="flex items-center">
+                                        <ArrowRightIcon />
+                                    </div>
+                                    <Card className="flex items-center p-1 bg-white">
+                                        {DestinationIcon ? (
+                                            <DestinationIcon className="h-6 w-6" />
+                                        ) : (
+                                            <img
+                                                src={`https://ui-avatars.com/api/?name=${desName}`}
+                                                alt="icon"
+                                                className="h-6 w-6 rounded-md"
+                                            />
+                                        )}
+                                    </Card>
+                                </div>
+                                <p className="ml-4">{`${sourceName}_${genName}_${desName}`}</p>
+                            </div>
+                        </div>
+
+                        <div className="h-full justify-start overflow-hidden mx-4">
+                            {activeRow?.original?.streamProperties?.properties?.json_schema?.default[activeRow?.original?.name]
+                                .properties ? (
+                                <Tabs defaultValue="stream" className="w-full h-full">
+                                    <div className="flex justify-center">
+                                        <TabsList className="w-full border">
+                                            <TabsTrigger value="stream" className="w-full text-md py-1">
+                                                Edit Stream Configuration
+                                            </TabsTrigger>
+                                            <TabsTrigger value="schema" className="w-full text-md py-1">
+                                                Edit Schema
+                                            </TabsTrigger>
+                                        </TabsList>
+                                    </div>
+
+                                    <TabsContent value="stream" className="w-full h-full">
+                                        <StreamPanel
+                                            srcDocs={docStatus === 200 ? streamDoc : ""}
+                                            handleDialogClose={handleDialogClose}
+                                            row={activeRow}
+                                            handleStreamConfigrationSave={handleStreamConfigrationSave}
+                                            state={state}
+                                        />
+                                    </TabsContent>
+
+                                    <TabsContent value="schema" className="w-full h-full">
+                                        <EditSchemaPanel
+                                            jsonSchema={
+                                                activeRow.original.streamProperties?.properties?.json_schema?.default[
+                                                    activeRow?.original?.name
+                                                ].properties
+                                            }
+                                            name={activeRow.getValue("name")}
+                                        />
+                                    </TabsContent>
+                                </Tabs>
+                            ) : (
+                                <StreamPanel
+                                    srcDocs={docStatus === 200 ? streamDoc : ""}
+                                    handleDialogClose={handleDialogClose}
+                                    row={activeRow}
+                                    handleStreamConfigrationSave={handleStreamConfigrationSave}
+                                    state={state}
+                                />
+                            )}
+                        </div>
+                    </DialogContent>
+                )}
+            </Dialog>
         </div>
     );
 }
