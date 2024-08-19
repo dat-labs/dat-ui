@@ -24,21 +24,13 @@ export default function Streams({ data }: { data: any }) {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [activeRow, setActiveRow] = useState<any>(null);
 
-    const DestinationIcon = importIcon(state.destination?.value?.actor?.icon);
-    const GeneratorIcon = importIcon(state.generator?.value?.actor?.icon);
-    const SourceIcon = importIcon(state.source?.value?.actor?.icon);
-
-    const sourceName = state.source?.value?.actor ? state.source?.value?.actor?.name : "Source";
-    const genName = state.generator?.value?.actor ? state.generator?.value?.actor?.name : "Generator";
-    const desName = state.destination?.value?.actor ? state.destination?.value?.actor?.name : "Destination";
-
     useEffect(() => {
         (async () => {
             const actorName = state.source?.value?.actor?.module_name?.replace("_", "-");
             const docPath = `sources/${actorName}/stream-configuration`;
             await makeApiCall(docPath);
         })();
-    }, [state.source.value.actor_id]);
+    }, []);
 
     useEffect(() => {
         if (docData) {
@@ -158,54 +150,17 @@ export default function Streams({ data }: { data: any }) {
                                 }
                             />
                             <div className="flex flex-1 justify-center items-center text-muted-foreground">
-                                <div className="flex mt-3 mb-3 gap-2">
-                                    <Card className="flex items-center p-1 bg-white">
-                                        {SourceIcon ? (
-                                            <SourceIcon className="h-6 w-6" />
-                                        ) : (
-                                            <img
-                                                src={`https://ui-avatars.com/api/?name=${sourceName}`}
-                                                alt="icon"
-                                                className="h-6 w-6 rounded-md"
-                                            />
-                                        )}
-                                    </Card>
-                                    <div className="flex items-center">
-                                        <ArrowRightIcon />
-                                    </div>
-                                    <Card className="flex items-center p-1 bg-white">
-                                        {GeneratorIcon ? (
-                                            <GeneratorIcon className="h-6 w-6" />
-                                        ) : (
-                                            <img
-                                                src={`https://ui-avatars.com/api/?name=${genName}`}
-                                                alt="icon"
-                                                className="h-6 w-6 rounded-md"
-                                            />
-                                        )}
-                                    </Card>
-                                    <div className="flex items-center">
-                                        <ArrowRightIcon />
-                                    </div>
-                                    <Card className="flex items-center p-1 bg-white">
-                                        {DestinationIcon ? (
-                                            <DestinationIcon className="h-6 w-6" />
-                                        ) : (
-                                            <img
-                                                src={`https://ui-avatars.com/api/?name=${desName}`}
-                                                alt="icon"
-                                                className="h-6 w-6 rounded-md"
-                                            />
-                                        )}
-                                    </Card>
-                                </div>
-                                <p className="ml-4">{`${sourceName}_${genName}_${desName}`}</p>
+                                <p className="text-md text-foreground font-semibold">
+                                    Configure{" "}
+                                    <span className="font-bold">{capitalizeFirstLetter(activeRow?.original?.name)}</span> Stream
+                                </p>
                             </div>
                         </div>
 
                         <div className="h-full justify-start overflow-hidden mx-4">
-                            {activeRow?.original?.streamProperties?.properties?.json_schema?.default[activeRow?.original?.name]
-                                .properties ? (
+                            {activeRow?.original?.streamProperties?.properties?.json_schema?.default &&
+                            activeRow?.original?.streamProperties?.properties?.json_schema?.default[activeRow?.original?.name]
+                                ?.properties ? (
                                 <Tabs defaultValue="stream" className="w-full h-full">
                                     <div className="flex justify-center">
                                         <TabsList className="w-full border">
