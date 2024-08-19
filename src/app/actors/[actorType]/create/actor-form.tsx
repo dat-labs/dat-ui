@@ -168,7 +168,9 @@ export default function ActorForm({
         const jsonData = await actorSpecResApi(data?.actor.id);
         console.log(jsonData);
 
-        const actorName = jsonData.properties?.module_name?.const?.replace("_", "-");
+        const pattern = /_/gi;
+        const replacement = "-";
+        const actorName = jsonData.properties?.module_name?.const?.replace(pattern, replacement);
         const docPath = `${actorType}s/${actorName}`;
 
         await getDocApi(docPath);
