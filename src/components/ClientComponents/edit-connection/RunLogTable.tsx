@@ -136,7 +136,7 @@ function RunLogTable({ logInstance }: { logInstance: any }) {
                             : "Partial Success"}
                     </p>
                     {logInstance.status != "FAILED" && (
-                        <p className="text-muted-foreground"> Duration: {logInstance?.duration} seconds.</p>
+                        <p className="text-muted-foreground"> Duration: {logInstance?.duration} {logInstance?.duration ? 'seconds.' : null}</p>
                     )}
                 </div>
 
