@@ -94,7 +94,9 @@ export default function ActorForm({
         if (!editMode && selectedActor) {
             (async () => {
                 const actorStruc = await formStructurApi(selectedActor);
-                const actorName = actorStruc.properties?.module_name?.const?.replace("_", "-");
+                const pattern = /_/gi;
+                const replacement = "-";
+                const actorName = actorStruc.properties?.module_name?.const?.replace(pattern, replacement);
                 const docPath = `${actorType}s/${actorName}`;
                 await getDocApi(docPath);
                 setStep(2);
@@ -166,7 +168,9 @@ export default function ActorForm({
         const jsonData = await actorSpecResApi(data?.actor.id);
         console.log(jsonData);
 
-        const actorName = jsonData.properties?.module_name?.const?.replace("_", "-");
+        const pattern = /_/gi;
+        const replacement = "-";
+        const actorName = jsonData.properties?.module_name?.const?.replace(pattern, replacement);
         const docPath = `${actorType}s/${actorName}`;
 
         await getDocApi(docPath);
