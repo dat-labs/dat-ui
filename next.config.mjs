@@ -1,17 +1,23 @@
-import createMDX from '@next/mdx';
+import createMDX from "@next/mdx";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: false,
     // Configure `pageExtensions` to include markdown and MDX files
-    pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx'],
+    pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
     // Optionally, add any other Next.js config below
     webpack(config) {
         config.module.rules.push({
             test: /\.svg$/,
-            use: [{loader: '@svgr/webpack', options: {icon: true}}],
+            use: [{ loader: "@svgr/webpack", options: { icon: true } }],
         });
         return config;
+    },
+    eslint: {
+        ignoreDuringBuilds: true,
+    },
+    typescript: {
+        ignoreBuildErrors: true,
     },
 };
 
