@@ -1,4 +1,4 @@
-import { importIcon } from "@/lib/utils";
+import { capitalizeFirstLetter, importIcon } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import React, { useEffect, useState } from "react";
 import { ArrowRightIcon } from "@radix-ui/react-icons";
@@ -79,8 +79,6 @@ const EditConnectionComponent = ({ connectionData }) => {
     const SourceIcon = importIcon(connectionData.source_instance.actor.icon);
     const TabComponent = tabComponentMapper[tab];
 
-    const [isActive, setIsActive] = useState(true);
-
     const { loading, makeApiCall: runConnectionCall } = useApiCall(manualRunConnection, "POST");
     const handleConnectionRun = async () => {
         const res = await runConnectionCall(connectionData.id);
@@ -89,6 +87,14 @@ const EditConnectionComponent = ({ connectionData }) => {
         } else {
             toast.error("Run Failed to Initiate!");
         }
+    };
+
+    const ToggleConnectionStatus = () => {
+        const curStatus = state.configuration.connectionStatus;
+        updateState("configuration", {
+            ...state.configuration,
+            connectionStatus: curStatus === "active" ? "inactive" : "active",
+        });
     };
 
     return (
@@ -150,8 +156,12 @@ const EditConnectionComponent = ({ connectionData }) => {
                         </div>
                     </div>
                     <div className="flex items-center">
-                        <Switch id="schedule" onClick={() => setIsActive(!isActive)} />
-                        <p className="ml-2 w-[60px] text-center">{isActive ? "Active" : "Inactive"}</p>
+                        <Switch
+                            id="schedule"
+                            onClick={ToggleConnectionStatus}
+                            checked={state.configuration.connectionStatus === "active"}
+                        />
+                        <p className="ml-2 w-[60px] text-center">{capitalizeFirstLetter(state.configuration.connectionStatus)}</p>
                         <Button className="my-auto ml-6" onClick={handleConnectionRun}>
                             Run Now
                         </Button>

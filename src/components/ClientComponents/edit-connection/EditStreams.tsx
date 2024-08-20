@@ -50,7 +50,7 @@ export default function EditStreams({ connectionData }) {
                 namespace_format: "",
                 prefix: "",
                 configuration: {},
-                status: "active",
+                status: state.configuration.connectionStatus,
                 catalog: {
                     document_streams: getStremsData(state.streams),
                 },
@@ -88,11 +88,13 @@ export default function EditStreams({ connectionData }) {
                         : "No Schedule";
                 cronExpression = connectionData.schedule.cron.cron_expression;
             }
+
             updateState("configuration", {
                 name: connectionData.name,
                 schedule: scheduleText,
                 cronSchedule: cronExpression,
                 status: "NOT_RUNNING",
+                connectionStatus: connectionData.status,
             });
         }
     }, [state.configuration.name, state]);
