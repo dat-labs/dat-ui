@@ -50,15 +50,15 @@ const ActorListing = ({ actors, onChangeHandler, actorType, selectedActor }) => 
                 search={query}
             />
 
-            <div className="flex flex-col mx-auto gap-4 w-11/12 mt-4">
-                <div className="flex gap-4">
+            <div className="flex flex-col mx-auto gap-4 w-11/12 mt-4 flex-wrap">
+                <div className="grid grid-cols-3 gap-3">
                     {filteredData.map((actor: any) => {
                         const IconComponent = importIcon(actor.icon);
                         return (
                             <Card
                                 onClick={() => onChangeHandler(actor)}
                                 className={clsx(
-                                    "w-full lg:w-1/3 cursor-pointer transition duration-400 bg-card-background hover:bg-accent",
+                                    "w-full cursor-pointer transition duration-400 bg-card-background hover:bg-accent",
                                     {
                                         "border-foreground": selectedActor?.id === actor.id,
                                     }
@@ -83,9 +83,14 @@ const ActorListing = ({ actors, onChangeHandler, actorType, selectedActor }) => 
                                                 </Suspense>
                                                 <p className="ml-2 font-normal">{actor.name}</p>
                                             </div>
-                                            <p className="rounded-xl text-center uppercase bg-muted text-gray-500 p-2 mt-3 lg:mt-0 border-2">
-                                                Verified
-                                            </p>
+                                            {/* <p className="rounded-xl text-center bg-muted text-gray-500 pl-2 pr-2 pt-1 pb-1 mt-3 lg:mt-0 border-2">
+                                                VERIFIED
+                                            </p> */}
+                                            <div className="flex items-center">
+                                                <p className="text-[10px] border rounded-lg pl-[5px] pr-[5px] bg-muted text-gray-500">
+                                                    VERIFIED
+                                                </p>
+                                            </div>
                                         </div>
                                     </CardTitle>
                                 </CardHeader>
@@ -94,13 +99,13 @@ const ActorListing = ({ actors, onChangeHandler, actorType, selectedActor }) => 
                     })}
                 </div>
 
-                <Card className="mt-4 flex flex-row items-center p-2 space-x-2 text-muted-foreground">
+                {/* <Card className="mt-4 flex flex-row items-center p-2 space-x-2 text-muted-foreground">
                     <Card className="rounded-md">
                         <PlusIcon className="h-6 w-6 text-muted-foreground" />
                     </Card>
 
                     <p>Couldn't Find what you looking for? Request a new Connector</p>
-                </Card>
+                </Card> */}
             </div>
         </div>
     );
