@@ -36,6 +36,7 @@ const config = {
             if (user) {
                 token.id = user?.id;
                 token.workspace_id = user?.workspace_id;
+                token.workspace_name = user?.workspace_name;
             }
             return token;
         },
@@ -43,6 +44,7 @@ const config = {
             if (session?.user) {
                 session.user.id = token.id;
                 session.user.workspace_id = token.workspace_id;
+                session.user.workspace_name = token.workspace_name;
             }
             return session;
         },

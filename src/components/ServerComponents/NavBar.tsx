@@ -93,12 +93,10 @@ const Sidebar = () => {
                     <LogoBlack className="h-10 w-24 fill-foreground mb-4" />
                 </Link>
             </div>
-            <div className="flex flex-col py-2 mx-2 border-y">
+            <div className="py-2 px-5 border-y">
                 {session ? (
-                    <div className="flex flex-row items-center justify-between px-4">
-                        <h1 className="text-sm text-ellipsis">{`Dat (${session?.user?.workspace_id})`}</h1>
-                        {/* To-Do -> Setup an onClick here -> */}
-                        <CaretSortIcon width={20} height={20} />
+                    <div className="flex items-center gap-3">
+                        <p>{`${session?.user?.workspace_name} `}</p> <CaretSortIcon width={20} height={20} />
                     </div>
                 ) : (
                     <Loading height="50px" />
