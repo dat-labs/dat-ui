@@ -155,7 +155,7 @@ const getColumns = (): ColumnDef<ConnectionInstance>[] => {
             cell: ({ row }) => {
                 return (
                     <div className="flex items-center">
-                        <ConnectionActions connectionId={row.original.id} />
+                        <ConnectionActions connectionData={row.original} />
                     </div>
                 );
             },
