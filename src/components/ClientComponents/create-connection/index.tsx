@@ -58,7 +58,18 @@ export const FormContextProvider = ({ children }: { children: any }) => {
         });
     };
 
-    return <FromDataContext.Provider value={{ state, updateState }}>{children}</FromDataContext.Provider>;
+    const updateCombinedState = (actorType: string, actor: any) => {
+        setState((prevState) => ({
+            ...prevState,
+            [actorType]: {
+                ...prevState[actorType],
+                value: actor,
+            },
+            step: prevState.step + 1,
+        }));
+    };
+
+    return <FromDataContext.Provider value={{ state, updateState, updateCombinedState }}>{children}</FromDataContext.Provider>;
 };
 
 const formSteps = [

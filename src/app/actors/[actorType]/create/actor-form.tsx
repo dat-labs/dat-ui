@@ -31,10 +31,12 @@ export default function ActorForm({
     postFormSubmitActions,
     editMode,
     actorId,
+    inCreateConnection,
 }: {
     actorType: any;
     postFormSubmitActions?: any;
     editMode?: boolean;
+    inCreateConnection?: boolean;
     actorId?: any;
 }) {
     // For form input values in both Edit and Create Mode
@@ -75,7 +77,11 @@ export default function ActorForm({
             setError(res.responseData.detail);
         }
         if (res.status === 200 && postFormSubmitActions) {
-            await postFormSubmitActions();
+            if (inCreateConnection) {
+                postFormSubmitActions(res.responseData);
+            } else {
+                postFormSubmitActions();
+            }
         }
     };
 

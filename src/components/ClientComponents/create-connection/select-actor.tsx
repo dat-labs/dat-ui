@@ -15,35 +15,13 @@ import Loading from "@/app/actors/loading";
 
 export type SearchProps = React.InputHTMLAttributes<HTMLInputElement>;
 
-// Shifted this Search to common/components ->
-
-// const Search = React.forwardRef(({ className, handleSearch, search, ...props }, ref) => {
-//     return (
-//         <div className="relative h-10 w-full">
-//             <MagnifyingGlassIcon className="absolute h-6 w-6 left-3 top-[18px] transform -translate-y-1/2 text-gray-500 z-10" />
-//             <Input
-//                 onChange={handleSearch}
-//                 value={search}
-//                 {...props}
-//                 ref={ref}
-//                 className={cn(
-//                     "pl-10 pr-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:border-transparent",
-//                     className
-//                 )} // Add additional styling as needed
-//             />
-//         </div>
-//     );
-// });
-
-Search.displayName = "Search";
-
 /**
  * SelectSource component allows the user to select an actor type as per the search query.
  * @param actorType - The type of actor to select.
  * @returns The rendered SelectSource component with searchbar and actor list.
  */
 export default function SelectSource({ actorType }: { actorType: string }) {
-    const { state, updateState } = React.useContext(FromDataContext);
+    const { state, updateState, updateCombinedState } = React.useContext(FromDataContext);
 
     const [actors, setActors] = React.useState([]);
 
@@ -63,12 +41,16 @@ export default function SelectSource({ actorType }: { actorType: string }) {
     }, [data, setActors]);
 
     React.useEffect(() => {
-        if (state[actorType].subStep === "createNew") {
-            updateState("showNavButtons", false);
-        } else {
+        if (state.step === 4) {
             updateState("showNavButtons", true);
+        } else {
+            if (state[actorType].subStep === "createNew") {
+                updateState("showNavButtons", false);
+            } else {
+                updateState("showNavButtons", true);
+            }
         }
-    }, [state[actorType].subStep]);
+    }, [state.step, state[actorType].subStep]);
 
     /**
      * Handles the selection of an actor.
@@ -83,6 +65,10 @@ export default function SelectSource({ actorType }: { actorType: string }) {
      */
     const handleSubStepChange = (val: any) => {
         updateState(actorType, { ...state[actorType], subStep: val });
+    };
+
+    const postCreateInstance = (actor: any) => {
+        updateCombinedState(actorType, actor);
     };
 
     //Using useSearch Hook
@@ -187,7 +173,11 @@ export default function SelectSource({ actorType }: { actorType: string }) {
                 <div className="flex justify-center mt-6">
                     <div className="w-full">
                         <Card>
-                            <ActorForm actorType={actorType} />
+                            <ActorForm
+                                actorType={actorType}
+                                postFormSubmitActions={postCreateInstance}
+                                inCreateConnection={true}
+                            />
                         </Card>
                     </div>
                 </div>
