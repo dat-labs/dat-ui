@@ -130,15 +130,15 @@ const getColumns = (): ColumnDef<ConnectionInstance>[] => {
             header: "Connection Name",
         },
         {
-            accessorKey: "source_instance.name",
+            accessorKey: "source_instance.configuration.dat_name",
             header: "Source Name",
         },
         {
-            accessorKey: "generator_instance.name",
+            accessorKey: "generator_instance.configuration.dat_name",
             header: "Generator Name",
         },
         {
-            accessorKey: "destination_instance.name",
+            accessorKey: "destination_instance.configuration.dat_name",
             header: "Destination Name",
         },
         {

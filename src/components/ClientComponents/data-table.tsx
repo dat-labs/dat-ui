@@ -53,7 +53,7 @@ export default function DataTable<TData, TValue>({
         },
         initialState: {
             pagination: {
-                pageSize: inDialog ? 7 : 10,
+                pageSize: inDialog ? 8 : 10,
             },
         },
     });
@@ -81,7 +81,7 @@ export default function DataTable<TData, TValue>({
                 search={query}
             />
 
-            <div className="rounded-md border mt-4">
+            <div className="rounded-md border mt-2">
                 <Table>
                     <TableHeader className="bg-primary-foreground">
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -132,7 +132,7 @@ export default function DataTable<TData, TValue>({
                     </TableBody>
                 </Table>
             </div>
-            <div className="flex items-center justify-end space-x-2 pt-4">
+            <div className="flex items-center justify-end space-x-2 pt-2">
                 <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
                     Previous
                 </Button>

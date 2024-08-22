@@ -133,7 +133,7 @@ export default function ConnectionConfiguration({ editMode }: { editMode: boolea
             setCronSchedule(state.configuration.cronSchedule);
         } else if (!editMode && !state.configuration.name) {
             const getActorName = (actorType) => {
-                return state[actorType]?.value?.name || actorType;
+                return state[actorType]?.value?.actor?.name || actorType;
             };
             const dummyName = `${getActorName("source")} -> ${getActorName("generator")} -> ${getActorName("destination")}`;
             setConnectionName(dummyName);

@@ -51,7 +51,7 @@ const ActorListing = ({ actors, onChangeHandler, actorType, selectedActor }) => 
             />
 
             <div className="flex flex-col mx-auto gap-4 w-11/12 mt-4 flex-wrap">
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid lg:grid-cols-3 grid-cols-2 gap-3">
                     {filteredData.map((actor: any) => {
                         const IconComponent = importIcon(actor.icon);
                         return (
@@ -81,13 +81,13 @@ const ActorListing = ({ actors, onChangeHandler, actorType, selectedActor }) => 
                                                         )}
                                                     </Card>
                                                 </Suspense>
-                                                <p className="ml-2 font-normal">{actor.name}</p>
+                                                <p className="ml-2 font-normal text-md">{actor.name}</p>
                                             </div>
                                             {/* <p className="rounded-xl text-center bg-muted text-gray-500 pl-2 pr-2 pt-1 pb-1 mt-3 lg:mt-0 border-2">
                                                 VERIFIED
                                             </p> */}
-                                            <div className="flex items-center">
-                                                <p className="text-[10px] border rounded-lg pl-[5px] pr-[5px] bg-muted text-gray-500">
+                                            <div className="flex items-center mt-4 lg:mt-0">
+                                                <p className="text-[11px] border border-blue-400 rounded-lg py-[2px] px-[5px] text-blue-500">
                                                     VERIFIED
                                                 </p>
                                             </div>

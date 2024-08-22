@@ -151,8 +151,7 @@ export default function Streams({ data }: { data: any }) {
                             />
                             <div className="flex flex-1 justify-center items-center text-muted-foreground">
                                 <p className="text-md text-foreground font-semibold">
-                                    Configure{" "}
-                                    <span className="font-bold">{capitalizeFirstLetter(activeRow?.original?.name)}</span> Stream
+                                    Configure <span className="font-bold">{activeRow?.original?.name}</span> Stream
                                 </p>
                             </div>
                         </div>
