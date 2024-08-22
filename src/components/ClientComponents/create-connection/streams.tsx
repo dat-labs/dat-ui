@@ -46,12 +46,7 @@ export default function Streams({ data }: { data: any }) {
     };
 
     const handleRowClick = (row: any) => {
-        const streamName = row.getValue("name");
-        const currentConfiguredState = state.streams[streamName]?.configured;
-        updateState("streams", {
-            ...state.streams,
-            [streamName]: { ...state.streams[streamName], configured: !currentConfiguredState },
-        });
+        handleDialogOpen(row);
     };
 
     const handleDialogOpen = (row: any) => {
@@ -72,6 +67,7 @@ export default function Streams({ data }: { data: any }) {
                     <Switch
                         id={`configured-${row.getValue("name")}`}
                         checked={row.original.configured}
+                        onClick={(e) => e.stopPropagation()}
                         onCheckedChange={(ch: any) =>
                             updateState("streams", {
                                 ...state.streams,
@@ -86,45 +82,39 @@ export default function Streams({ data }: { data: any }) {
             accessorKey: "name",
             header: "Stream Name",
         },
-        {
-            id: "actions",
-            header: "Actions",
-            cell: ({ row }) => {
-                const rowName = row?.original?.name;
-                let jsonSchema = null;
-                if (row?.original?.streamProperties?.properties?.json_schema?.default) {
-                    jsonSchema =
-                        row?.original?.streamProperties?.properties?.json_schema?.default[row?.original?.name].properties;
-                }
-                return (
-                    <>
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        size="icon"
-                                        disabled={!state.streams[row.getValue("name")]?.configured}
-                                        onClick={(event) => {
-                                            if (!state.streams[row.getValue("name")]?.configured) {
-                                                event.stopPropagation();
-                                                return;
-                                            }
-                                            handleDialogOpen(row);
-                                        }}
-                                    >
-                                        <Pencil2Icon className="w-4 h-4" />
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p>Edit stream configuration.</p>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-                    </>
-                );
-            },
-        },
+        // {
+        //     id: "actions",
+        //     header: "Actions",
+        //     cell: ({ row }) => {
+        //         return (
+        //             <>
+        //                 <TooltipProvider>
+        //                     <Tooltip>
+        //                         <TooltipTrigger asChild>
+        //                             <Button
+        //                                 variant="outline"
+        //                                 size="icon"
+        //                                 disabled={!state.streams[row.getValue("name")]?.configured}
+        //                                 onClick={(event) => {
+        //                                     if (!state.streams[row.getValue("name")]?.configured) {
+        //                                         event.stopPropagation();
+        //                                         return;
+        //                                     }
+        //                                     handleDialogOpen(row);
+        //                                 }}
+        //                             >
+        //                                 <Pencil2Icon className="w-4 h-4" />
+        //                             </Button>
+        //                         </TooltipTrigger>
+        //                         <TooltipContent>
+        //                             <p>Edit stream configuration.</p>
+        //                         </TooltipContent>
+        //                     </Tooltip>
+        //                 </TooltipProvider>
+        //             </>
+        //         );
+        //     },
+        // },
     ];
 
     return (
