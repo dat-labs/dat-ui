@@ -144,55 +144,59 @@ export default function ConnectionConfiguration({ editMode }: { editMode: boolea
     return (
         <>
             <div className="w-6/12">
-                <Card className="p-4">
-                    <Label className="ml-1" htmlFor="dat_name">
-                        Name
-                    </Label>
-                    <Input
-                        className="my-2"
-                        name="dat_name"
-                        id="dat_name"
-                        value={connectionName}
-                        placeholder="Give a name to your connection"
-                        type="text"
-                        onChange={handleNameChange}
-                    />
-                    <Label className="ml-1 mt-2" htmlFor="schedule">
-                        Schedule
-                    </Label>
-                    <Select onValueChange={(val) => handleScheduleChange(val)} value={state.configuration.schedule}>
-                        <SelectTrigger className="mt-2" id="schedule">
-                            <SelectValue placeholder="Select a schedule" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {scheduleOptions.map((option: any, index: number) => (
-                                <>
-                                    <SelectItem key={index} value={option.title}>
-                                        {option.title}
-                                    </SelectItem>
-                                </>
-                            ))}
-                        </SelectContent>
-                    </Select>
-
-                    <div
-                        className={`${
-                            state.configuration.schedule === "Advanced Scheduling" ? "block" : "hidden"
-                        } xl:w-1/2 ml-1 mt-2`}
-                    >
-                        <Label htmlFor="cron_schedule">Cron Schedule</Label>
+                {connectionName ? (
+                    <Card className="p-4">
+                        <Label className="ml-1" htmlFor="dat_name">
+                            Name
+                        </Label>
                         <Input
-                            id="cron_schedule"
-                            name="cron_schedule"
+                            className="my-2"
+                            name="dat_name"
+                            id="dat_name"
+                            value={connectionName}
+                            placeholder="Give a name to your connection"
                             type="text"
-                            placeholder="Enter Cron Schedule Expression"
-                            value={cronSchedule}
-                            onChange={handleCronScheduleChange}
-                            className="mt-1"
+                            onChange={handleNameChange}
                         />
-                        {cronError.length > 0 && <div className="text-red-600 ml-1">{cronError}</div>}
-                    </div>
-                </Card>
+                        <Label className="ml-1 mt-2" htmlFor="schedule">
+                            Schedule
+                        </Label>
+                        <Select onValueChange={(val) => handleScheduleChange(val)} value={state.configuration.schedule}>
+                            <SelectTrigger className="mt-2" id="schedule">
+                                <SelectValue placeholder="Select a schedule" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {scheduleOptions.map((option: any, index: number) => (
+                                    <>
+                                        <SelectItem key={index} value={option.title}>
+                                            {option.title}
+                                        </SelectItem>
+                                    </>
+                                ))}
+                            </SelectContent>
+                        </Select>
+
+                        <div
+                            className={`${
+                                state.configuration.schedule === "Advanced Scheduling" ? "block" : "hidden"
+                            } xl:w-1/2 ml-1 mt-2`}
+                        >
+                            <Label htmlFor="cron_schedule">Cron Schedule</Label>
+                            <Input
+                                id="cron_schedule"
+                                name="cron_schedule"
+                                type="text"
+                                placeholder="Enter Cron Schedule Expression"
+                                value={cronSchedule}
+                                onChange={handleCronScheduleChange}
+                                className="mt-1"
+                            />
+                            {cronError.length > 0 && <div className="text-red-600 ml-1">{cronError}</div>}
+                        </div>
+                    </Card>
+                ) : (
+                    <Loading />
+                )}
             </div>
             <div className="my-4">
                 <Card>
