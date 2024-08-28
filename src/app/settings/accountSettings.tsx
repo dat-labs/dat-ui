@@ -19,7 +19,7 @@ function AccountSettings() {
     }, []);
 
     return (
-        <Card className="flex flex-col space-y-3 mt-8 w-10/12 h-52 pt-6 px-6">
+        <Card className="flex flex-col space-y-3 mt-8 w-10/12 h-fit py-6 px-6">
             <p className="text-xl font-semibold">User Profile</p>
             <div className="flex flex-row items-center space-x-1">
                 <p className="font-semibold">Your Email Addres</p>{" "}

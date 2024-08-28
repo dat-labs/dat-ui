@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import AccountSettings from "./accountSettings";
 import PageBreadcrumb from "../page-breadcrumb";
+import AddUsers from "./addUsers";
 
 const navItems = [
     {
@@ -10,22 +11,25 @@ const navItems = [
         component: <AccountSettings />,
     },
     {
-        id: 2,
-        label: "Invite Members",
-        component: <div>InviteMembers</div>,
+        label: "Add users to Workspace",
+        component: <AddUsers />,
     },
-    {
-        label: "Set Up Alerts",
-        component: <div>Set Up Alerts</div>,
-    },
-    {
-        label: "Your Github Contributions",
-        component: <div>Your Github Contributions</div>,
-    },
-    {
-        label: "Time Zone",
-        component: <div>Time Zone</div>,
-    },
+    // {
+    //     label: "Invite Members",
+    //     component: <div>InviteMembers</div>,
+    // },
+    // {
+    //     label: "Set Up Alerts",
+    //     component: <div>Set Up Alerts</div>,
+    // },
+    // {
+    //     label: "Your Github Contributions",
+    //     component: <div>Your Github Contributions</div>,
+    // },
+    // {
+    //     label: "Time Zone",
+    //     component: <div>Time Zone</div>,
+    // },
 ];
 
 const Settings = () => {
