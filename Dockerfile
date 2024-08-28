@@ -1,15 +1,22 @@
-# Stage 1: Build the application
-FROM node:19.9.0 AS builder
+# # Stage 1: Build the application
+# FROM node:19.9.0 AS builder
 
-# Set working directory
+# # Set working directory
+# WORKDIR /app
+
+# # Install dependencies
+# # Copy source code
+# COPY . .
+# RUN yarn install
+
+# # Build the Next.js application
+# RUN yarn run build
+
+# CMD ["yarn", "start"]
+
+FROM node:19.9.0
 WORKDIR /app
-
-# Install dependencies
-# Copy source code
+COPY package.json .
+RUN yarn
 COPY . .
-RUN yarn install
-
-# Build the Next.js application
-RUN yarn run build
-
-CMD ["yarn", "start"]
+CMD ["yarn", "run", "dev"]
