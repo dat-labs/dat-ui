@@ -27,6 +27,7 @@ import CircularLoader from "@/components/ui/circularLoader";
 import useApiCall from "@/hooks/useApiCall";
 import { getConnectionRunLogs } from "@/app/connections/[connectionId]/api";
 import moment from "moment";
+import { getSession } from "next-auth/react";
 
 export type Streams = {
     name: string;
@@ -57,7 +58,8 @@ function RunLogTable({ logInstance }: { logInstance: any }) {
 
     useEffect(() => {
         const fetchData = async () => {
-            await getRunLogInstance(logInstance.id);
+            const session = await getSession();
+            await getRunLogInstance(logInstance.id, session.user.workspace_id);
         };
 
         fetchData();
@@ -136,7 +138,10 @@ function RunLogTable({ logInstance }: { logInstance: any }) {
                             : "Partial Success"}
                     </p>
                     {logInstance.status != "FAILED" && (
-                        <p className="text-muted-foreground"> Duration: {logInstance?.duration} {logInstance?.duration ? 'seconds.' : null}</p>
+                        <p className="text-muted-foreground">
+                            {" "}
+                            Duration: {logInstance?.duration} {logInstance?.duration ? "seconds." : null}
+                        </p>
                     )}
                 </div>
 

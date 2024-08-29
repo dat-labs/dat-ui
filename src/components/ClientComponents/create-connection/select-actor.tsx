@@ -12,6 +12,7 @@ import useSearch from "@/hooks/useSearch";
 import { Search } from "@/components/commom/search-bar";
 import useApiCall from "@/hooks/useApiCall";
 import Loading from "@/app/actors/loading";
+import { getSession } from "next-auth/react";
 
 export type SearchProps = React.InputHTMLAttributes<HTMLInputElement>;
 
@@ -29,7 +30,8 @@ export default function SelectSource({ actorType }: { actorType: string }) {
 
     React.useEffect(() => {
         const fetchData = async () => {
-            await makeApiCall(actorType);
+            const session = await getSession();
+            await makeApiCall(actorType, session.user.workspace_id);
         };
         fetchData();
     }, [actorType]);

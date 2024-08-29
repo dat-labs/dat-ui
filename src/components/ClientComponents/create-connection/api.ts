@@ -1,13 +1,13 @@
-export const getStreamsForSource = async (sourceId: string) => {
+export const getStreamsForSource = async (sourceId: string, wkspc_id: string) => {
     const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/actor_instances/${sourceId}/discover?actor_instance_id=${sourceId}`
+        `${process.env.NEXT_PUBLIC_API_URL}/actor_instances/${sourceId}/discover?workspace_id=${wkspc_id}`
     );
     const data = await response.json();
     return data;
 };
 
-export const addConnection = async (data: object) => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/connections`, {
+export const addConnection = async (data: object, wkspc_id: string) => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/connections?workspace_id=${wkspc_id}`, {
         method: "POST",
         body: JSON.stringify(data),
         headers: {
@@ -18,8 +18,8 @@ export const addConnection = async (data: object) => {
     return { responseData, status: response.status };
 };
 
-export const deleteConnection = async (connection_id: string) => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/connections/${connection_id}`, {
+export const deleteConnection = async (connection_id: string, wkspc_id: string) => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/connections/${connection_id}?workspace_id=${wkspc_id}`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",

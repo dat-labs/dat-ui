@@ -64,7 +64,7 @@ export default function EditStreams({ connectionData }) {
                 schedule_type: "manual",
             };
 
-            const res = await makeApiCall(connectionData.id, patchData);
+            const res = await makeApiCall(connectionData.id, patchData, session?.user?.workspace_id);
 
             if (res.status === 200) {
                 toast(`Connection updated successfully.`);

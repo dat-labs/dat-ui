@@ -4,6 +4,7 @@ import CircularLoader from "@/components/ui/circularLoader";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import useApiCall from "@/hooks/useApiCall";
 import { TrashIcon } from "@radix-ui/react-icons";
+import { getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { toast } from "sonner";
@@ -28,7 +29,8 @@ export default function ActorActions({ actorId, connection_count }) {
      */
     const handleActorInstanceDelete = async (e) => {
         e.stopPropagation();
-        const res = await makeApiCall(actorId);
+        const session = await getSession();
+        const res = await makeApiCall(actorId, session.user.workspace_id);
         if (res.status == 200) {
             toast.success("Succesfully Deleted Actor Instance !");
             router.refresh();

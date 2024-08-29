@@ -9,6 +9,7 @@ import { getConnectionsData } from "./api";
 import Empty from "@/components/commom/empty-component";
 import useApiCall from "@/hooks/useApiCall";
 import Loading from "./[connectionId]/loading";
+import { getSession } from "next-auth/react";
 
 /**
  * A wrapper component to fetch and display connections data.
@@ -26,7 +27,8 @@ const ConnectionWrapper = () => {
      */
     useEffect(() => {
         (async () => {
-            await makeApiCall();
+            const session = await getSession();
+            await makeApiCall(session.user.workspace_id);
         })();
     }, []);
 

@@ -6,6 +6,7 @@ import PageBreadcrumb from "@/app/page-breadcrumb";
 import Loading from "./loading";
 import useApiCall from "@/hooks/useApiCall";
 import EditConnection from "@/components/ClientComponents/edit-connection";
+import { getSession } from "next-auth/react";
 
 /**
  * Page component to edit a connection.
@@ -23,7 +24,8 @@ export default async function EditConnectionPage({ params }: { params: any }) {
      * Fetches the connection data and updates the state.
      */
     const load = useCallback(async () => {
-        const res = await makeApiCall(params.connectionId);
+        const session = await getSession();
+        const res = await makeApiCall(params.connectionId, session.user.workspace_id);
         setConnectionData(res.data);
     }, [params.connectionId, setConnectionData]);
 

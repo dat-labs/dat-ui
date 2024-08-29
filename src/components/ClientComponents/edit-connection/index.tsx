@@ -17,6 +17,7 @@ import useApiCall from "@/hooks/useApiCall";
 import { manualRunConnection } from "@/app/connections/[connectionId]/api";
 import { toast } from "sonner";
 import CircularLoader from "@/components/ui/circularLoader";
+import { getSession } from "next-auth/react";
 
 const tabComponentMapper = {
     streams: EditStreams,
@@ -81,7 +82,8 @@ const EditConnectionComponent = ({ connectionData }) => {
 
     const { loading, makeApiCall: runConnectionCall } = useApiCall(manualRunConnection, "POST");
     const handleConnectionRun = async () => {
-        const res = await runConnectionCall(connectionData.id);
+        const session = await getSession();
+        const res = await runConnectionCall(connectionData.id, session.user.workspace_id);
         if (res.status == 200) {
             toast.success("Run Initiated");
         } else {

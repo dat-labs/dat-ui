@@ -171,8 +171,7 @@ const FormComponent = () => {
                 },
                 schedule_type: "manual",
             };
-
-            const res = await makeApiCall(postData);
+            const res = await makeApiCall(postData, session.user.workspace_id);
 
             if (res.status === 200) {
                 toast.success("Added Connection Successfully !!!");

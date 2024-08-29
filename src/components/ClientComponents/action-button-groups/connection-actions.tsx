@@ -19,6 +19,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { getSession } from "next-auth/react";
 
 export default function ConnectionActions({ connectionData }) {
     const router = useRouter();
@@ -30,7 +31,8 @@ export default function ConnectionActions({ connectionData }) {
 
     const handleConnectionRun = async (e) => {
         e.stopPropagation();
-        await runConnectionCall(connectionData.id);
+        const session = await getSession();
+        await runConnectionCall(connectionData.id, session.user.workspace_id);
     };
 
     useEffect(() => {

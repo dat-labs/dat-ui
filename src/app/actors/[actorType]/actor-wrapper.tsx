@@ -3,6 +3,7 @@
 import { memo, useCallback, useEffect, useState } from "react";
 import { getActorsData } from "../api";
 import ActorsTable from "../actors-table";
+import { getSession } from "next-auth/react";
 
 /**
  * Wrapper component that fetches and provides data to the ActorsTable component.
@@ -13,7 +14,8 @@ const ActorWrapper = ({ actorType }: { actorType: any }) => {
     const [loadData, setLoadData] = useState([]);
 
     const load = useCallback(async () => {
-        const data = await getActorsData(actorType);
+        const session = await getSession();
+        const data = await getActorsData(actorType, session.user.workspace_id);
         setLoadData(data);
     }, [actorType, setLoadData]);
 

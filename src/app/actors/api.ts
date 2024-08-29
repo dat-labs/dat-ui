@@ -1,9 +1,12 @@
 import { ActorInstanceData, ConnectorSpecification } from "./actors-table";
 
-export const getActorsData = async (actorType: string): Promise<ActorInstanceData[]> => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/actor_instances/${actorType}/list`, {
-        cache: "no-cache",
-    });
+export const getActorsData = async (actorType: string, wkspc_id: string): Promise<ActorInstanceData[]> => {
+    const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/actor_instances/${actorType}/list?workspace_id=${wkspc_id}`,
+        {
+            cache: "no-cache",
+        }
+    );
     const data = await response.json();
     // // wrap data in an array of ActorInstanceData
 
@@ -59,8 +62,8 @@ export const getActorsData = async (actorType: string): Promise<ActorInstanceDat
     // return data;
 };
 
-export const getActorData = async (actorType: string, actorId: string): Promise<ActorInstanceData> => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/actor_instances/${actorId}`);
+export const getActorData = async (actorId: string, wkspc_id: string): Promise<ActorInstanceData> => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/actor_instances/${actorId}?workspace_id=${wkspc_id}`);
     const data = await response.json();
     return {
         id: data.id,

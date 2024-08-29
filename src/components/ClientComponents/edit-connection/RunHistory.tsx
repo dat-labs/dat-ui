@@ -8,7 +8,7 @@ import { addDays, format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon, ReloadIcon } from "@radix-ui/react-icons";
-import { getConnectionAggRunLogs, getConnectionViewLogs } from "@/app/connections/[connectionId]/api";
+import { getConnectionAggRunLogs } from "@/app/connections/[connectionId]/api";
 import useApiCall from "@/hooks/useApiCall";
 import RunLogTable from "./RunLogTable";
 import {
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/pagination";
 import Loading from "@/app/connections/[connectionId]/loading";
 import { FromDataContext } from "../create-connection";
+import { getSession } from "next-auth/react";
 
 export function DatePickerWithRange({ className }: React.HTMLAttributes<HTMLDivElement>) {
     const [date, setDate] = React.useState<DateRange | undefined>({
@@ -78,7 +79,8 @@ export default function RunHistory({ connectionData }) {
 
     React.useEffect(() => {
         const fetchData = async () => {
-            await makeApiCall(connectionData.id);
+            const session = await getSession();
+            await makeApiCall(connectionData.id, session.user.workspace_id);
         };
 
         fetchData();
@@ -124,9 +126,9 @@ export default function RunHistory({ connectionData }) {
                             </Button>
                         </div>
 
-                        <div>
+                        {/* <div>
                             <DatePickerWithRange />
-                        </div>
+                        </div> */}
                     </div>
                     {logData.length > 0 ? (
                         currentLogs.map((log, index) => <RunLogTable key={index} logInstance={log} />)

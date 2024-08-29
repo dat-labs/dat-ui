@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import cron from "cron-validate";
+import { getSession } from "next-auth/react";
 
 const scheduleOptions = [
     {
@@ -104,7 +105,10 @@ export default function ConnectionConfiguration({ editMode }: { editMode: boolea
          * Fetches streams data from the API based on the selected source.
          */
         const fetchStreams = async () => {
-            await makeApiCall(state.source.value.id);
+            const session = await getSession();
+            if (session) {
+                await makeApiCall(state.source.value.id, session.user.workspace_id);
+            }
         };
 
         fetchStreams();

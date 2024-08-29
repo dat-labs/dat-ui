@@ -72,7 +72,7 @@ export default function ActorForm({
             configuration: data,
         };
 
-        const res = await createInstanceApi(apiData);
+        const res = await createInstanceApi(apiData, session.user.workspace_id);
         if (res.status !== 200) {
             setError(res.responseData.detail);
         }
@@ -170,7 +170,8 @@ export default function ActorForm({
      * @returns Actor's saved data to be edited
      */
     const load = useCallback(async () => {
-        const data = await actorDataApi(actorType, actorId);
+        const session = await getSession();
+        const data = await actorDataApi(actorId, session.user.workspace_id);
         const jsonData = await actorSpecResApi(data?.actor.id);
         console.log(jsonData);
 
@@ -206,7 +207,8 @@ export default function ActorForm({
             configuration: savedData,
         };
         error && setError(null);
-        const updateRes = await updateInstanceApi(actorId, apiData);
+        const session = await getSession();
+        const updateRes = await updateInstanceApi(actorId, apiData, session.user.workspace_id);
 
         if (updateRes.status === 200) {
             router.push(`/actors/${actorType}`);
