@@ -5,7 +5,12 @@ import { Textarea } from "@/components/ui/textarea";
 export default function TextBox({ field, form, field_name, defaultValue, uiOpts, required = false }) {
     const fieldEnum = field.enum;
 
-    const validationRules = {};
+    const validationRules = {
+        pattern: {
+            value: /^[a-zA-Z0-9 _-]+$/,
+            message: "Only alphabets, numbers, underscores, hyphens, and spaces are allowed.",
+        },
+    };
     if (required) {
         validationRules.required = "This is a required field.";
     }
