@@ -38,6 +38,7 @@ const config = {
                 token.id = user?.id;
                 token.workspace_id = user?.workspace_id;
                 token.workspace_name = user?.workspace_name;
+                token.organization_id = user?.organization_id;
             }
             return token;
         },
@@ -46,6 +47,7 @@ const config = {
                 session.user.id = token.id;
                 session.user.workspace_id = token.workspace_id;
                 session.user.workspace_name = token.workspace_name;
+                session.user.organization_id = token?.organization_id;
             }
             return session;
         },

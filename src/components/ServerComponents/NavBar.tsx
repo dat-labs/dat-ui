@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import clsx from "clsx";
 import { ModeToggle } from "@/components/ClientComponents/theme-toggle";
 import { LogoBlack, ConnectionIcon, DestinationIcon, GeneratorIcon, SourceIcon } from "@/assets";
@@ -10,8 +10,22 @@ import { usePathname } from "next/navigation";
 import LogoutButton from "@/components/ClientComponents/Logout-button";
 import { getSession } from "next-auth/react";
 import CircularLoader from "../ui/circularLoader";
-import { CaretSortIcon } from "@radix-ui/react-icons";
+import { CaretSortIcon, PlusCircledIcon, PlusIcon } from "@radix-ui/react-icons";
 import Loading from "@/app/actors/loading";
+import {
+    DropdownMenu,
+    DropdownMenuCheckboxItem,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+import { ScrollArea } from "@radix-ui/react-scroll-area";
+import AddWorkspaceForm from "../ClientComponents/addWorkspace/addWorkspaceForm";
+import useApiCall from "@/hooks/useApiCall";
+import { getWorkspaces } from "../ClientComponents/addWorkspace/api";
 
 /**
  * NavItemComponent serves as a wrapper for navigation items.
@@ -57,9 +71,6 @@ const bottomNavItems = [
         url: "https://datlabs.gitbook.io/datlabs",
     },
     {
-        component: ModeToggle,
-    },
-    {
         label: "Settings",
         url: "/settings",
         component: NavItemComponent,
@@ -77,6 +88,12 @@ const Sidebar = () => {
     const pathname = usePathname();
     const [session, setSession] = useState(null);
 
+    const [refresh, setRefresh] = useState(false);
+
+    const toggleRefresh = () => {
+        setRefresh(!refresh);
+    };
+
     useEffect(() => {
         const fetchSession = async () => {
             const session = await getSession();
@@ -84,6 +101,26 @@ const Sidebar = () => {
         };
         fetchSession();
     }, []);
+
+    const { data, loading, makeApiCall } = useApiCall(getWorkspaces);
+    const [workspaces, setWorkspaces] = useState([]);
+
+    useEffect(() => {
+        if (session) {
+            (async () => {
+                setCurWkspc(session.user.workspace_name);
+                await makeApiCall(session.user.organization_id);
+            })();
+        }
+    }, [session, refresh]);
+
+    useEffect(() => {
+        if (data) {
+            setWorkspaces(data.responseData);
+        }
+    }, [data]);
+
+    const [curWkspc, setCurWkspc] = React.useState("Default");
 
     return (
         <div className="flex flex-col w-full h-screen py-4 bg-primary-foreground border-r">
@@ -93,6 +130,42 @@ const Sidebar = () => {
                     <LogoBlack className="h-6 w-24 fill-foreground mb-[15px]" />
                 </Link>
             </div>
+            <div className="border-y">
+                {session && !loading ? (
+                    <div className="flex">
+                        <DropdownMenu>
+                            <div className="flex items-center justify-between w-full p-0">
+                                <DropdownMenuTrigger asChild className="cursor-pointer w-full p-2 px-6 hover:bg-primary/10">
+                                    <p className="flex flex-row items-center justify-between w-full">
+                                        {curWkspc} <CaretSortIcon className="size-6" />
+                                    </p>
+                                </DropdownMenuTrigger>
+                                <AddWorkspaceForm postSubmissionAction={toggleRefresh} />
+                            </div>
+
+                            <DropdownMenuContent className="w-40">
+                                <DropdownMenuLabel className="ml-8 p-0">Workspaces</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <ScrollArea className="h-24 overflow-auto">
+                                    {workspaces.map((wkspc, ind) => (
+                                        <DropdownMenuCheckboxItem
+                                            key={ind}
+                                            checked={curWkspc == wkspc.name}
+                                            onCheckedChange={() => setCurWkspc(wkspc.name)}
+                                        >
+                                            {wkspc.name}
+                                        </DropdownMenuCheckboxItem>
+                                    ))}
+                                </ScrollArea>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                ) : (
+                    <Loading height="50px" />
+                )}
+            </div>
+
+            {/* 
             <div className="py-2 px-5 border-y">
                 {session ? (
                     <div className="flex items-center gap-3">
@@ -101,7 +174,9 @@ const Sidebar = () => {
                 ) : (
                     <Loading height="50px" />
                 )}
-            </div>
+            </div> 
+            */}
+
             <div className="flex-grow pt-8 px-4">
                 <nav className="flex flex-col space-y-4">
                     {navItems.map((item) => (
