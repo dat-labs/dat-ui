@@ -57,7 +57,7 @@ const Settings = () => {
                         </div>
                     ))}
                 </div>
-                <div className="flex ml-12 w-2/3 xl:w-5/6">{navItems[option].component}</div>
+                <div className="flex w-2/3 xl:w-5/6">{navItems[option].component}</div>
             </div>
         </>
     );

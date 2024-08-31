@@ -30,7 +30,7 @@ function AddUsers() {
     const password = watch("password");
 
     return (
-        <Card className="w-10/12 h-fit mt-8 py-4 px-6">
+        <Card className="w-10/12 h-fit mt-8 p-6 mx-auto">
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="flex flex-col space-y-3">
                     <p className="text-xl font-semibold">Add a new user to this Workspace</p>
@@ -63,7 +63,7 @@ function AddUsers() {
                         {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
                     </div>
                     <div>
-                        <Label htmlFor="confirm-password">Confirm Password</Label>
+                        <Label htmlFor="confirm-password">Confirm password</Label>
                         <Input
                             id="confirm-password"
                             name="confirmPassword"
