@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -28,6 +28,8 @@ export default function FormGenerator({
     defaultData,
     submitButtonText,
     errorText,
+    tabChangeAlert,
+    currentTab,
 }: {
     properties: any;
     required_fields?: any;
@@ -35,6 +37,8 @@ export default function FormGenerator({
     defaultData?: any;
     submitButtonText?: string;
     errorText?: string | null;
+    tabChangeAlert?: any;
+    currentTab?: any;
 }) {
     const form = useForm({ defaultValues: defaultData });
 
@@ -54,6 +58,20 @@ export default function FormGenerator({
     const onSubmitForm = async (data: any) => {
         await onSubmit(data);
     };
+
+    useEffect(() => {
+        if (currentTab && form.formState.isDirty) {
+            console.log(currentTab);
+            const savedValues = form.getValues();
+            console.log("Before", form.getValues());
+            const confirm = tabChangeAlert(form);
+            if (!confirm) {
+                console.log("Setting saved value");
+                form.reset(savedValues);
+                console.log("After", form.getValues());
+            }
+        }
+    }, [currentTab]);
 
     /**
      * Function to render differnt form fields based on the type of the field

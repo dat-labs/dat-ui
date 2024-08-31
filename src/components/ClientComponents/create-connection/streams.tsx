@@ -1,22 +1,16 @@
 import React, { useEffect, useState } from "react";
 import DataTable from "../data-table";
-import { Button } from "@/components/ui/button";
-import { ArrowRightIcon, Pencil2Icon } from "@radix-ui/react-icons";
 import { Switch } from "@/components/ui/switch";
 import { FromDataContext } from ".";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import StreamPanel from "./StreamPanel";
 import useApiCall from "@/hooks/useApiCall";
 import { getActorDocumentation } from "@/app/actors/[actorType]/create/api";
 import EditSchemaPanel from "./editSchemaPanel";
-import { capitalizeFirstLetter, importIcon } from "@/lib/utils";
-import { Card } from "@/components/ui/card";
 
 export default function Streams({ data }: { data: any }) {
     const { state, updateState } = React.useContext(FromDataContext);
-    console.log(state);
 
     const [streamDoc, setStreamDoc] = useState(null);
     const { data: docData, statusCode: docStatus, makeApiCall } = useApiCall(getActorDocumentation);
@@ -117,6 +111,19 @@ export default function Streams({ data }: { data: any }) {
         // },
     ];
 
+    const [activeTab, setActiveTab] = useState("stream");
+
+    const handleTabChangeAlert = (form: any) => {
+        if (form.formState.isDirty) {
+            const confirmSwitch = window.confirm("You have unsaved changes. Are you sure you want to leave this tab?");
+            if (!confirmSwitch) {
+                setActiveTab("stream");
+                return false;
+            }
+        }
+        return true;
+    };
+
     return (
         <div>
             <DataTable actorType="Stream" columns={columns} data={data} clickHandler={handleRowClick} />
@@ -150,13 +157,21 @@ export default function Streams({ data }: { data: any }) {
                             {activeRow?.original?.streamProperties?.properties?.json_schema?.default &&
                             activeRow?.original?.streamProperties?.properties?.json_schema?.default[activeRow?.original?.name]
                                 ?.properties ? (
-                                <Tabs defaultValue="stream" className="w-full h-full">
+                                <Tabs value={activeTab} className="w-full h-full">
                                     <div className="flex justify-center">
                                         <TabsList className="w-full border">
-                                            <TabsTrigger value="stream" className="w-full text-md py-1">
+                                            <TabsTrigger
+                                                value="stream"
+                                                onClick={() => setActiveTab("stream")}
+                                                className="w-full text-md py-1"
+                                            >
                                                 Edit Stream Configuration
                                             </TabsTrigger>
-                                            <TabsTrigger value="schema" className="w-full text-md py-1">
+                                            <TabsTrigger
+                                                value="schema"
+                                                onClick={() => setActiveTab("schema")}
+                                                className="w-full text-md py-1"
+                                            >
                                                 Edit Schema
                                             </TabsTrigger>
                                         </TabsList>
@@ -169,6 +184,8 @@ export default function Streams({ data }: { data: any }) {
                                             row={activeRow}
                                             handleStreamConfigrationSave={handleStreamConfigrationSave}
                                             state={state}
+                                            handleTabChange={handleTabChangeAlert}
+                                            currentTab={activeTab}
                                         />
                                     </TabsContent>
 
@@ -190,6 +207,8 @@ export default function Streams({ data }: { data: any }) {
                                     row={activeRow}
                                     handleStreamConfigrationSave={handleStreamConfigrationSave}
                                     state={state}
+                                    handleTabChange={handleTabChangeAlert}
+                                    currentTab={activeTab}
                                 />
                             )}
                         </div>

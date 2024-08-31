@@ -11,9 +11,19 @@ interface StreamPanelProps {
     handleStreamConfigrationSave: (values: any, streamName: string) => void;
     state: any;
     handleDialogClose: any;
+    handleTabChange?: any;
+    currentTab?: any;
 }
 
-const StreamPanel: React.FC<StreamPanelProps> = ({ srcDocs, row, handleStreamConfigrationSave, state, handleDialogClose }) => {
+const StreamPanel: React.FC<StreamPanelProps> = ({
+    srcDocs,
+    row,
+    handleStreamConfigrationSave,
+    state,
+    handleDialogClose,
+    handleTabChange,
+    currentTab,
+}) => {
     return (
         <ResizablePanelGroup direction="horizontal" className="w-full h-full">
             <ResizablePanel defaultSize={srcDocs ? 50 : 100} minSize={30} className="h-full">
@@ -30,6 +40,8 @@ const StreamPanel: React.FC<StreamPanelProps> = ({ srcDocs, row, handleStreamCon
                                         handleDialogClose();
                                     }}
                                     submitButtonText="Save"
+                                    tabChangeAlert={handleTabChange}
+                                    currentTab={currentTab}
                                 />
                             </CardContent>
                         </Card>
