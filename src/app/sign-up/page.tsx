@@ -1,15 +1,14 @@
 "use client";
 
-import { GithubFollow, LogoBlack } from "@/assets";
+import { LogoBlack } from "@/assets";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { EyeNoneIcon, EyeOpenIcon } from "@radix-ui/react-icons";
-import Link from "next/link";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import JoinDat from "./joinDat";
 
 function LoginPage() {
     const [eyeClose, setEyeClose] = useState(true);
@@ -29,24 +28,8 @@ function LoginPage() {
 
     return (
         <div className="flex flex-row">
-            <div className="w-1/2 flex flex-col">
-                <div className="ml-24 mt-12">
-                    <div className="leading-[4rem] text-5xl font-semibold bg-gradient-to-b from-[#FFD9D2] to-[#99827E] bg-clip-text text-transparent">
-                        Join, <br />
-                        growing <br />
-                        <span className="font-[Comfortaa] text-black">dat</span> <br />
-                        Community
-                    </div>
-                    <div className="mt-4">
-                        <Link href={"/"}>
-                            <Button variant={"outline"} className="gap-2">
-                                <GithubFollow className="size-6" /> Follow us on Github
-                            </Button>
-                        </Link>
-                    </div>
-                </div>
-            </div>
-            <div className="w-[0.5px] h-[82vh] rounded-lg m-10 bg-gradient-to-b from-[#EEEEEE] via-[#888888] to-[#EEEEEE]"></div>
+            <JoinDat />
+            <div className="w-0.5 h-[90vh] rounded-lg m-10 bg-gradient-to-b from-[#EEEEEE] via-[#888888] to-[#EEEEEE]"></div>
 
             <div className="w-1/2 flex flex-col">
                 <Card className="w-9/12 m-auto">
