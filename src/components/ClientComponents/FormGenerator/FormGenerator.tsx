@@ -57,6 +57,7 @@ export default function FormGenerator({
      */
     const onSubmitForm = async (data: any) => {
         await onSubmit(data);
+        form.reset();
     };
 
     useEffect(() => {
