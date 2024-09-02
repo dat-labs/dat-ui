@@ -174,7 +174,7 @@ function ConnectionsTable({ loadData = [] }) {
 
     return (
         <DataTable
-            actorType={"Connection Name"}
+            actorType={"Connection"}
             columns={columns}
             data={loadData}
             clickHandler={(row) => {

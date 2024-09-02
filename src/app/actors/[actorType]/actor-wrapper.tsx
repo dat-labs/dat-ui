@@ -4,6 +4,8 @@ import { memo, useCallback, useEffect, useState } from "react";
 import { getActorsData } from "../api";
 import ActorsTable from "../actors-table";
 import { getSession } from "next-auth/react";
+import useApiCall from "@/hooks/useApiCall";
+import Loading from "../loading";
 
 /**
  * Wrapper component that fetches and provides data to the ActorsTable component.
@@ -13,17 +15,27 @@ import { getSession } from "next-auth/react";
 const ActorWrapper = ({ actorType }: { actorType: any }) => {
     const [loadData, setLoadData] = useState([]);
 
-    const load = useCallback(async () => {
-        const session = await getSession();
-        const data = await getActorsData(actorType, session.user.workspace_id);
-        setLoadData(data);
-    }, [actorType, setLoadData]);
-
+    const { data: allInstancesData, statusCode, loading, makeApiCall } = useApiCall(getActorsData);
+    /**
+     * Makes the API call to fetch instances data on component mount.
+     */
     useEffect(() => {
-        load();
+        (async () => {
+            const session = await getSession();
+            await makeApiCall(actorType, session.user.workspace_id);
+        })();
     }, []);
 
-    return <ActorsTable actorType={actorType} loadData={loadData} />;
+    /**
+     * Updates the state with the fetched data when it becomes available.
+     */
+    useEffect(() => {
+        if (allInstancesData) {
+            setLoadData(allInstancesData.actorData);
+        }
+    }, [allInstancesData, setLoadData]);
+
+    return <div>{statusCode !== 200 ? <Loading /> : <ActorsTable actorType={actorType} loadData={loadData} />}</div>;
 };
 
 export default memo(ActorWrapper);

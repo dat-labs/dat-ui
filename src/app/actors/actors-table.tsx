@@ -173,7 +173,7 @@ function ActorsTable({ actorType, loadData = [] }: { actorType: string; loadData
         // router.push(newUrl);
     };
 
-    return <DataTable actorType={actorType} columns={columns} data={loadData} clickHandler={handleRowClick} />;
+    return <DataTable actorType={actorType} columns={columns} data={loadData} searchTableKey={"configuration_dat_name"} clickHandler={handleRowClick} />;
 }
 
 export default memo(ActorsTable);

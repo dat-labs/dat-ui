@@ -8,19 +8,19 @@ import {
     getCoreRowModel,
     useReactTable,
     getPaginationRowModel,
+    getFilteredRowModel,
 } from "@tanstack/react-table";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Search } from "../commom/search-bar";
-import useSearch from "@/hooks/useSearch";
 import React from "react";
-import { ScrollArea } from "../ui/scroll-area";
+import { Input } from "../ui/input";
 
 interface DataTableProps<TData, TValue> {
     actorType?: string;
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
     clickHandler?: (row: any) => void;
+    searchTableKey?: string;
     inDialog?: boolean;
 }
 
@@ -37,6 +37,7 @@ export default function DataTable<TData, TValue>({
     columns,
     data,
     clickHandler,
+    searchTableKey = "name",
     inDialog = false,
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -48,6 +49,7 @@ export default function DataTable<TData, TValue>({
         getPaginationRowModel: getPaginationRowModel(),
         onSortingChange: setSorting,
         getSortedRowModel: getSortedRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
         state: {
             sorting,
         },
@@ -57,7 +59,6 @@ export default function DataTable<TData, TValue>({
             },
         },
     });
-
     /**
      * Handles the click event on a table row and calls the provided clickHandler if available.
      *
@@ -68,19 +69,14 @@ export default function DataTable<TData, TValue>({
             clickHandler(row);
         }
     };
-
-    const { query, setQuery, filteredData } = useSearch(table.getRowModel().rows, "name", true);
-
     return (
         <div>
-            <Search
-                type="search"
-                placeholder={`Search your ${actorType}`}
-                className="rounded-lg"
-                handleSearch={(e) => setQuery(e.target.value)}
-                search={query}
+            <Input
+                placeholder={`Search by ${actorType} Name`}
+                value={(table.getColumn(searchTableKey)?.getFilterValue() as string) ?? ""}
+                onChange={(event) => table.getColumn(searchTableKey)?.setFilterValue(event.target.value)}
+                className="max-w-full"
             />
-
             <div className="rounded-md border mt-2">
                 <Table>
                     <TableHeader className="bg-primary-foreground">
@@ -99,8 +95,8 @@ export default function DataTable<TData, TValue>({
                         ))}
                     </TableHeader>
                     <TableBody>
-                        {filteredData.length > 0 ? (
-                            filteredData.map((row) => (
+                        {table.getRowModel().rows.length > 0 ? (
+                            table.getRowModel().rows.map((row) => (
                                 <TableRow
                                     key={row.id}
                                     data-state={row.getIsSelected() && "selected"}

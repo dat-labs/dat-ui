@@ -1,15 +1,10 @@
 import { ActorInstanceData, ConnectorSpecification } from "./actors-table";
 
-export const getActorsData = async (actorType: string, wkspc_id: string): Promise<ActorInstanceData[]> => {
-    const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/actor_instances/${actorType}/list?workspace_id=${wkspc_id}`,
-        {
-            cache: "no-cache",
-        }
-    );
+export const getActorsData = async (actorType: string, wkspc_id: string) => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/actor_instances/${actorType}/list?workspace_id=${wkspc_id}`);
     const data = await response.json();
-    // // wrap data in an array of ActorInstanceData
 
+    // wrap data in an array of ActorInstanceData
     const actorData: ActorInstanceData[] = data.map((actor: any) => {
         return {
             id: actor.id,
@@ -25,41 +20,8 @@ export const getActorsData = async (actorType: string, wkspc_id: string): Promis
             number_of_connections: actor.connected_connections.length,
         };
     });
-    return actorData;
-    // return data;
-    // const data: ActorInstanceData[] = await new Promise((resolve) =>
-    //     setTimeout(() => {
-    //         resolve([
-    //             {
-    //                 id: "0980-0-912300-91023-0",
-    //                 name: "GCS",
-    //                 actor: {
-    //                     id: "str",
-    //                     name: "Google Cloud Storage",
-    //                     icon: "str",
-    //                     actor_type: "source",
-    //                     status: "ACTIVE",
-    //                 },
-    //                 created_at: "2021-11-09 14:47:00",
-    //                 user_id: "09922bd9-7872-4664-99d0-08eae42fb554",
-    //             },
-    //             {
-    //                 id: "0980-0-912300-91023-0",
-    //                 name: "GCS",
-    //                 actor: {
-    //                     id: "str",
-    //                     name: "Google Cloud Storage",
-    //                     icon: "str",
-    //                     actor_type: "source",
-    //                     status: "ACTIVE",
-    //                 },
-    //                 created_at: "2021-11-09 14:47:00",
-    //                 user_id: "09922bd9-7872-4664-99d0-08eae42fb554",
-    //             },
-    //         ]);
-    //     }, 4000)
-    // );
-    // return data;
+
+    return { actorData, status: response.status };
 };
 
 export const getActorData = async (actorId: string, wkspc_id: string): Promise<ActorInstanceData> => {
