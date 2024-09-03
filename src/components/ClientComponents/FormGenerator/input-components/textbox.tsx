@@ -4,7 +4,6 @@ import { Textarea } from "@/components/ui/textarea";
 
 export default function TextBox({ field, form, field_name, defaultValue, uiOpts, required = false }) {
     const fieldEnum = field.enum;
-
     const validationRules = {};
 
     // If the field is required, add the required validation rule
@@ -12,8 +11,7 @@ export default function TextBox({ field, form, field_name, defaultValue, uiOpts,
         validationRules.required = "This is a required field.";
     }
 
-    // If the field name is not "email", apply the pattern validation rule
-    if (field_name !== "email") {
+    if (field_name === "namespace") {
         validationRules.pattern = {
             value: /^[a-zA-Z0-9 _-]+$/,
             message: "Only alphabets, numbers, underscores, hyphens, and spaces are allowed.",
