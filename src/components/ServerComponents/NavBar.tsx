@@ -8,23 +8,17 @@ import { LogoBlack, ConnectionIcon, DestinationIcon, GeneratorIcon, SourceIcon }
 import { usePathname, useRouter } from "next/navigation";
 import LogoutButton from "@/components/ClientComponents/Logout-button";
 import { getSession } from "next-auth/react";
-import { CaretSortIcon, PlusCircledIcon, PlusIcon } from "@radix-ui/react-icons";
+import { CaretSortIcon, LoopIcon, PersonIcon } from "@radix-ui/react-icons";
 import Loading from "@/app/actors/loading";
-import {
-    DropdownMenu,
-    DropdownMenuCheckboxItem,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import AddWorkspaceForm from "../ClientComponents/addWorkspace/addWorkspaceForm";
 import useApiCall from "@/hooks/useApiCall";
 import { getWorkspaces } from "../ClientComponents/addWorkspace/api";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { WorkspaceDataContext } from "../ClientComponents/workspace-provider";
+import { Card } from "../ui/card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import useSearch from "@/hooks/useSearch";
+import { Search } from "../commom/search-bar";
 
 /**
  * NavItemComponent serves as a wrapper for navigation items.
@@ -126,6 +120,10 @@ const Sidebar = () => {
         updateCurrentWorkspace(wkspc.id, wkspc.name);
     };
 
+    const [open, setOpen] = React.useState(false);
+
+    const { query, setQuery, filteredData } = useSearch(workspaces, "name", false);
+
     return (
         <div className="flex flex-col w-full h-screen py-4 bg-primary-foreground border-r">
             <div className="flex flex-col px-4">
@@ -136,63 +134,103 @@ const Sidebar = () => {
             </div>
             <div className="border-y">
                 {session && !loading ? (
-                    <div className="flex">
-                        <DropdownMenu>
-                            <div className="flex items-center justify-between w-full p-0">
-                                <DropdownMenuTrigger asChild className="cursor-pointer w-full p-2 pl-6 hover:bg-primary/10">
-                                    <p className="flex flex-row items-center justify-between w-full">
-                                        {curWorkspace.name} <CaretSortIcon className="size-6" />
-                                    </p>
-                                </DropdownMenuTrigger>
+                    <div className="flex w-full">
+                        <div className="flex items-center space-x-4 w-full hover:bg-primary/5">
+                            <Popover open={open} onOpenChange={setOpen}>
+                                <PopoverTrigger asChild>
+                                    <div className="flex justify-between items-center w-full p-2 px-6">
+                                        <div className="flex items-center gap-2">
+                                            <Card className="rounded-sm">
+                                                <img
+                                                    src={`https://ui-avatars.com/api/?name=${curWorkspace.name}`}
+                                                    alt="icon"
+                                                    className="h-7 w-7"
+                                                />
+                                            </Card>
+                                            <p>{curWorkspace.name}</p>
+                                        </div>
 
-                                <TooltipProvider>
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <Button variant="outline" className="border-none px-2">
-                                                <AddWorkspaceForm postSubmissionAction={toggleRefresh} />
-                                            </Button>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p>Add new Workspace</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </TooltipProvider>
-                            </div>
+                                        <CaretSortIcon className="size-6" />
+                                    </div>
+                                </PopoverTrigger>
+                                <PopoverContent className="p-0 min-w-[600px]" side="right" align="start">
+                                    <div className="flex flex-col p-2 gap-2">
+                                        <Search
+                                            type="search"
+                                            placeholder={`Search for any Workspace`}
+                                            className="rounded-sm"
+                                            handleSearch={(e) => setQuery(e.target.value)}
+                                            search={query}
+                                        />
+                                        <ScrollArea className="max-h-[300px] overflow-auto px-2">
+                                            <Card
+                                                key={curWorkspace.name}
+                                                onClick={() => changeWorkspace(curWorkspace)}
+                                                className="flex items-center pl-4 py-2 rounded-sm h-fit cursor-pointer mb-3 mx-auto hover:bg-muted"
+                                            >
+                                                <div className="flex flex-row w-full items-start justify-between">
+                                                    <div className="flex flex-col gap-2">
+                                                        <div className="flex items-center gap-2">
+                                                            <Card className="rounded-sm">
+                                                                <img
+                                                                    src={`https://ui-avatars.com/api/?name=${curWorkspace.name}`}
+                                                                    alt="icon"
+                                                                    className="h-8 w-8"
+                                                                />
+                                                            </Card>
+                                                            <p>{curWorkspace.name}</p>
+                                                        </div>
+                                                        <Button
+                                                            asChild
+                                                            size="sm"
+                                                            variant="outline"
+                                                            onClick={(e) => e.stopPropagation()}
+                                                        >
+                                                            <Link href="/settings">
+                                                                <PersonIcon className="size-4 mr-1" />
+                                                                <span>Manage Users</span>
+                                                            </Link>
+                                                        </Button>
+                                                    </div>
+                                                    <div className="flex p-2 pr-4 text-sm font-medium">Current Workspace</div>
+                                                </div>
+                                            </Card>
 
-                            <DropdownMenuContent className="w-40">
-                                <DropdownMenuLabel className="ml-8 p-0">Workspaces</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <ScrollArea className="h-24 overflow-auto">
-                                    {workspaces.map((wkspc, ind) => (
-                                        <DropdownMenuCheckboxItem
-                                            key={ind}
-                                            checked={curWorkspace.name == wkspc.name}
-                                            onCheckedChange={() => changeWorkspace(wkspc)}
-                                        >
-                                            {wkspc.name}
-                                        </DropdownMenuCheckboxItem>
-                                    ))}
-                                </ScrollArea>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                                            {filteredData.map(
+                                                (wkspc) =>
+                                                    wkspc.name !== curWorkspace.name && (
+                                                        <Card
+                                                            key={wkspc.name}
+                                                            onClick={() => changeWorkspace(wkspc)}
+                                                            className="flex items-center pl-4 rounded-sm shadow-xs h-12 cursor-pointer mb-1 mx-auto hover:bg-muted"
+                                                        >
+                                                            <div className="w-full flex gap-3 items-center">
+                                                                <Card className="rounded-sm">
+                                                                    <img
+                                                                        src={`https://ui-avatars.com/api/?name=${wkspc.name}`}
+                                                                        alt="icon"
+                                                                        className="h-8 w-8"
+                                                                    />
+                                                                </Card>
+                                                                <div className="w-full flex flex-row justify-between items-center">
+                                                                    <p>{wkspc.name}</p>
+                                                                    <LoopIcon className="size-4 mr-2" />
+                                                                </div>
+                                                            </div>
+                                                        </Card>
+                                                    )
+                                            )}
+                                        </ScrollArea>
+                                        <AddWorkspaceForm postSubmissionAction={toggleRefresh} />
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
+                        </div>
                     </div>
                 ) : (
                     <Loading height="50px" />
                 )}
             </div>
-
-            {/* 
-            <div className="py-2 px-5 border-y">
-                {session ? (
-                    <div className="flex items-center gap-3">
-                        <p>{`${session?.user?.workspace_name} `}</p> <CaretSortIcon width={20} height={20} />
-                    </div>
-                ) : (
-                    <Loading height="50px" />
-                )}
-            </div> 
-            */}
-
             <div className="flex-grow pt-8 px-4">
                 <nav className="flex flex-col space-y-4">
                     {navItems.map((item) => (
