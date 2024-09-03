@@ -17,15 +17,13 @@ function AccountSettings() {
         }
 
         error && setError(null);
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(data.password, salt);
 
         const formData = {
             email: data.email,
-            password: hashedPassword,
+            password: data.password,
         };
 
-        console.log("Form Data with Hashed Password:", formData);
+        console.log("Updated Form Data:", formData);
     };
 
     useEffect(() => {
