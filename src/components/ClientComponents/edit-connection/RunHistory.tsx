@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/pagination";
 import Loading from "@/app/connections/[connectionId]/loading";
 import { FromDataContext } from "../create-connection";
-import { getSession } from "next-auth/react";
+import { WorkspaceDataContext } from "../workspace-provider";
 
 export function DatePickerWithRange({ className }: React.HTMLAttributes<HTMLDivElement>) {
     const [date, setDate] = React.useState<DateRange | undefined>({
@@ -74,13 +74,13 @@ export default function RunHistory({ connectionData }) {
     const [logData, setLogData] = React.useState([]);
     const [refresh, setRefresh] = React.useState(false);
     const { state, updateState } = React.useContext(FromDataContext);
+    const { curWorkspace } = React.useContext(WorkspaceDataContext);
 
     const { data: runHistoryData, loading, makeApiCall } = useApiCall(getConnectionAggRunLogs, "GET");
 
     React.useEffect(() => {
         const fetchData = async () => {
-            const session = await getSession();
-            await makeApiCall(connectionData.id, session.user.workspace_id);
+            await makeApiCall(connectionData.id, curWorkspace.id);
         };
 
         fetchData();

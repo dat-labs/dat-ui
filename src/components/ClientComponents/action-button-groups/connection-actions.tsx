@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import useApiCall from "@/hooks/useApiCall";
 import { PlayIcon, TrashIcon } from "@radix-ui/react-icons";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { deleteConnection } from "../create-connection/api";
 import CircularLoader from "@/components/ui/circularLoader";
 import { useRouter } from "next/navigation";
@@ -19,7 +19,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { getSession } from "next-auth/react";
+import { WorkspaceDataContext } from "../workspace-provider";
 
 export default function ConnectionActions({ connectionData }) {
     const router = useRouter();
@@ -29,10 +29,11 @@ export default function ConnectionActions({ connectionData }) {
         makeApiCall: runConnectionCall,
     } = useApiCall(manualRunConnection, "POST");
 
+    const { curWorkspace } = useContext(WorkspaceDataContext);
+
     const handleConnectionRun = async (e) => {
         e.stopPropagation();
-        const session = await getSession();
-        await runConnectionCall(connectionData.id, session.user.workspace_id);
+        await runConnectionCall(connectionData.id, curWorkspace.id);
     };
 
     useEffect(() => {

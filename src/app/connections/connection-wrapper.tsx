@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useEffect, useState } from "react";
+import { memo, useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import clsx from "clsx";
 import { buttonVariants } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { getConnectionsData } from "./api";
 import Empty from "@/components/commom/empty-component";
 import useApiCall from "@/hooks/useApiCall";
 import Loading from "./[connectionId]/loading";
-import { getSession } from "next-auth/react";
+import { WorkspaceDataContext } from "@/components/ClientComponents/workspace-provider";
 
 /**
  * A wrapper component to fetch and display connections data.
@@ -20,6 +20,7 @@ import { getSession } from "next-auth/react";
  */
 const ConnectionWrapper = () => {
     const [loadData, setLoadData] = useState([]);
+    const { curWorkspace } = useContext(WorkspaceDataContext);
 
     const { data: allConnectionsData, statusCode, loading, makeApiCall } = useApiCall(getConnectionsData);
     /**
@@ -27,10 +28,9 @@ const ConnectionWrapper = () => {
      */
     useEffect(() => {
         (async () => {
-            const session = await getSession();
-            await makeApiCall(session.user.workspace_id);
+            await makeApiCall(curWorkspace.id);
         })();
-    }, []);
+    }, [curWorkspace]);
 
     /**
      * Updates the state with the fetched data when it becomes available.

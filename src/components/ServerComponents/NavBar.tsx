@@ -1,15 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import clsx from "clsx";
-import { ModeToggle } from "@/components/ClientComponents/theme-toggle";
 import { LogoBlack, ConnectionIcon, DestinationIcon, GeneratorIcon, SourceIcon } from "@/assets";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import LogoutButton from "@/components/ClientComponents/Logout-button";
 import { getSession } from "next-auth/react";
-import CircularLoader from "../ui/circularLoader";
 import { CaretSortIcon, PlusCircledIcon, PlusIcon } from "@radix-ui/react-icons";
 import Loading from "@/app/actors/loading";
 import {
@@ -21,11 +19,12 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import AddWorkspaceForm from "../ClientComponents/addWorkspace/addWorkspaceForm";
 import useApiCall from "@/hooks/useApiCall";
 import { getWorkspaces } from "../ClientComponents/addWorkspace/api";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { WorkspaceDataContext } from "../ClientComponents/workspace-provider";
 
 /**
  * NavItemComponent serves as a wrapper for navigation items.
@@ -68,7 +67,7 @@ const navItems = [
 const bottomNavItems = [
     {
         label: "Help",
-        url: "https://datlabs.gitbook.io/datlabs",
+        url: "https://docs.dat-hub.com/",
     },
     {
         label: "Settings",
@@ -86,8 +85,9 @@ const bottomNavItems = [
  */
 const Sidebar = () => {
     const pathname = usePathname();
-    const [session, setSession] = useState(null);
+    const { curWorkspace, updateCurrentWorkspace } = useContext(WorkspaceDataContext);
 
+    const [session, setSession] = useState(null);
     const [refresh, setRefresh] = useState(false);
 
     const toggleRefresh = () => {
@@ -104,11 +104,12 @@ const Sidebar = () => {
 
     const { data, loading, makeApiCall } = useApiCall(getWorkspaces);
     const [workspaces, setWorkspaces] = useState([]);
+    const router = useRouter();
 
     useEffect(() => {
         if (session) {
             (async () => {
-                setCurWkspc(session.user.workspace_name);
+                updateCurrentWorkspace(session.user.workspace_id, session.user.workspace_name);
                 await makeApiCall(session.user.organization_id);
             })();
         }
@@ -120,7 +121,10 @@ const Sidebar = () => {
         }
     }, [data]);
 
-    const [curWkspc, setCurWkspc] = React.useState("Default");
+    const changeWorkspace = (wkspc: any) => {
+        router.push("/connections");
+        updateCurrentWorkspace(wkspc.id, wkspc.name);
+    };
 
     return (
         <div className="flex flex-col w-full h-screen py-4 bg-primary-foreground border-r">
@@ -135,12 +139,24 @@ const Sidebar = () => {
                     <div className="flex">
                         <DropdownMenu>
                             <div className="flex items-center justify-between w-full p-0">
-                                <DropdownMenuTrigger asChild className="cursor-pointer w-full p-2 px-6 hover:bg-primary/10">
+                                <DropdownMenuTrigger asChild className="cursor-pointer w-full p-2 pl-6 hover:bg-primary/10">
                                     <p className="flex flex-row items-center justify-between w-full">
-                                        {curWkspc} <CaretSortIcon className="size-6" />
+                                        {curWorkspace.name} <CaretSortIcon className="size-6" />
                                     </p>
                                 </DropdownMenuTrigger>
-                                <AddWorkspaceForm postSubmissionAction={toggleRefresh} />
+
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <Button variant="outline" className="border-none px-2">
+                                                <AddWorkspaceForm postSubmissionAction={toggleRefresh} />
+                                            </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>Add new Workspace</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
                             </div>
 
                             <DropdownMenuContent className="w-40">
@@ -150,8 +166,8 @@ const Sidebar = () => {
                                     {workspaces.map((wkspc, ind) => (
                                         <DropdownMenuCheckboxItem
                                             key={ind}
-                                            checked={curWkspc == wkspc.name}
-                                            onCheckedChange={() => setCurWkspc(wkspc.name)}
+                                            checked={curWorkspace.name == wkspc.name}
+                                            onCheckedChange={() => changeWorkspace(wkspc)}
                                         >
                                             {wkspc.name}
                                         </DropdownMenuCheckboxItem>

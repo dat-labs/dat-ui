@@ -1,12 +1,12 @@
 "use client";
 
-import React, { Suspense, useCallback, useEffect } from "react";
+import React, { Suspense, useCallback, useContext, useEffect } from "react";
 import { getConnectionData } from "./api";
 import PageBreadcrumb from "@/app/page-breadcrumb";
 import Loading from "./loading";
 import useApiCall from "@/hooks/useApiCall";
 import EditConnection from "@/components/ClientComponents/edit-connection";
-import { getSession } from "next-auth/react";
+import { WorkspaceDataContext } from "@/components/ClientComponents/workspace-provider";
 
 /**
  * Page component to edit a connection.
@@ -19,13 +19,12 @@ import { getSession } from "next-auth/react";
 export default async function EditConnectionPage({ params }: { params: any }) {
     const { loading, makeApiCall } = useApiCall(getConnectionData);
     const [connectionData, setConnectionData] = React.useState<any>(null);
-
+    const { curWorkspace } = useContext(WorkspaceDataContext);
     /**
      * Fetches the connection data and updates the state.
      */
     const load = useCallback(async () => {
-        const session = await getSession();
-        const res = await makeApiCall(params.connectionId, session.user.workspace_id);
+        const res = await makeApiCall(params.connectionId, curWorkspace.id);
         setConnectionData(res.data);
     }, [params.connectionId, setConnectionData]);
 

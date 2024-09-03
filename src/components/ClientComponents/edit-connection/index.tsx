@@ -1,6 +1,6 @@
 import { capitalizeFirstLetter, importIcon } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ArrowRightIcon } from "@radix-ui/react-icons";
 import clsx from "clsx";
 import EditStreams from "./EditStreams";
@@ -11,13 +11,12 @@ import { Card } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import "./runLoader.css";
 import useApiCall from "@/hooks/useApiCall";
 import { manualRunConnection } from "@/app/connections/[connectionId]/api";
 import { toast } from "sonner";
 import CircularLoader from "@/components/ui/circularLoader";
-import { getSession } from "next-auth/react";
+import { WorkspaceDataContext } from "../workspace-provider";
 
 const tabComponentMapper = {
     streams: EditStreams,
@@ -27,6 +26,7 @@ const tabComponentMapper = {
 
 const EditConnectionComponent = ({ connectionData }) => {
     const { state, updateState } = React.useContext(FromDataContext);
+    const { curWorkspace } = useContext(WorkspaceDataContext);
     const [tab, setTab] = React.useState("streams");
     const handleStreamConfigrationSave = (values: any, streamName: string) => {
         if (Object.keys(state.streams[streamName].configuration).length === 0) {
@@ -82,8 +82,7 @@ const EditConnectionComponent = ({ connectionData }) => {
 
     const { loading, makeApiCall: runConnectionCall } = useApiCall(manualRunConnection, "POST");
     const handleConnectionRun = async () => {
-        const session = await getSession();
-        const res = await runConnectionCall(connectionData.id, session.user.workspace_id);
+        const res = await runConnectionCall(connectionData.id, curWorkspace.id);
         if (res.status == 200) {
             toast.success("Run Initiated");
         } else {

@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import cron from "cron-validate";
-import { getSession } from "next-auth/react";
+import { WorkspaceDataContext } from "../workspace-provider";
 
 const scheduleOptions = [
     {
@@ -46,6 +46,7 @@ const scheduleOptions = [
  */
 export default function ConnectionConfiguration({ editMode }: { editMode: boolean }) {
     const { state, updateState } = useContext(FromDataContext);
+    const { curWorkspace } = useContext(WorkspaceDataContext);
     const [refresh, setRefresh] = useState(false);
     const [connectionName, setConnectionName] = useState(state.configuration.name);
     const [cronSchedule, setCronSchedule] = useState(state.configuration.cronSchedule);
@@ -105,10 +106,7 @@ export default function ConnectionConfiguration({ editMode }: { editMode: boolea
          * Fetches streams data from the API based on the selected source.
          */
         const fetchStreams = async () => {
-            const session = await getSession();
-            if (session) {
-                await makeApiCall(state.source.value.id, session.user.workspace_id);
-            }
+            await makeApiCall(state.source.value.id, curWorkspace.id);
         };
 
         fetchStreams();

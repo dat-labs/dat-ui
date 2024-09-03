@@ -4,10 +4,10 @@ import CircularLoader from "@/components/ui/circularLoader";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import useApiCall from "@/hooks/useApiCall";
 import { TrashIcon } from "@radix-ui/react-icons";
-import { getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useContext } from "react";
 import { toast } from "sonner";
+import { WorkspaceDataContext } from "../workspace-provider";
 
 /**
  * ActorActions component handles actions related to an actor instance,
@@ -18,7 +18,7 @@ import { toast } from "sonner";
 export default function ActorActions({ actorId, connection_count }) {
     const router = useRouter();
     const { data, error, loading, makeApiCall } = useApiCall(deleteActorInstance, "DELETE");
-
+    const { curWorkspace } = useContext(WorkspaceDataContext);
     /**
      * Handles the click event to delete the actor instance.
      * Stops event propagation to prevent parent elements from triggering the same action.
@@ -29,8 +29,7 @@ export default function ActorActions({ actorId, connection_count }) {
      */
     const handleActorInstanceDelete = async (e) => {
         e.stopPropagation();
-        const session = await getSession();
-        const res = await makeApiCall(actorId, session.user.workspace_id);
+        const res = await makeApiCall(actorId, curWorkspace.id);
         if (res.status == 200) {
             toast.success("Succesfully Deleted Actor Instance !");
             router.refresh();

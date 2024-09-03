@@ -1,11 +1,11 @@
 "use client";
 
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useContext, useEffect, useState } from "react";
 import { getActorsData } from "../api";
 import ActorsTable from "../actors-table";
-import { getSession } from "next-auth/react";
 import useApiCall from "@/hooks/useApiCall";
 import Loading from "../loading";
+import { WorkspaceDataContext } from "@/components/ClientComponents/workspace-provider";
 
 /**
  * Wrapper component that fetches and provides data to the ActorsTable component.
@@ -14,6 +14,7 @@ import Loading from "../loading";
  */
 const ActorWrapper = ({ actorType }: { actorType: any }) => {
     const [loadData, setLoadData] = useState([]);
+    const { curWorkspace } = useContext(WorkspaceDataContext);
 
     const { data: allInstancesData, statusCode, loading, makeApiCall } = useApiCall(getActorsData);
     /**
@@ -21,10 +22,9 @@ const ActorWrapper = ({ actorType }: { actorType: any }) => {
      */
     useEffect(() => {
         (async () => {
-            const session = await getSession();
-            await makeApiCall(actorType, session.user.workspace_id);
+            await makeApiCall(actorType, curWorkspace.id);
         })();
-    }, []);
+    }, [curWorkspace]);
 
     /**
      * Updates the state with the fetched data when it becomes available.

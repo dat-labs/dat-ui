@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import { StreamTable } from "./StreamTable";
@@ -27,7 +27,7 @@ import CircularLoader from "@/components/ui/circularLoader";
 import useApiCall from "@/hooks/useApiCall";
 import { getConnectionRunLogs } from "@/app/connections/[connectionId]/api";
 import moment from "moment";
-import { getSession } from "next-auth/react";
+import { WorkspaceDataContext } from "../workspace-provider";
 
 export type Streams = {
     name: string;
@@ -51,6 +51,7 @@ export const columns: ColumnDef<Streams>[] = [
 ];
 
 function RunLogTable({ logInstance }: { logInstance: any }) {
+    const { curWorkspace } = useContext(WorkspaceDataContext);
     const [arrow, setArrow] = React.useState(false);
     const [runLogs, setRunLogs] = useState([]);
 
@@ -58,8 +59,7 @@ function RunLogTable({ logInstance }: { logInstance: any }) {
 
     useEffect(() => {
         const fetchData = async () => {
-            const session = await getSession();
-            await getRunLogInstance(logInstance.id, session.user.workspace_id);
+            await getRunLogInstance(logInstance.id, curWorkspace.id);
         };
 
         fetchData();

@@ -15,8 +15,6 @@ export default function EditStreams({ connectionData }) {
     const router = useRouter();
     const { state, updateState } = React.useContext(FromDataContext);
     const { saveError, checkConnectionForError } = useCheckConnection(state);
-
-    console.log(connectionData);
     const { loading, makeApiCall } = useApiCall(updateConnection, "POST");
 
     const handleSave = async () => {

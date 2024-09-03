@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useEffect } from "react";
+import React, { Suspense, useCallback, useContext, useEffect } from "react";
 import { FromDataContext } from ".";
 import { getActorsData } from "@/app/actors/api";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ import useSearch from "@/hooks/useSearch";
 import { Search } from "@/components/commom/search-bar";
 import useApiCall from "@/hooks/useApiCall";
 import Loading from "@/app/actors/loading";
-import { getSession } from "next-auth/react";
+import { WorkspaceDataContext } from "../workspace-provider";
 
 export type SearchProps = React.InputHTMLAttributes<HTMLInputElement>;
 
@@ -23,22 +23,21 @@ export type SearchProps = React.InputHTMLAttributes<HTMLInputElement>;
  */
 export default function SelectSource({ actorType }: { actorType: string }) {
     const { state, updateState, updateCombinedState } = React.useContext(FromDataContext);
-
+    const { curWorkspace } = useContext(WorkspaceDataContext);
     const [actors, setActors] = React.useState([]);
 
     const { data, loading, makeApiCall } = useApiCall(getActorsData);
 
     React.useEffect(() => {
         const fetchData = async () => {
-            const session = await getSession();
-            await makeApiCall(actorType, session.user.workspace_id);
+            await makeApiCall(actorType, curWorkspace.id);
         };
         fetchData();
     }, [actorType]);
 
     useEffect(() => {
         if (data) {
-            setActors(data);
+            setActors(data.actorData);
         }
     }, [data, setActors]);
 

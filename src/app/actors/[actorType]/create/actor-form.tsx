@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { ArrowLeftIcon, ArrowRightIcon, ChevronLeftIcon } from "@radix-ui/react-icons";
 import FormGenerator from "@/components/ClientComponents/FormGenerator/FormGenerator";
 import { getFormDataForSource, getActors, createActorInstance, getActorDocumentation } from "./api";
@@ -17,6 +17,7 @@ import CircularLoader from "@/components/ui/circularLoader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { WorkspaceDataContext } from "@/components/ClientComponents/workspace-provider";
 
 /**
  * Form structure for Creating/Editing an Actor
@@ -42,6 +43,7 @@ export default function ActorForm({
     // For form input values in both Edit and Create Mode
     const [formData, setFormData] = useState(null);
     const [actorDoc, setActorDoc] = useState(null);
+    const { curWorkspace } = useContext(WorkspaceDataContext);
 
     // ************************************************ Create Form Logic *****************************************************
     const [step, setStep] = useState(1);
@@ -63,7 +65,7 @@ export default function ActorForm({
         const session = await getSession();
 
         let apiData = {
-            workspace_id: session?.user?.workspace_id,
+            workspace_id: curWorkspace.id,
             actor_id: selectedActor,
             user_id: session?.user?.id,
             name: data["dat_name"],
@@ -72,7 +74,7 @@ export default function ActorForm({
             configuration: data,
         };
 
-        const res = await createInstanceApi(apiData, session.user.workspace_id);
+        const res = await createInstanceApi(apiData, curWorkspace.id);
         if (res.status !== 200) {
             setError(res.responseData.detail);
         }
@@ -170,10 +172,8 @@ export default function ActorForm({
      * @returns Actor's saved data to be edited
      */
     const load = useCallback(async () => {
-        const session = await getSession();
-        const data = await actorDataApi(actorId, session.user.workspace_id);
+        const data = await actorDataApi(actorId, curWorkspace.id);
         const jsonData = await actorSpecResApi(data?.actor.id);
-        console.log(jsonData);
 
         const pattern = /_/gi;
         const replacement = "-";
@@ -207,8 +207,8 @@ export default function ActorForm({
             configuration: savedData,
         };
         error && setError(null);
-        const session = await getSession();
-        const updateRes = await updateInstanceApi(actorId, apiData, session.user.workspace_id);
+
+        const updateRes = await updateInstanceApi(actorId, apiData, curWorkspace.id);
 
         if (updateRes.status === 200) {
             router.push(`/actors/${actorType}`);
