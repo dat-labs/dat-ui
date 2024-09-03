@@ -157,25 +157,26 @@ export default function FormGenerator({
             );
         }
 
+        const isRequired = checkrequired(field_name);
+
         return (
             <div
                 key={field_name}
                 className={clsx({ "border p-3 rounded-md": type === "object", hidden: uiOpts?.hidden === true })}
             >
                 <label htmlFor={field_name} className="flex flex-col space-y-1">
-                    <span className="text-md font-medium jus">{title}</span>
+                    <div className="flex gap-1">
+                        <span className="text-md font-medium jus">{title}</span>
+                        {isRequired && <span className="text-sm text-red-500">*</span>}
+                    </div>
+
                     {description && (
                         <div className="text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: description }}></div>
                     )}
 
                     {(type === "string" || uiOpts?.widget === "textbox") &&
                         (field.enum ? (
-                            <EnumField
-                                form={form}
-                                field_name={field_name}
-                                fieldEnum={field.enum}
-                                required={checkrequired(field_name)}
-                            />
+                            <EnumField form={form} field_name={field_name} fieldEnum={field.enum} required={isRequired} />
                         ) : (
                             <TextBox
                                 field={field}
@@ -183,7 +184,7 @@ export default function FormGenerator({
                                 field_name={field_name}
                                 defaultValue={defaultValue}
                                 uiOpts={uiOpts}
-                                required={checkrequired(field_name)}
+                                required={isRequired}
                             />
                         ))}
 
@@ -241,7 +242,7 @@ export default function FormGenerator({
     return (
         <>
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmitForm)} className="flex flex-col space-y-4 mr-8">
+                <form onSubmit={form.handleSubmit(onSubmitForm)} className="flex flex-col space-y-4">
                     <>{sortedProperties.map((field) => renderFormField(field))}</>
                     <Button type="submit" disabled={form.formState.isSubmitting}>
                         {form.formState.isSubmitting && <CircularLoader />}
