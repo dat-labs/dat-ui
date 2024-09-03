@@ -3,13 +3,12 @@
 import { memo, useEffect, useMemo, useState, useCallback } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "@/components/ClientComponents/data-table";
-import { getActorsData } from "./api";
 import { capitalizeFirstLetter, getIconComponent } from "@/lib/utils.ts";
-import { ConnectionActions } from "@/components/ClientComponents/action-button-groups";
 import ActorActions from "@/components/ClientComponents/action-button-groups/actor-actions";
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
 
 export type Actor = {
     id: string;
@@ -159,21 +158,27 @@ const getColumns = (actorType: string): ColumnDef<ActorInstanceData>[] => {
  */
 function ActorsTable({ actorType, loadData = [] }: { actorType: string; loadData: any }) {
     const columns = useMemo(() => getColumns(actorType), []);
+    const router = useRouter();
 
     /**
      * Handles row click events by navigating to a detailed view of the selected actor.
      * @param {any} row - The clicked row data.
      */
     const handleRowClick = (row: any) => {
-        // const currentUrl = router.asPath;
-        const currentUrl = window.location.href;
-
-        const newUrl = `${currentUrl}/${row?.original?.id}`;
-        window.location.href = newUrl;
-        // router.push(newUrl);
+        const actor_id = row?.original?.id;
+        const actorType = row?.original?.actor_type;
+        router.push(`/actors/${actorType}/${actor_id}`);
     };
 
-    return <DataTable actorType={actorType} columns={columns} data={loadData} searchTableKey={"configuration_dat_name"} clickHandler={handleRowClick} />;
+    return (
+        <DataTable
+            actorType={actorType}
+            columns={columns}
+            data={loadData}
+            searchTableKey={"configuration_dat_name"}
+            clickHandler={handleRowClick}
+        />
+    );
 }
 
 export default memo(ActorsTable);
