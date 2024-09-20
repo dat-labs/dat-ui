@@ -21,7 +21,7 @@ export default function Streams({ data }: { data: any }) {
     useEffect(() => {
         (async () => {
             const actorName = state.source?.value?.actor?.module_name?.replace("_", "-");
-            const docPath = `sources/${actorName}/stream-configuration`;
+            const docPath = `overview/core-concepts/stream`;
             await makeApiCall(docPath);
         })();
     }, []);
