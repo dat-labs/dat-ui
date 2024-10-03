@@ -1,15 +1,14 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import DataTable from "../data-table";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { FromDataContext } from ".";
+import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { FromDataContext } from ".";
 
 function EditSchemaPanel({ jsonSchema, name }: { jsonSchema: any; name: string }) {
-    const { state, updateState } = React.useContext(FromDataContext);
-
+    const { state, updateState } = useContext(FromDataContext);
     const [selectedSchemas, setSelectedSchemas] = useState([]);
-
+    
     const handleSwitchChange = (checked, fieldName, typeName) => {
         setSelectedSchemas((prevSelectedSchemas) => {
             let newSelectedSchemas;
@@ -69,9 +68,34 @@ function EditSchemaPanel({ jsonSchema, name }: { jsonSchema: any; name: string }
         });
     };
 
+    const handleUpsertKeyChange = (checked, fieldName) => {
+        const currentUpsertKeys = state.streams[name].configuration.upsert_keys || [];
+    
+        const newUpsertKeys = checked
+            ? [...currentUpsertKeys, fieldName]
+            : currentUpsertKeys.filter((key) => key !== fieldName);
+    
+        updateState("streams", {
+            ...state.streams,
+            [name]: {
+                ...state.streams[name],
+                configuration: {
+                    ...state.streams[name].configuration,
+                    upsert_keys: newUpsertKeys, 
+                },
+            },
+        });
+    };
+    
+
+    const isUpsertKeyChecked = (fieldName) => {
+        return state.streams[name]?.configuration?.upsert_keys?.includes(fieldName);
+    };
+
     const isChecked = (fieldName) => {
         return state.streams[name]?.configuration?.json_schema?.hasOwnProperty(fieldName);
     };
+
     const isCheckedAll = () => {
         const curSchema = state.streams[name]?.configuration?.json_schema;
         return Object.keys(jsonSchema).every((field) => curSchema?.hasOwnProperty(field));
@@ -142,6 +166,22 @@ function EditSchemaPanel({ jsonSchema, name }: { jsonSchema: any; name: string }
                         >
                             <RadioGroupItem value={fieldName} id={`cursor-${fieldName}`} />
                         </RadioGroup>
+                    </div>
+                );
+            },
+        },
+        {
+            header: "Upsert Key", 
+            cell: ({ row }: { row: any }) => {
+                const fieldName = row.original?.name;
+                const checked = isUpsertKeyChecked(fieldName);
+                return (
+                    <div className="flex items-center space-x-2">
+                        <Checkbox
+                            checked={checked}
+                            onCheckedChange={(checked) => handleUpsertKeyChange(checked, fieldName)}
+                            disabled={!state.streams[name]?.configuration?.json_schema?.hasOwnProperty(fieldName)} 
+                        />
                     </div>
                 );
             },

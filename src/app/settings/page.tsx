@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import AccountSettings from "./accountSettings";
 import PageBreadcrumb from "../page-breadcrumb";
 import AddUsers from "./addUsers";
+import SettingsTable from "./members";
+import Members from "./members";
 
 const navItems = [
     {
@@ -11,8 +13,8 @@ const navItems = [
         component: <AccountSettings />,
     },
     {
-        label: "Add users to Workspace",
-        component: <AddUsers />,
+        label: "Members",
+        component: <Members />,
     },
     // {
     //     label: "Invite Members",

@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import "./runLoader.css";
 import useApiCall from "@/hooks/useApiCall";
-import { manualRunConnection } from "@/app/connections/[connectionId]/api";
+import { manualRunConnection, updateConnection } from "@/app/connections/[connectionId]/api";
 import { toast } from "sonner";
 import CircularLoader from "@/components/ui/circularLoader";
 import { WorkspaceDataContext } from "../workspace-provider";
@@ -90,13 +90,37 @@ const EditConnectionComponent = ({ connectionData }) => {
         }
     };
 
-    const ToggleConnectionStatus = () => {
+    const { loading: updateLoading, makeApiCall: updateConnectionStatus } = useApiCall(updateConnection, "PUT");
+
+    const ToggleConnectionStatus = async () => {
         const curStatus = state.configuration.connectionStatus;
-        updateState("configuration", {
-            ...state.configuration,
-            connectionStatus: curStatus === "active" ? "inactive" : "active",
-        });
+        const newStatus = curStatus === "active" ? "inactive" : "active";
+        const updatedData = {
+            ...connectionData, 
+            status: newStatus,  // Updated status
+        };
+
+        const res = await updateConnectionStatus(connectionData.id, updatedData, curWorkspace.id);
+    
+        if (res.status === 200) {
+            toast.success("Connection status updated successfully!");
+            
+            updateState("configuration", {
+                ...state.configuration,
+                connectionStatus: newStatus,
+            });
+        } else {
+            toast.error("Failed to update connection status");
+        }
     };
+
+    // const ToggleConnectionStatus = () => {
+    //     const curStatus = state.configuration.connectionStatus;
+    //     updateState("configuration", {
+    //         ...state.configuration,
+    //         connectionStatus: curStatus === "active" ? "inactive" : "active",
+    //     });
+    // };
 
     return (
         <div>
