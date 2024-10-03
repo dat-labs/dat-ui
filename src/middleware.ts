@@ -24,6 +24,11 @@ export default async function middlware(request: NextRequest) {
 
     const users = await getUsersData();
 
+    if (users.data.length === 0 && request.nextUrl.pathname !== "/sign-up") {
+        const absoluteURL = new URL("/sign-up", request.nextUrl.origin);
+        return NextResponse.redirect(absoluteURL.toString());
+    }
+
     // const users = [
     //     {
     //         id: "09922bd9-7872-4664-99d0-08eae42fb554",
@@ -45,3 +50,6 @@ export default async function middlware(request: NextRequest) {
         return NextResponse.redirect(absoluteURL.toString());
     }
 }
+
+// stop redirecting static files
+export const config = { matcher: '/((?!.*\\.).*)' };
