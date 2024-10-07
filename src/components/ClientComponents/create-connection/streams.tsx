@@ -1,43 +1,54 @@
-import React, { useEffect, useState } from "react";
+// Streams.tsx
+import React, { useContext, useState, useEffect } from "react";
 import DataTable from "../data-table";
 import { Switch } from "@/components/ui/switch";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { FromDataContext } from ".";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import StreamPanel from "./StreamPanel";
+import EditSchemaPanel from "./editSchemaPanel";
 import useApiCall from "@/hooks/useApiCall";
 import { getActorDocumentation } from "@/app/actors/[actorType]/create/api";
-import EditSchemaPanel from "./editSchemaPanel";
 
 export default function Streams({ data }: { data: any }) {
-    const { state, updateState } = React.useContext(FromDataContext);
-
+    const { state, updateState } = useContext(FromDataContext);
+    
     const [streamDoc, setStreamDoc] = useState(null);
     const { data: docData, statusCode: docStatus, makeApiCall } = useApiCall(getActorDocumentation);
-
+    
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [activeRow, setActiveRow] = useState<any>(null);
+    const [currentStep, setCurrentStep] = useState(0);
+    const [isStepCompleted, setIsStepCompleted] = useState(false);
+
+    //  state to track if the documentation has been fetched
+    const [hasFetchedDoc, setHasFetchedDoc] = useState(false);
+    const [actorName, setActorName] = useState<string | null>(null);
 
     useEffect(() => {
-        (async () => {
-            const actorName = state.source?.value?.actor?.module_name?.replace("_", "-");
+        const newActorName = state.source?.value?.actor?.module_name?.replace("_", "-");
+        if (newActorName !== actorName) {
+            setActorName(newActorName);
+            setHasFetchedDoc(false);
+        }
+    }, [state.source, actorName]);
+
+    useEffect(() => {
+        if (actorName && !hasFetchedDoc) {
             const docPath = `overview/core-concepts/stream`;
-            await makeApiCall(docPath);
-        })();
-    }, []);
+            (async () => {
+                await makeApiCall(docPath);
+                setHasFetchedDoc(true);
+            })();
+        }
+    }, [makeApiCall, actorName, hasFetchedDoc]); 
 
     useEffect(() => {
         if (docData) {
             setStreamDoc(docData.responseData);
         }
-    }, [docData, setStreamDoc]);
-
-    const handleStreamConfigrationSave = (values: any, streamName: string) => {
-        updateState("streams", {
-            ...state.streams,
-            [streamName]: { ...state.streams[streamName], configuration: values },
-        });
-    };
+    }, [docData]);
 
     const handleRowClick = (row: any) => {
         handleDialogOpen(row);
@@ -46,11 +57,49 @@ export default function Streams({ data }: { data: any }) {
     const handleDialogOpen = (row: any) => {
         setActiveRow(row);
         setIsDialogOpen(true);
+        setCurrentStep(0);
+        setIsStepCompleted(false); 
     };
 
     const handleDialogClose = () => {
         setIsDialogOpen(false);
         setActiveRow(null);
+    };
+
+    const handleNextStep = () => {
+        if (isStepCompleted) { 
+            setCurrentStep((prevStep) => prevStep + 1);
+            setIsStepCompleted(false); // Reset step completion status for the next step
+        }
+    };
+
+    const handlePreviousStep = () => {
+        setCurrentStep((prevStep) => Math.max(prevStep - 1, 0)); 
+    };
+
+    const handleStreamConfigurationSave = (values: any, streamName: string) => {
+        const updatedConfiguration = {
+            json_schema: values.json_schema, 
+            upsert_keys: values.upsert_keys || [], 
+            cursor_field: values.cursor_field || "", 
+            name: streamName,
+            namespace: values.namespace || "", 
+            read_sync_mode: values.read_sync_mode || "FULL_REFRESH",
+            write_sync_mode: values.write_sync_mode || "UPSERT",
+            advanced: values.advanced || {}, 
+        };
+    
+        console.log(updatedConfiguration);
+    
+        updateState("streams", {
+            ...state.streams,
+            [streamName]: { ...state.streams[streamName], configuration: updatedConfiguration },
+        });
+    };
+
+    const handleStreamConfigurationSubmit = () => {
+        setIsStepCompleted(true);  // Mark step as completed
+        handleNextStep();  // Trigger next step
     };
 
     const columns = [
@@ -76,53 +125,7 @@ export default function Streams({ data }: { data: any }) {
             accessorKey: "name",
             header: "Stream Name",
         },
-        // {
-        //     id: "actions",
-        //     header: "Actions",
-        //     cell: ({ row }) => {
-        //         return (
-        //             <>
-        //                 <TooltipProvider>
-        //                     <Tooltip>
-        //                         <TooltipTrigger asChild>
-        //                             <Button
-        //                                 variant="outline"
-        //                                 size="icon"
-        //                                 disabled={!state.streams[row.getValue("name")]?.configured}
-        //                                 onClick={(event) => {
-        //                                     if (!state.streams[row.getValue("name")]?.configured) {
-        //                                         event.stopPropagation();
-        //                                         return;
-        //                                     }
-        //                                     handleDialogOpen(row);
-        //                                 }}
-        //                             >
-        //                                 <Pencil2Icon className="w-4 h-4" />
-        //                             </Button>
-        //                         </TooltipTrigger>
-        //                         <TooltipContent>
-        //                             <p>Edit stream configuration.</p>
-        //                         </TooltipContent>
-        //                     </Tooltip>
-        //                 </TooltipProvider>
-        //             </>
-        //         );
-        //     },
-        // },
     ];
-
-    const [activeTab, setActiveTab] = useState("stream");
-
-    const handleTabChangeAlert = (form: any) => {
-        if (form.formState.isDirty) {
-            const confirmSwitch = window.confirm("You have unsaved changes. Are you sure you want to leave this tab?");
-            if (!confirmSwitch) {
-                setActiveTab("stream");
-                return false;
-            }
-        }
-        return true;
-    };
 
     return (
         <div>
@@ -131,85 +134,84 @@ export default function Streams({ data }: { data: any }) {
             <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
                 {activeRow && (
                     <DialogContent className="size-10/12 flex flex-col max-w-none">
-                        <div className="flex items-center bg-secondary rounded border h-12 mx-4">
-                            <Switch
-                                className="ml-5"
-                                id={`configured-${activeRow.getValue("name")}`}
-                                checked={state.streams[activeRow.getValue("name")].configured}
-                                onCheckedChange={(ch: any) =>
-                                    updateState("streams", {
-                                        ...state.streams,
-                                        [activeRow.getValue("name")]: {
-                                            ...state.streams[activeRow.getValue("name")],
-                                            configured: ch,
-                                        },
-                                    })
-                                }
-                            />
-                            <div className="flex flex-1 justify-center items-center text-muted-foreground">
-                                <p className="text-md text-foreground font-semibold">
-                                    Configure <span className="font-bold">{activeRow?.original?.name}</span> Stream
-                                </p>
+                        {/* Stepper */}
+                        <div className="w-full mb-4">
+                            <div className="flex justify-start gap-5">
+                                {/* Step titles */}
+                                {["Configuration", "Edit Schema"].map((stepTitle, index) => (
+                                    <div key={index} className="flex items-center">
+                                        <div
+                                            className={`w-5 h-5 rounded-full ${
+                                                index === currentStep
+                                                    ? "bg-primary text-primary-foreground"
+                                                    : index < currentStep
+                                                    ? "dark:bg-green-500 bg-green-400"
+                                                    : "bg-gray-300"
+                                            } flex items-center justify-center`}
+                                        >
+                                            {index < currentStep ? (
+                                                <span className="text-sm font-bold">&#10003;</span>
+                                            ) : (
+                                                index + 1
+                                            )}
+                                        </div>
+                                        <span className="ml-2 text-sm">{stepTitle}</span>
+                                        {index < 1 && ( 
+                                            <img
+                                                width="15"
+                                                height="10px"
+                                                alt="separator icon"
+                                                className="h-3 w-3 ml-4"
+                                                src="https://cdn0.iconfinder.com/data/icons/mintab-outline-for-ios-4/30/toward-forward-more-than-angle-bracket-512.png"
+                                            />
+                                        )}
+                                    </div>
+                                ))}
                             </div>
+                            <Separator className="mt-3" />
                         </div>
 
                         <div className="h-full justify-start overflow-hidden mx-4">
-                            {activeRow?.original?.streamProperties?.properties?.json_schema?.default &&
-                            activeRow?.original?.streamProperties?.properties?.json_schema?.default[activeRow?.original?.name]
-                                ?.properties ? (
-                                <Tabs value={activeTab} className="w-full h-full">
-                                    <div className="flex justify-center">
-                                        <TabsList className="w-full border">
-                                            <TabsTrigger
-                                                value="stream"
-                                                onClick={() => setActiveTab("stream")}
-                                                className="w-full text-md py-1"
-                                            >
-                                                Edit Stream Configuration
-                                            </TabsTrigger>
-                                            <TabsTrigger
-                                                value="schema"
-                                                onClick={() => setActiveTab("schema")}
-                                                className="w-full text-md py-1"
-                                            >
-                                                Edit Schema
-                                            </TabsTrigger>
-                                        </TabsList>
-                                    </div>
-
-                                    <TabsContent value="stream" className="w-full h-full">
-                                        <StreamPanel
-                                            srcDocs={docStatus === 200 ? streamDoc : ""}
-                                            handleDialogClose={handleDialogClose}
-                                            row={activeRow}
-                                            handleStreamConfigrationSave={handleStreamConfigrationSave}
-                                            state={state}
-                                            handleTabChange={handleTabChangeAlert}
-                                            currentTab={activeTab}
-                                        />
-                                    </TabsContent>
-
-                                    <TabsContent value="schema" className="w-full h-full">
-                                        <EditSchemaPanel
-                                            jsonSchema={
-                                                activeRow.original.streamProperties?.properties?.json_schema?.default[
-                                                    activeRow?.original?.name
-                                                ].properties
-                                            }
-                                            name={activeRow.getValue("name")}
-                                        />
-                                    </TabsContent>
-                                </Tabs>
-                            ) : (
+                            {currentStep === 0 ? (
                                 <StreamPanel
                                     srcDocs={docStatus === 200 ? streamDoc : ""}
                                     handleDialogClose={handleDialogClose}
                                     row={activeRow}
-                                    handleStreamConfigrationSave={handleStreamConfigrationSave}
                                     state={state}
-                                    handleTabChange={handleTabChangeAlert}
-                                    currentTab={activeTab}
+                                    handleStreamConfigurationSubmit={handleStreamConfigurationSubmit} // Pass handleStreamConfigurationSubmit
                                 />
+                            ) : (
+                                <EditSchemaPanel
+                                    jsonSchema={
+                                        activeRow.original.streamProperties?.properties?.json_schema?.default[
+                                            activeRow?.original?.name
+                                        ]?.properties
+                                    }
+                                    name={activeRow.getValue("name")}
+                                />
+                            )}
+                        </div>
+
+                        <div className="flex justify-between mt-4">
+                            {currentStep > 0 && (
+                                <Button variant="outline" onClick={handlePreviousStep}>
+                                    Back
+                                </Button>
+                            )}
+                            {currentStep < 1 ? (
+                                <Button onClick={handleNextStep} disabled={!isStepCompleted}>
+                                    Next
+                                </Button>
+                            ) : (
+                                <Button onClick={() => {
+                                    const streamName = activeRow?.getValue("name"); 
+                                    const configuration = state.streams[streamName]?.configuration; 
+
+                                    handleStreamConfigurationSave(configuration, streamName);
+                                    handleDialogClose();
+                                }}>
+                                    Save & Close
+                                </Button>
                             )}
                         </div>
                     </DialogContent>
