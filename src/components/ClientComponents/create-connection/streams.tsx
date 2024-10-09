@@ -1,4 +1,3 @@
-// Streams.tsx
 import React, { useContext, useState, useEffect } from "react";
 import DataTable from "../data-table";
 import { Switch } from "@/components/ui/switch";
@@ -10,6 +9,7 @@ import StreamPanel from "./StreamPanel";
 import EditSchemaPanel from "./editSchemaPanel";
 import useApiCall from "@/hooks/useApiCall";
 import { getActorDocumentation } from "@/app/actors/[actorType]/create/api";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"; // Import your custom Alert component
 
 export default function Streams({ data }: { data: any }) {
     const { state, updateState } = useContext(FromDataContext);
@@ -22,7 +22,6 @@ export default function Streams({ data }: { data: any }) {
     const [currentStep, setCurrentStep] = useState(0);
     const [isStepCompleted, setIsStepCompleted] = useState(false);
 
-    //  state to track if the documentation has been fetched
     const [hasFetchedDoc, setHasFetchedDoc] = useState(false);
     const [actorName, setActorName] = useState<string | null>(null);
 
@@ -67,10 +66,8 @@ export default function Streams({ data }: { data: any }) {
     };
 
     const handleNextStep = () => {
-        if (isStepCompleted) { 
-            setCurrentStep((prevStep) => prevStep + 1);
-            setIsStepCompleted(false); // Reset step completion status for the next step
-        }
+        setCurrentStep((prevStep) => prevStep + 1); // Move to Step 2 without validation
+        setIsStepCompleted(false); // Reset step completion
     };
 
     const handlePreviousStep = () => {
@@ -78,29 +75,13 @@ export default function Streams({ data }: { data: any }) {
     };
 
     const handleStreamConfigurationSave = (values: any, streamName: string) => {
-        const updatedConfiguration = {
-            json_schema: values.json_schema, 
-            upsert_keys: values.upsert_keys || [], 
-            cursor_field: values.cursor_field || "", 
-            name: streamName,
-            namespace: values.namespace || "", 
-            read_sync_mode: values.read_sync_mode || "FULL_REFRESH",
-            write_sync_mode: values.write_sync_mode || "UPSERT",
-            advanced: values.advanced || {}, 
-        };
-    
-        console.log(updatedConfiguration);
-    
         updateState("streams", {
             ...state.streams,
-            [streamName]: { ...state.streams[streamName], configuration: updatedConfiguration },
+            [streamName]: { ...state.streams[streamName], configuration: values },
         });
     };
 
-    const handleStreamConfigurationSubmit = () => {
-        setIsStepCompleted(true);  // Mark step as completed
-        handleNextStep();  // Trigger next step
-    };
+    
 
     const columns = [
         {
@@ -110,13 +91,17 @@ export default function Streams({ data }: { data: any }) {
                     <Switch
                         id={`configured-${row.getValue("name")}`}
                         checked={row.original.configured}
-                        onClick={(e) => e.stopPropagation()}
-                        onCheckedChange={(ch: any) =>
+                        onClick={(e) => e.stopPropagation()} 
+                        onCheckedChange={(checked: any) => {
                             updateState("streams", {
                                 ...state.streams,
-                                [row.getValue("name")]: { ...state.streams[row.getValue("name")], configured: ch },
-                            })
-                        }
+                                [row.getValue("name")]: { ...state.streams[row.getValue("name")], configured: checked },
+                            });
+    
+                            if (checked) {
+                                handleRowClick(row); 
+                            }
+                        }}
                     />
                 );
             },
@@ -134,86 +119,106 @@ export default function Streams({ data }: { data: any }) {
             <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
                 {activeRow && (
                     <DialogContent className="size-10/12 flex flex-col max-w-none">
-                        {/* Stepper */}
-                        <div className="w-full mb-4">
-                            <div className="flex justify-start gap-5">
-                                {/* Step titles */}
-                                {["Configuration", "Edit Schema"].map((stepTitle, index) => (
-                                    <div key={index} className="flex items-center">
-                                        <div
-                                            className={`w-5 h-5 rounded-full ${
-                                                index === currentStep
-                                                    ? "bg-primary text-primary-foreground"
-                                                    : index < currentStep
-                                                    ? "dark:bg-green-500 bg-green-400"
-                                                    : "bg-gray-300"
-                                            } flex items-center justify-center`}
-                                        >
-                                            {index < currentStep ? (
-                                                <span className="text-sm font-bold">&#10003;</span>
-                                            ) : (
-                                                index + 1
-                                            )}
-                                        </div>
-                                        <span className="ml-2 text-sm">{stepTitle}</span>
-                                        {index < 1 && ( 
-                                            <img
-                                                width="15"
-                                                height="10px"
-                                                alt="separator icon"
-                                                className="h-3 w-3 ml-4"
-                                                src="https://cdn0.iconfinder.com/data/icons/mintab-outline-for-ios-4/30/toward-forward-more-than-angle-bracket-512.png"
-                                            />
-                                        )}
-                                    </div>
-                                ))}
+                          <div className="flex items-center bg-secondary rounded border h-12 mx-4">
+                            <Switch
+                                className="ml-5"
+                                id={`configured-${activeRow.getValue("name")}`}
+                                checked={state.streams[activeRow.getValue("name")].configured}
+                                onCheckedChange={(ch: any) =>
+                                    updateState("streams", {
+                                        ...state.streams,
+                                        [activeRow.getValue("name")]: {
+                                            ...state.streams[activeRow.getValue("name")],
+                                            configured: ch,
+                                        },
+                                    })
+                                }
+                            />
+                            <div className="flex flex-1 justify-center items-center text-muted-foreground">
+                                <p className="text-md text-foreground font-semibold">
+                                    Configure <span className="font-bold">{activeRow?.original?.name}</span> Stream
+                                </p>
                             </div>
-                            <Separator className="mt-3" />
                         </div>
+                        {/* Conditional Rendering Based on json_schema Check */}
+                        {activeRow?.original?.streamProperties?.properties?.json_schema?.default &&
+                        activeRow?.original?.streamProperties?.properties?.json_schema?.default[activeRow?.original?.name]?.properties ? (
+                            <>
+                               
+                                <div className="mx-4 mb-4">
+                                    <div className="flex justify-start gap-5">
+                                        {["Configuration", "Edit Schema"].map((stepTitle, index) => (
+                                            <div key={index} className="flex items-center">
+                                                <div
+                                                    className={`w-5 h-5 rounded-full ${
+                                                        index === currentStep
+                                                            ? "bg-primary text-primary-foreground"
+                                                            : index < currentStep
+                                                            ? "dark:bg-green-500 bg-green-400"
+                                                            : "bg-gray-300"
+                                                    } flex items-center justify-center`}
+                                                >
+                                                    {index < currentStep ? (
+                                                        <span className="text-sm font-bold">&#10003;</span>
+                                                    ) : (
+                                                        index + 1
+                                                    )}
+                                                </div>
+                                                <span className="ml-2 text-sm">{stepTitle}</span>
+                                                {index < 1 && (
+                                                    <img
+                                                        width="15"
+                                                        height="10px"
+                                                        alt="separator icon"
+                                                        className="h-3 w-3 ml-4"
+                                                        src="https://cdn0.iconfinder.com/data/icons/mintab-outline-for-ios-4/30/toward-forward-more-than-angle-bracket-512.png"
+                                                    />
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <Separator className="mt-3" />
+                                </div>
 
-                        <div className="h-full justify-start overflow-hidden mx-4">
-                            {currentStep === 0 ? (
-                                <StreamPanel
-                                    srcDocs={docStatus === 200 ? streamDoc : ""}
-                                    handleDialogClose={handleDialogClose}
-                                    row={activeRow}
-                                    state={state}
-                                    handleStreamConfigurationSubmit={handleStreamConfigurationSubmit} // Pass handleStreamConfigurationSubmit
-                                />
-                            ) : (
-                                <EditSchemaPanel
-                                    jsonSchema={
-                                        activeRow.original.streamProperties?.properties?.json_schema?.default[
-                                            activeRow?.original?.name
-                                        ]?.properties
-                                    }
-                                    name={activeRow.getValue("name")}
-                                />
-                            )}
-                        </div>
+                                <div className="h-full justify-start overflow-hidden mx-4">
+                                       
+                                    {currentStep === 0 ? (
+                                        <StreamPanel
+                                            srcDocs={docStatus === 200 ? streamDoc : ""}
+                                            handleDialogClose={handleDialogClose}
+                                            row={activeRow}
+                                            state={state}
+                                            handleNextStep={handleNextStep}
+                                            handleStreamConfigurationSave={handleStreamConfigurationSave}
+                                        />
+                                    ) : (
+                                        
+                                        <EditSchemaPanel
+                                            jsonSchema={
+                                                activeRow.original.streamProperties?.properties?.json_schema?.default[
+                                                    activeRow?.original?.name
+                                                ]?.properties
+                                            }
+                                            name={activeRow.getValue("name")}
+                                            handleStreamConfigurationSave={handleStreamConfigurationSave}
+                                            handlePreviousStep={handlePreviousStep}
+                                            handleDialogClose={handleDialogClose}
+                                        />
+                                    )}
 
-                        <div className="flex justify-between mt-4">
-                            {currentStep > 0 && (
-                                <Button variant="outline" onClick={handlePreviousStep}>
-                                    Back
-                                </Button>
-                            )}
-                            {currentStep < 1 ? (
-                                <Button onClick={handleNextStep} disabled={!isStepCompleted}>
-                                    Next
-                                </Button>
-                            ) : (
-                                <Button onClick={() => {
-                                    const streamName = activeRow?.getValue("name"); 
-                                    const configuration = state.streams[streamName]?.configuration; 
+                                
+                                </div>
 
-                                    handleStreamConfigurationSave(configuration, streamName);
-                                    handleDialogClose();
-                                }}>
-                                    Save & Close
-                                </Button>
-                            )}
-                        </div>
+                            </>
+                        ) : (
+                            <StreamPanel
+                                srcDocs={docStatus === 200 ? streamDoc : ""}
+                                handleDialogClose={handleDialogClose}
+                                row={activeRow}
+                                state={state}
+                                handleStreamConfigurationSave={handleStreamConfigurationSave}
+                            />
+                        )}
                     </DialogContent>
                 )}
             </Dialog>

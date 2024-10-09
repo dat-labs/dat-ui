@@ -4,11 +4,26 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { FromDataContext } from ".";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { toast } from "sonner";
 
-function EditSchemaPanel({ jsonSchema, name }: { jsonSchema: any; name: string }) {
-    const { state, updateState } = useContext(FromDataContext);
+function EditSchemaPanel({
+    jsonSchema,
+    name,
+    handleStreamConfigurationSave,
+    handlePreviousStep,
+    handleDialogClose
+}: {
+    jsonSchema: any;
+    name: string;
+    handleStreamConfigurationSave: (values: any, streamName: string) => void;
+    handlePreviousStep: () => void;
+    handleDialogClose: any;
+}) {
+    const { state } = useContext(FromDataContext);
     const [selectedSchemas, setSelectedSchemas] = useState([]);
-    
+
     const handleSwitchChange = (checked, fieldName, typeName) => {
         setSelectedSchemas((prevSelectedSchemas) => {
             let newSelectedSchemas;
@@ -34,59 +49,58 @@ function EditSchemaPanel({ jsonSchema, name }: { jsonSchema: any; name: string }
                 }
             }
 
-            updateState("streams", {
-                ...state.streams,
-                [name]: {
-                    ...state.streams[name],
-                    configuration: {
-                        ...state.streams[name].configuration,
-                        json_schema: newJsonSchema,
-                    },
-                },
-            });
+            const updatedUpsertKeys = state.streams[name]?.configuration?.upsert_keys?.filter(
+                (key) => key !== fieldName
+            );
 
+            const updatedConfiguration = {
+                ...state.streams[name].configuration,
+                json_schema: newJsonSchema,
+                upsert_keys: updatedUpsertKeys, // Update upsert keys
+
+            };
+
+            handleStreamConfigurationSave(updatedConfiguration, name);
             return newSelectedSchemas;
         });
     };
 
     const handleHeaderSwitchChange = (checked) => {
         const newJsonSchema = checked ? jsonSchema : {};
-
         if (!checked) {
             state.streams[name].configuration.cursor_field = null;
         }
 
-        updateState("streams", {
-            ...state.streams,
-            [name]: {
-                ...state.streams[name],
-                configuration: {
-                    ...state.streams[name].configuration,
-                    json_schema: newJsonSchema,
-                },
-            },
-        });
+        const updatedConfiguration = {
+            ...state.streams[name].configuration,
+            json_schema: newJsonSchema,
+        };
+
+        handleStreamConfigurationSave(updatedConfiguration, name);
     };
 
     const handleUpsertKeyChange = (checked, fieldName) => {
         const currentUpsertKeys = state.streams[name].configuration.upsert_keys || [];
-    
         const newUpsertKeys = checked
             ? [...currentUpsertKeys, fieldName]
             : currentUpsertKeys.filter((key) => key !== fieldName);
-    
-        updateState("streams", {
-            ...state.streams,
-            [name]: {
-                ...state.streams[name],
-                configuration: {
-                    ...state.streams[name].configuration,
-                    upsert_keys: newUpsertKeys, 
-                },
-            },
-        });
+
+        const updatedConfiguration = {
+            ...state.streams[name].configuration,
+            upsert_keys: newUpsertKeys,
+        };
+
+        handleStreamConfigurationSave(updatedConfiguration, name);
     };
-    
+
+    const handleCursorFieldChange = (value) => {
+        const updatedConfiguration = {
+            ...state.streams[name].configuration,
+            cursor_field: value,
+        };
+
+        handleStreamConfigurationSave(updatedConfiguration, name);
+    };
 
     const isUpsertKeyChecked = (fieldName) => {
         return state.streams[name]?.configuration?.upsert_keys?.includes(fieldName);
@@ -151,18 +165,7 @@ function EditSchemaPanel({ jsonSchema, name }: { jsonSchema: any; name: string }
                         <RadioGroup
                             disabled={!state.streams[name]?.configuration?.json_schema?.hasOwnProperty(fieldName)}
                             value={state.streams[name]?.configuration?.cursor_field}
-                            onValueChange={(value) => {
-                                updateState("streams", {
-                                    ...state.streams,
-                                    [name]: {
-                                        ...state.streams[name],
-                                        configuration: {
-                                            ...state.streams[name].configuration,
-                                            cursor_field: value,
-                                        },
-                                    },
-                                });
-                            }}
+                            onValueChange={(value) => handleCursorFieldChange(value)}
                         >
                             <RadioGroupItem value={fieldName} id={`cursor-${fieldName}`} />
                         </RadioGroup>
@@ -171,7 +174,7 @@ function EditSchemaPanel({ jsonSchema, name }: { jsonSchema: any; name: string }
             },
         },
         {
-            header: "Upsert Key", 
+            header: "Upsert Key",
             cell: ({ row }: { row: any }) => {
                 const fieldName = row.original?.name;
                 const checked = isUpsertKeyChecked(fieldName);
@@ -180,7 +183,7 @@ function EditSchemaPanel({ jsonSchema, name }: { jsonSchema: any; name: string }
                         <Checkbox
                             checked={checked}
                             onCheckedChange={(checked) => handleUpsertKeyChange(checked, fieldName)}
-                            disabled={!state.streams[name]?.configuration?.json_schema?.hasOwnProperty(fieldName)} 
+                            disabled={!state.streams[name]?.configuration?.json_schema?.hasOwnProperty(fieldName)}
                         />
                     </div>
                 );
@@ -196,11 +199,38 @@ function EditSchemaPanel({ jsonSchema, name }: { jsonSchema: any; name: string }
         }));
     };
 
+    const handleSaveAndClose = () => {
+        const config = state.streams[name]?.configuration;
+
+        if (config?.read_sync_mode === "INCREMENTAL" && !config?.cursor_field) {
+            toast.error("Please select a cursor field for incremental sync.");
+            return;
+        }
+
+        if (config?.write_sync_mode === "UPSERT" && (!config?.upsert_keys || config?.upsert_keys.length === 0)) {
+            toast.error("Please select at least one upsert key for upsert sync.");
+            return;
+        }
+
+        handleDialogClose(); 
+    };
+
+
     const schemaArr = convertToArray(jsonSchema);
 
     return (
         <div className="p-2">
             <DataTable actorType="Field Name" columns={columns} data={schemaArr} inDialog={true} />
+            
+            {/* Buttons Section */}
+            <div className="mt-4 flex justify-between items-center">
+                <Button onClick={handlePreviousStep} className="mr-2">
+                    Back
+                </Button>
+                <Button onClick={handleSaveAndClose}>
+                    Save and Close
+                </Button>
+            </div>
         </div>
     );
 }
