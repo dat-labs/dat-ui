@@ -59,7 +59,7 @@ export default function FormGenerator({
         await onSubmit(data);
         form.reset();
     };
-
+    console.log("Form", form);
     useEffect(() => {
         if (currentTab && form.formState.isDirty) {
             console.log(currentTab);
@@ -158,6 +158,7 @@ export default function FormGenerator({
         }
 
         const isRequired = checkrequired(field_name);
+        console.log("IsRequired" + field_name, isRequired);
 
         return (
             <div
@@ -220,6 +221,7 @@ export default function FormGenerator({
                             field_name={field_name}
                             description={description}
                             defaultValue={defaultValue}
+                            required={isRequired}
                         />
                     )}
 
