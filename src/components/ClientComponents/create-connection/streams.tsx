@@ -2,14 +2,12 @@ import React, { useContext, useState, useEffect } from "react";
 import DataTable from "../data-table";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { FromDataContext } from ".";
 import StreamPanel from "./StreamPanel";
 import EditSchemaPanel from "./editSchemaPanel";
 import useApiCall from "@/hooks/useApiCall";
 import { getActorDocumentation } from "@/app/actors/[actorType]/create/api";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"; // Import your custom Alert component
 
 export default function Streams({ data }: { data: any }) {
     const { state, updateState } = useContext(FromDataContext);

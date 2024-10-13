@@ -60,3 +60,13 @@
         @apply bg-background text-foreground;
     }
 }
+
+.toast-error {
+    background-color: #f44336 !important; 
+    color: white !important; 
+  }
+  
+  .toast-error button {
+    color: white !important;
+  }
+  

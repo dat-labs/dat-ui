@@ -12,9 +12,7 @@ interface StreamPanelProps {
     handleStreamConfigurationSave: (values: any, streamName: string) => void;
     state: any;
     handleDialogClose: any;
-    handleTabChange?: any;
-    currentTab?: any;
-    handleNextStep: () => void;
+    handleNextStep?: () => void; 
 }
 
 const StreamPanel: React.FC<StreamPanelProps> = ({
@@ -23,22 +21,9 @@ const StreamPanel: React.FC<StreamPanelProps> = ({
     handleStreamConfigurationSave,
     handleDialogClose,
     handleNextStep,
-    handleTabChange,
-    currentTab,
 }) => {
     const { state, updateState } = useContext(FromDataContext);
-    const [formError, setFormError] = useState<string | null>(null); // State to store form errors
-
-    const validateForm = (values: any) => {
-        for (const key in values) {
-            if (values[key] === "" || values[key] === null || values[key] === undefined) {
-                return false; 
-            }
-        }
-
-        return true;
-    };
-
+    const [formError, setFormError] = useState<string | null>(null); 
     return (
         <ResizablePanelGroup direction="horizontal" className="w-full h-full">
             <ResizablePanel defaultSize={srcDocs ? 50 : 100} minSize={30} className="h-full">
@@ -52,12 +37,9 @@ const StreamPanel: React.FC<StreamPanelProps> = ({
                                             ([key]) => key !== "upsert_keys" && key !== "cursor_field" && key !== "json_schema"
                                         )
                                     )}
+                                    required_fields={row.original.streamProperties.properties.required}
                                     defaultData={state.streams[row.getValue("name")]?.configuration}
                                     onSubmit={(values: any) => {
-                                        if (!validateForm(values)) {
-                                            setFormError("All fields are required");
-                                            return;
-                                        }
 
                                         const streamName = row.getValue("name");
                                         const updatedConfiguration = {

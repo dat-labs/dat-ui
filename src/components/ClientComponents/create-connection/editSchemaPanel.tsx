@@ -203,12 +203,16 @@ function EditSchemaPanel({
         const config = state.streams[name]?.configuration;
 
         if (config?.read_sync_mode === "INCREMENTAL" && !config?.cursor_field) {
-            toast.error("Please select a cursor field for incremental sync.");
+            toast.error("Please select a cursor field for incremental sync.",{
+                className: 'toast-error' // Apply custom error class here
+            });
             return;
         }
 
         if (config?.write_sync_mode === "UPSERT" && (!config?.upsert_keys || config?.upsert_keys.length === 0)) {
-            toast.error("Please select at least one upsert key for upsert sync.");
+            toast.error("Please select at least one upsert key for upsert sync.",{
+                className: 'toast-error' // Apply custom error class here
+            });
             return;
         }
 
