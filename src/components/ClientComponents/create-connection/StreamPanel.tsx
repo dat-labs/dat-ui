@@ -1,29 +1,29 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import FormGenerator from "../FormGenerator";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import DocWrapper from "@/components/commom/doc-wrapper";
+import { FromDataContext } from ".";
 
 interface StreamPanelProps {
     srcDocs: string | null;
     row: any;
-    handleStreamConfigrationSave: (values: any, streamName: string) => void;
+    handleStreamConfigurationSave: (values: any, streamName: string) => void;
     state: any;
     handleDialogClose: any;
-    handleTabChange?: any;
-    currentTab?: any;
+    handleNextStep?: () => void; 
 }
 
 const StreamPanel: React.FC<StreamPanelProps> = ({
     srcDocs,
     row,
-    handleStreamConfigrationSave,
-    state,
+    handleStreamConfigurationSave,
     handleDialogClose,
-    handleTabChange,
-    currentTab,
+    handleNextStep,
 }) => {
+    const { state, updateState } = useContext(FromDataContext);
+    const [formError, setFormError] = useState<string | null>(null); 
     return (
         <ResizablePanelGroup direction="horizontal" className="w-full h-full">
             <ResizablePanel defaultSize={srcDocs ? 50 : 100} minSize={30} className="h-full">
@@ -32,17 +32,50 @@ const StreamPanel: React.FC<StreamPanelProps> = ({
                         <Card className="mt-2 mb-12">
                             <CardContent>
                                 <FormGenerator
-                                    properties={row.original.streamProperties.properties}
-                                    required_fields={row.original.streamProperties.required}
+                                    properties={Object.fromEntries(
+                                        Object.entries(row.original.streamProperties.properties).filter(
+                                            ([key]) => key !== "upsert_keys" && key !== "cursor_field" && key !== "json_schema"
+                                        )
+                                    )}
+                                    required_fields={row.original.streamProperties.properties.required}
                                     defaultData={state.streams[row.getValue("name")]?.configuration}
                                     onSubmit={(values: any) => {
-                                        handleStreamConfigrationSave(values, row.getValue("name"));
-                                        handleDialogClose();
+
+                                        const streamName = row.getValue("name");
+                                        const updatedConfiguration = {
+                                            ...state.streams[streamName]?.configuration,
+                                            ...Object.fromEntries(
+                                                Object.entries(values).filter(
+                                                    ([key]) =>
+                                                        key !== "upsert_keys" && key !== "cursor_field" && key !== "json_schema"
+                                                )
+                                            ),
+                                        };
+
+                                        updateState("streams", {
+                                            ...state.streams,
+                                            [streamName]: {
+                                                ...state.streams[streamName],
+                                                configuration: updatedConfiguration,
+                                            },
+                                        });
+
+                                        if (
+                                            row?.original?.streamProperties?.properties?.json_schema?.default &&
+                                            row?.original?.streamProperties?.properties?.json_schema?.default[streamName]
+                                                ?.properties
+                                        ) {
+                                            handleStreamConfigurationSave(updatedConfiguration, streamName);
+                                            handleNextStep();
+                                        } else {
+                                            handleStreamConfigurationSave(updatedConfiguration, streamName);
+                                            handleDialogClose();
+                                        }
                                     }}
-                                    submitButtonText="Save"
-                                    tabChangeAlert={handleTabChange}
-                                    currentTab={currentTab}
                                 />
+
+                                {/* Error Message */}
+                                {formError && <p className="text-red-500 mt-2">{formError}</p>}
                             </CardContent>
                         </Card>
                     </div>

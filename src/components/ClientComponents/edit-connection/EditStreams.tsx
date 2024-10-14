@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import ConnectionConfiguration from "../create-connection/connection-configuration";
 import { FromDataContext, getStremsData } from "../create-connection";
 import { Button } from "@/components/ui/button";
@@ -65,15 +65,22 @@ export default function EditStreams({ connectionData }) {
             const res = await makeApiCall(connectionData.id, patchData, session?.user?.workspace_id);
 
             if (res.status === 200) {
-                toast(`Connection updated successfully.`);
-                router.push("/connections");
+                toast.success(`Connection updated successfully.`);
             } else {
                 toast.error("Failed to Update Connection");
             }
         }
     };
 
-    React.useEffect(() => {
+    useEffect(() => {
+        if (saveError) {
+            toast.error(saveError, {
+                className: "toast-error",
+            });
+        }
+    }, [saveError]);
+
+    useEffect(() => {
         if (state.configuration.name === null || state.configuration.schedule === null) {
             let scheduleText, cronExpression;
             if (connectionData.schedule.cron.advanced_scheduling === "Advanced Scheduling") {
@@ -106,7 +113,6 @@ export default function EditStreams({ connectionData }) {
                         {loading && <CircularLoader />}Save
                     </Button>
                 </div>
-                {saveError && <p className="text-red-600 text-center mb-2">{saveError}</p>}
             </div>
         </div>
     );
