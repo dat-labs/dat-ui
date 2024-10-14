@@ -101,29 +101,6 @@ function EditSchemaPanel({
 
         handleStreamConfigurationSave(updatedConfiguration, name);
     };
-
-    const isUpsertKeyChecked = (fieldName) => {
-        return state.streams[name]?.configuration?.upsert_keys?.includes(fieldName);
-    };
-
-    const handleUpsertKeyChange = (checked, fieldName) => {
-        const currentUpsertKeys = state.streams[name].configuration.upsert_keys || [];
-    
-        const newUpsertKeys = checked
-            ? [...currentUpsertKeys, fieldName]
-            : currentUpsertKeys.filter((key) => key !== fieldName);
-    
-        updateState("streams", {
-            ...state.streams,
-            [name]: {
-                ...state.streams[name],
-                configuration: {
-                    ...state.streams[name].configuration,
-                    upsert_keys: newUpsertKeys, 
-                },
-            },
-        });
-    };
     
 
     const isUpsertKeyChecked = (fieldName) => {
