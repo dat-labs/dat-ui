@@ -3,7 +3,7 @@ import { useFormContext } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import Chip from "@/components/commom/chip";
 
-export default function TextArray({ field_name, description, defaultValue }) {
+export default function TextArray({ field_name, description, defaultValue, required = false }) {
     const { setValue, watch, register } = useFormContext();
 
     const values = watch(field_name) || [];
@@ -33,7 +33,9 @@ export default function TextArray({ field_name, description, defaultValue }) {
     };
 
     useEffect(() => {
-        register(field_name, { required: `Add required ${field_name}` });
+        if (required){
+            register(field_name, { required: `Add required ${field_name}` });
+        }
     }, [field_name, register]);
 
     return (
