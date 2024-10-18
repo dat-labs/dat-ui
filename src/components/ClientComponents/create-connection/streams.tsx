@@ -64,8 +64,8 @@ export default function Streams({ data }: { data: any }) {
     };
 
     const handleNextStep = () => {
-        setCurrentStep((prevStep) => prevStep + 1); // Move to Step 2 without validation
-        setIsStepCompleted(false); // Reset step completion
+        setCurrentStep((prevStep) => prevStep + 1); 
+        setIsStepCompleted(false);
     };
 
     const handlePreviousStep = () => {
@@ -116,7 +116,7 @@ export default function Streams({ data }: { data: any }) {
 
             <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
                 {activeRow && (
-                    <DialogContent className="size-10/12 flex flex-col max-w-none">
+                    <DialogContent aria-describedby="configure-streams" className="size-10/12 flex flex-col max-w-none">
                           <div className="flex items-center bg-secondary rounded border h-12 mx-4">
                             <Switch
                                 className="ml-5"

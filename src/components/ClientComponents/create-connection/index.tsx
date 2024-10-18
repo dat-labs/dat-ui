@@ -12,6 +12,7 @@ import { getSession } from "next-auth/react";
 import { toast } from "sonner";
 import { getCronString } from "@/lib/utils";
 import useCheckConnection from "@/hooks/checkConnectionError";
+import CircularLoader from "@/components/ui/circularLoader";
 
 const formDataValue = {
     step: 1,
@@ -115,21 +116,25 @@ export const getStremsData = (streamsObj: any) => {
 const FormComponent = () => {
     const { state, updateState } = React.useContext(FromDataContext);
     const { saveError, checkConnectionForError } = useCheckConnection(state);
-    const checkActorApiCall = useApiCall(checkActor, "GET");  
+    const checkActorApiCall = useApiCall(checkActor, "GET"); 
+    const [loading, setLoading] = useState(false); 
 
     const handleNext = async () => {
         const actor = state[state.step === 1 ? "source" : state.step === 2 ? "generator" : "destination"].value;
         const session = await getSession();
-        try {
-            const response = await checkActor(actor.id, session.user.workspace_id);
-            if (response.ok) {
-                updateState("step", state.step + 1);
-            } else {
-                toast.error(`Actor failed the validation`);
-            }
-        } catch (error) {
-            toast.error("Error validating the actor.");
+        setLoading(true); // Start loading
+    try {
+        const response = await checkActor(actor.id, session.user.workspace_id);
+        if (response.ok) {
+            updateState("step", state.step + 1);
+        } else {
+            toast.error(`Actor failed the validation`);
         }
+    } catch (error) {
+        toast.error("Error validating the actor.");
+    } finally {
+        setLoading(false); // Stop loading
+    }
     };
 
     const handleBack = () => {
@@ -251,9 +256,13 @@ const FormComponent = () => {
                                 Back
                             </Button>
                             {state.step < 4 ? (
-                                <Button size="sm" disabled={shouldDisableNextButton()} onClick={handleNext}>
-                                    Next
-                                </Button>
+                         <Button 
+                         size="sm" 
+                         disabled={shouldDisableNextButton() || loading} 
+                         onClick={handleNext} 
+                           >
+                         {loading ?<CircularLoader /> : 'Next'}
+                     </Button>                      
                             ) : (
                                 <Button size="sm" onClick={handleSave}>
                                     Submit
