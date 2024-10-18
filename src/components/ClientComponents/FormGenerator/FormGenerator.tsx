@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback} from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -42,6 +42,10 @@ export default function FormGenerator({
 }) {
     const form = useForm({ defaultValues: defaultData });
 
+    const handleUnregister = useCallback((fieldName) => {
+        form.unregister(fieldName);
+    }, [form]); 
+    
     const checkrequired = (field_name: string) => {
         if (required_fields) {
             return required_fields?.includes(field_name);
@@ -59,17 +63,13 @@ export default function FormGenerator({
         await onSubmit(data);
         form.reset();
     };
-    console.log("Form", form);
+
     useEffect(() => {
         if (currentTab && form.formState.isDirty) {
-            console.log(currentTab);
             const savedValues = form.getValues();
-            console.log("Before", form.getValues());
             const confirm = tabChangeAlert(form);
             if (!confirm) {
-                console.log("Setting saved value");
                 form.reset(savedValues);
-                console.log("After", form.getValues());
             }
         }
     }, [currentTab]);
@@ -80,7 +80,6 @@ export default function FormGenerator({
      * @returns form fields
      */
     const renderFormField = (field: any, parentKey?: string) => {
-        // return if no field is provided
         if (!field) {
             return null;
         }
@@ -91,10 +90,10 @@ export default function FormGenerator({
         let uiOpts = field["ui-opts"];
         let defaultValue = field.default;
 
-        const originalFieldName = field_name; // to store the original field name to be used if needed
-        field_name = parentKey ? `${parentKey}.${field_name}` : field_name; // override field name with appended parent key
-        const watchFieldValue = form.watch(`${field_name}.${originalFieldName}`); // to watch for value of this field
-
+        const originalFieldName = field_name; 
+        field_name = parentKey ? `${parentKey}.${field_name}` : field_name; 
+        const watchFieldValue = form.watch(`${field_name}.${originalFieldName}`); 
+       
         /**
          * Check if the field value has more properties to render and call renderFormField recursively
          * @param watchFieldValue
@@ -125,8 +124,8 @@ export default function FormGenerator({
                             <div className="flex flex-col space-y-4">
                                 <>
                                     {sortedDepFields?.map(
-                                        (dep_field) => dep_field && renderFormField(dep_field, `${field_name}`)
-                                    )}
+                                    (dep_field) => dep_field && renderFormField(dep_field, `${field_name}`)
+                                )}
                                 </>
                             </div>
                         );
@@ -136,7 +135,7 @@ export default function FormGenerator({
             return null;
         };
 
-        /**
+         /**
          * render grouping of parameters. For example advanced settings section.
          * Can recursively render as many sections as needed
          */
@@ -153,12 +152,12 @@ export default function FormGenerator({
                     renderFormField={renderFormField}
                     order={order}
                     type={type}
+                    handleUnregister={handleUnregister} 
                 />
             );
         }
 
         const isRequired = checkrequired(field_name);
-        console.log("IsRequired" + field_name, isRequired);
 
         return (
             <div
@@ -167,7 +166,7 @@ export default function FormGenerator({
             >
                 <label htmlFor={field_name} className="flex flex-col space-y-1">
                     <div className="flex gap-1">
-                        <span className="text-md font-medium jus">{title}</span>
+                        <span className="text-md font-medium">{title}</span>
                         {isRequired && <span className="text-sm text-red-500">*</span>}
                     </div>
 
@@ -177,7 +176,7 @@ export default function FormGenerator({
 
                     {(type === "string" || uiOpts?.widget === "textbox") &&
                         (field.enum ? (
-                            <EnumField form={form} field_name={field_name} fieldEnum={field.enum} required={isRequired} />
+                            <EnumField form={form} field_name={field_name} fieldEnum={field.enum} required={isRequired} handleUnregister={handleUnregister}                             />
                         ) : (
                             <TextBox
                                 field={field}
@@ -186,6 +185,7 @@ export default function FormGenerator({
                                 defaultValue={defaultValue}
                                 uiOpts={uiOpts}
                                 required={isRequired}
+                                handleUnregister={handleUnregister} 
                             />
                         ))}
 
@@ -196,11 +196,12 @@ export default function FormGenerator({
                             minimum={minimum}
                             maximum={maximum}
                             defaultValue={defaultValue}
+                            handleUnregister={handleUnregister} 
                         />
                     )}
 
                     {uiOpts?.widget === "singleDropdown" && (
-                        <SingleSelect form={form} field_name={field_name} originalFieldName={originalFieldName} oneOf={oneOf} />
+                        <SingleSelect form={form} field_name={field_name} originalFieldName={originalFieldName} oneOf={oneOf} handleUnregister={handleUnregister}                         />
                     )}
 
                     {uiOpts?.widget === "radioButton" && (
@@ -210,6 +211,7 @@ export default function FormGenerator({
                                 field_name={field_name}
                                 originalFieldName={originalFieldName}
                                 oneOf={oneOf}
+                                handleUnregister={handleUnregister} 
                             />
                         </div>
                     )}
@@ -222,7 +224,8 @@ export default function FormGenerator({
                             description={description}
                             defaultValue={defaultValue}
                             required={isRequired}
-                        />
+                            handleUnregister={handleUnregister}                       
+                              />
                     )}
 
                     {form.formState.errors[field_name] && (
@@ -245,7 +248,7 @@ export default function FormGenerator({
         <>
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmitForm)} className="flex flex-col space-y-4">
-                    <>{sortedProperties.map((field) => renderFormField(field))}</>
+                    {sortedProperties.map((field) => renderFormField(field))}
                     <Button type="submit" disabled={form.formState.isSubmitting}>
                         {form.formState.isSubmitting && <CircularLoader />}
                         {submitButtonText || "Submit"}

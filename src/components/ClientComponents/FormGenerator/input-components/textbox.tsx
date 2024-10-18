@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-export default function TextBox({ field, form, field_name, defaultValue, uiOpts, required = false }) {
+export default function TextBox({ field, form, field_name, defaultValue, uiOpts, handleUnregister, required = false }) {
     const fieldEnum = field.enum;
     const validationRules = {};
 
@@ -28,6 +28,12 @@ export default function TextBox({ field, form, field_name, defaultValue, uiOpts,
             />
         );
     }
+
+    useEffect(() => {
+        return () => {
+            handleUnregister(field_name);
+        };
+    }, [handleUnregister, field_name]);
 
     return (
         <>

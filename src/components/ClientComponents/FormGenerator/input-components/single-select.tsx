@@ -1,11 +1,16 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { FormField, FormItem, FormMessage, Form } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-export default function SingleSelect({ form, field_name, originalFieldName, oneOf, required = false }) {
+export default function SingleSelect({ form, field_name, originalFieldName, oneOf,handleUnregister, required = false }) {
     const validationRules = {};
     if (required) {
         validationRules.required = "Select an option!";
     }
+    useEffect(() => {
+        return () => {
+            handleUnregister(field_name);
+        };
+    }, [handleUnregister, field_name]);
     return (
         <>
             <FormField
