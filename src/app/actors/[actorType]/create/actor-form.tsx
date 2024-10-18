@@ -61,7 +61,7 @@ export default function ActorForm({
      */
     const handleCreateFormSubmit = async (data: any) => {
         error && setError(null);
-
+    
         const session = await getSession();
 
         let apiData = {
@@ -73,10 +73,14 @@ export default function ActorForm({
             status: "active",
             configuration: data,
         };
-
+    
         const res = await createInstanceApi(apiData, curWorkspace.id);
         if (res.status !== 200) {
             setError(res.responseData.detail);
+            toast.error(res.responseData.detail,{
+                className: "toast-error", 
+            }); 
+            return;
         }
         if (res.status === 200 && postFormSubmitActions) {
             if (inCreateConnection) {
@@ -84,6 +88,7 @@ export default function ActorForm({
             } else {
                 postFormSubmitActions();
             }
+            toast.success(`${actorType} created successfully!`); 
         }
     };
 
@@ -206,10 +211,10 @@ export default function ActorForm({
             name: savedData["dat-name"],
             configuration: savedData,
         };
-        error && setError(null);
-
+        error && setError(null); 
+    
         const updateRes = await updateInstanceApi(actorId, apiData, curWorkspace.id);
-
+    
         if (updateRes.status === 200) {
             router.push(`/actors/${actorType}`);
             toast(`${actorType} updated successfully.`, {
@@ -291,7 +296,6 @@ export default function ActorForm({
                                                         required_fields={formData?.properties?.connection_specification?.required}
                                                         onSubmit={editMode ? handleEditFormSubmit : handleCreateFormSubmit}
                                                         submitButtonText={editMode ? "Test and Save" : "Test and Submit"}
-                                                        errorText={error}
                                                         defaultData={editMode && actorInstanceData?.configuration}
                                                     />
                                                 </CardContent>

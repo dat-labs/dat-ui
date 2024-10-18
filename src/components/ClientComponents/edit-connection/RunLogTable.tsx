@@ -180,7 +180,7 @@ function RunLogTable({ logInstance }: { logInstance: any }) {
                             </DropdownMenuContent>
                         </DropdownMenu>
 
-                        <DialogContent className="size-10/12 max-w-none">
+                        <DialogContent aria-describedby="run logs" className="size-10/12 max-w-none">
                             <Card className="p-5 m-4">
                                 <DialogHeader>
                                     <DialogTitle className="mb-2">Run Logs</DialogTitle>

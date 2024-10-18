@@ -23,7 +23,7 @@ function EditSchemaPanel({
 }) {
     const { state } = useContext(FromDataContext);
     const [selectedSchemas, setSelectedSchemas] = useState([]);
-    
+
     const handleSwitchChange = (checked, fieldName, typeName) => {
         setSelectedSchemas((prevSelectedSchemas) => {
             let newSelectedSchemas;
@@ -101,30 +101,6 @@ function EditSchemaPanel({
 
         handleStreamConfigurationSave(updatedConfiguration, name);
     };
-
-    const isUpsertKeyChecked = (fieldName) => {
-        return state.streams[name]?.configuration?.upsert_keys?.includes(fieldName);
-    };
-
-    const handleUpsertKeyChange = (checked, fieldName) => {
-        const currentUpsertKeys = state.streams[name].configuration.upsert_keys || [];
-    
-        const newUpsertKeys = checked
-            ? [...currentUpsertKeys, fieldName]
-            : currentUpsertKeys.filter((key) => key !== fieldName);
-    
-        updateState("streams", {
-            ...state.streams,
-            [name]: {
-                ...state.streams[name],
-                configuration: {
-                    ...state.streams[name].configuration,
-                    upsert_keys: newUpsertKeys, 
-                },
-            },
-        });
-    };
-    
 
     const isUpsertKeyChecked = (fieldName) => {
         return state.streams[name]?.configuration?.upsert_keys?.includes(fieldName);
@@ -228,14 +204,14 @@ function EditSchemaPanel({
 
         if (config?.read_sync_mode === "INCREMENTAL" && !config?.cursor_field) {
             toast.error("Please select a cursor field for incremental sync.",{
-                className: 'toast-error' // Apply custom error class here
+                className: 'toast-error'
             });
             return;
         }
 
         if (config?.write_sync_mode === "UPSERT" && (!config?.upsert_keys || config?.upsert_keys.length === 0)) {
             toast.error("Please select at least one upsert key for upsert sync.",{
-                className: 'toast-error' // Apply custom error class here
+                className: 'toast-error'
             });
             return;
         }

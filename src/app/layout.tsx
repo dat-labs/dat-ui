@@ -5,6 +5,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ClientComponents/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import PathPage from "@/components/ClientComponents/pathLayout";
+import { SessionProvider } from "next-auth/react"; 
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,10 +22,12 @@ export default function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <body>
-                <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-                    <Toaster />
-                    <PathPage>{children}</PathPage>
-                </ThemeProvider>
+                <SessionProvider> 
+                    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+                        <Toaster />
+                        <PathPage>{children}</PathPage>
+                    </ThemeProvider>
+                </SessionProvider>
             </body>
         </html>
     );
