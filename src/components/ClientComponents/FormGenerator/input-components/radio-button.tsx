@@ -1,12 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-export default function RadioButton({ form, oneOf, originalFieldName, field_name, required = false }) {
+export default function RadioButton({ form, oneOf, originalFieldName, field_name,handleUnregister, required = false }) {
     const validationRules = {};
     if (required) {
         validationRules.required = "Select an option!";
     }
+    useEffect(() => {
+        return () => {
+            handleUnregister(field_name);
+        };
+    }, [handleUnregister, field_name]);
     return (
         <FormField
             control={form.control}

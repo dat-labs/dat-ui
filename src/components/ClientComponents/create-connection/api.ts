@@ -27,3 +27,16 @@ export const deleteConnection = async (connection_id: string, wkspc_id: string) 
     });
     return response;
 };
+
+export const checkActor = async (actor_instance_id: string, wkspc_id: string) => {
+    const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/actor_instances/${actor_instance_id}/check?workspace_id=${wkspc_id}`, 
+        {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        }
+    );
+    return response;
+};

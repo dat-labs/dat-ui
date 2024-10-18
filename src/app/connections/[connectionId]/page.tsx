@@ -16,7 +16,7 @@ import { WorkspaceDataContext } from "@/components/ClientComponents/workspace-pr
  * @param {string} params.connectionId - The ID of the connection to be edited.
  * @returns {JSX.Element} The rendered EditConnectionPage component.
  */
-export default async function EditConnectionPage({ params }: { params: any }) {
+export default function EditConnectionPage({ params }: { params: any }) {
     const { loading, makeApiCall } = useApiCall(getConnectionData);
     const [connectionData, setConnectionData] = React.useState<any>(null);
     const { curWorkspace } = useContext(WorkspaceDataContext);
@@ -24,16 +24,19 @@ export default async function EditConnectionPage({ params }: { params: any }) {
      * Fetches the connection data and updates the state.
      */
     const load = useCallback(async () => {
-        const res = await makeApiCall(params.connectionId, curWorkspace.id);
-        setConnectionData(res.data);
-    }, [params.connectionId, setConnectionData]);
+        if (curWorkspace?.id) {
+            const res = await makeApiCall(params.connectionId, curWorkspace.id);
+            setConnectionData(res.data);
+        }
+    }, [params.connectionId, curWorkspace]);
 
     /**
-     * Calls the load function to fetch connection data when the component mounts.
+     * Calls the load function to fetch connection data when the component mounts
+     * or when curWorkspace changes.
      */
     useEffect(() => {
         load();
-    }, []);
+    }, [load]);
 
     if (loading) {
         return (

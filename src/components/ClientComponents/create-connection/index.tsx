@@ -5,7 +5,7 @@ import SelectActor from "./select-actor";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import ConnectionConfiguration from "./connection-configuration";
-import { addConnection } from "./api";
+import { addConnection, checkActor } from "./api";
 import useApiCall from "@/hooks/useApiCall";
 import { useRouter } from "next/navigation";
 import { getSession } from "next-auth/react";
@@ -115,9 +115,21 @@ export const getStremsData = (streamsObj: any) => {
 const FormComponent = () => {
     const { state, updateState } = React.useContext(FromDataContext);
     const { saveError, checkConnectionForError } = useCheckConnection(state);
+    const checkActorApiCall = useApiCall(checkActor, "GET");  
 
-    const handleNext = () => {
-        updateState("step", state.step + 1);
+    const handleNext = async () => {
+        const actor = state[state.step === 1 ? "source" : state.step === 2 ? "generator" : "destination"].value;
+        const session = await getSession();
+        try {
+            const response = await checkActor(actor.id, session.user.workspace_id);
+            if (response.ok) {
+                updateState("step", state.step + 1);
+            } else {
+                toast.error(`Actor failed the validation`);
+            }
+        } catch (error) {
+            toast.error("Error validating the actor.");
+        }
     };
 
     const handleBack = () => {

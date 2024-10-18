@@ -32,6 +32,9 @@ const credentialsConfig = CredentialsProvider({
 const config = {
     providers: [credentialsConfig],
     trustHost: true,
+    pages: {
+        signIn: "/sign-in", 
+    },
     callbacks: {
         jwt: async ({ token, user }) => {
             if (user) {
