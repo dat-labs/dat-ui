@@ -63,7 +63,7 @@ export default function AddWorkspaceForm({ postSubmissionAction }: { postSubmiss
                     <DialogTitle>Create New Workspace</DialogTitle>
                 </DialogHeader>
                 <div className="flex flex-col gap-4">
-                    <div className="flex justify-between">
+                    {/* <div className="flex justify-between">
                         <div className="flex ">
                             <span className="flex items-center justify-center mr-4 py-2 px-3 rounded-md bg-muted border">
                                 <CameraIcon className="size-5" />
@@ -75,7 +75,7 @@ export default function AddWorkspaceForm({ postSubmissionAction }: { postSubmiss
                         </div>
 
                         <Button variant="outline">Upload</Button>
-                    </div>
+                    </div> */}
                     <FormGenerator
                         properties={props}
                         onSubmit={onSubmit}

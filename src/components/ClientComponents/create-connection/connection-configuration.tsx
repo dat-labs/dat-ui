@@ -169,11 +169,11 @@ export default function ConnectionConfiguration({ editMode }: { editMode: boolea
                             </SelectTrigger>
                             <SelectContent>
                                 {scheduleOptions.map((option: any, index: number) => (
-                                    <>
+                                  
                                         <SelectItem key={index} value={option.title}>
                                             {option.title}
                                         </SelectItem>
-                                    </>
+                                   
                                 ))}
                             </SelectContent>
                         </Select>

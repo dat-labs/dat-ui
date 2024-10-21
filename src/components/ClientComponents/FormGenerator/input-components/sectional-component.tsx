@@ -18,7 +18,7 @@ export default function SectionalComponent({ title, field_name, sortedProperties
                             {/* ... (existing code for rendering different field types) ... */}
                             <div className="pl-4">
                                 <div className="flex flex-col space-y-4">
-                                    <>{sortedProperties.map((prop: any) => renderFormField(prop, `${field_name}`))}</>
+                                    {sortedProperties.map((prop: any) => renderFormField(prop, `${field_name}`))}
                                 </div>
                             </div>
                         </label>

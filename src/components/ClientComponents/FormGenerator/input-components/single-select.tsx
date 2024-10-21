@@ -29,11 +29,11 @@ export default function SingleSelect({ form, field_name, originalFieldName, oneO
                                 </SelectTrigger>
                                 <SelectContent>
                                     {oneOf.map((option: any, index: number) => (
-                                        <>
+                                        
                                             <SelectItem key={index} value={option.properties[originalFieldName].default}>
                                                 {option.title}
                                             </SelectItem>
-                                        </>
+                                    
                                     ))}
                                 </SelectContent>
                             </Select>

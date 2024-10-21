@@ -98,7 +98,6 @@ function Members() {
                 throw new Error("Failed to add user to workspace");
             }
 
-            // Refresh the user list after adding the new user
             setUsers((prev) => [...prev, user]);
             setIsDialogOpen(false);
         } catch (error) {
@@ -107,16 +106,14 @@ function Members() {
         }
     };
 
-    // Filter users based on the search query
     const filteredUsers = users.filter(
-        (user) => user.email && user.email.toLowerCase().includes(searchQuery.toLowerCase()) // Ensure user.name exists
+        (user) => user.email && user.email.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    // Pagination logic based on filtered users
     const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
     const currentUsers = filteredUsers.slice((currentPage - 1) * usersPerPage, currentPage * usersPerPage);
 
-    const hasUsers = filteredUsers.length > 0; // Check if there are filtered users
+    const hasUsers = filteredUsers.length > 0;
 
     return (
         <div className="w-full p-10 ">
@@ -210,7 +207,7 @@ function Members() {
                                             setCurrentPage(currentPage + 1);
                                         }
                                     }}
-                                    disabled={currentPage === totalPages || !hasUsers} // Disable if last page or no users
+                                    disabled={currentPage === totalPages || !hasUsers} 
                                 />
                             </Pagination>
                         </TableCell>
@@ -227,9 +224,9 @@ function Members() {
                     </DialogHeader>
 
                     <AddUserForm
-                        submitForm={onSubmit} // Pass the form submission handler
+                        submitForm={onSubmit} 
                         title="Add New User"
-                        formError={error} // Pass any form error to the form
+                        formError={error}
                     />
                 </DialogContent>
             </Dialog>

@@ -55,7 +55,7 @@ export default function DataTable<TData, TValue>({
         },
         initialState: {
             pagination: {
-                pageSize: inDialog ? 8 : 10,
+                pageSize: inDialog ? 10 : 10,
             },
         },
     });
