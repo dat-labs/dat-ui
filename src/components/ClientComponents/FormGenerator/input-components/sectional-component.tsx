@@ -1,8 +1,13 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import clsx from "clsx";
 
-export default function SectionalComponent({ title, field_name, sortedProperties, renderFormField, order, type }) {
+export default function SectionalComponent({ title, field_name, sortedProperties, renderFormField,handleUnregister, order, type }) {
+    useEffect(() => {
+        return () => {
+            handleUnregister(field_name);
+        };
+    }, [handleUnregister, field_name]);
     return (
         <div className={clsx({ "border border-muted p-3 rounded-md": type === "object" })} key={order}>
             <Accordion type="single" collapsible className="data-entry-divider border-background">

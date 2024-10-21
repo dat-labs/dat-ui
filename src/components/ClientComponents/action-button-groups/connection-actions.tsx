@@ -46,14 +46,13 @@ export default function ConnectionActions({ connectionData }) {
         }
     }, [connectionRunData]);
 
-    const { loading, makeApiCall: deleteConnectionCall } = useApiCall(updateConnection, "DELETE");
+    const { loading, makeApiCall: deleteConnectionCall } = useApiCall(deleteConnection, "DELETE");
 
     const handleDelete = async (e) => {
         e.stopPropagation();
-        const deleteConnectionData = { ...connectionData, status: "deleted" };
-        const res = await deleteConnectionCall(connectionData.id, deleteConnectionData);
+        const res = await deleteConnectionCall(connectionData.id, curWorkspace.id);
 
-        if (res.status === 200) {
+        if (res.status === 204) {
             toast.success("Succesfully Deleted Connection !");
             router.refresh();
         } else {

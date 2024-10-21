@@ -147,7 +147,13 @@ const Sidebar = () => {
                                                     className="h-7 w-7"
                                                 />
                                             </Card>
-                                            <p>{curWorkspace.name}</p>
+                                            <p>
+                                                {curWorkspace?.name
+                                                    ? curWorkspace.name.length > 8
+                                                        ? `${curWorkspace.name.slice(0, 8)}...`
+                                                        : curWorkspace.name
+                                                    : "Loading..."}
+                                            </p>
                                         </div>
 
                                         <CaretSortIcon className="size-6" />
@@ -235,7 +241,7 @@ const Sidebar = () => {
                 <nav className="flex flex-col space-y-4">
                     {navItems.map((item) => (
                         <Link
-                            key={item.label}
+                            key={item.label} 
                             className={clsx(
                                 "!px-2 font-normal !justify-start !w-full !text-left hover:bg-primary/10",
                                 buttonVariants({ variant: pathname.startsWith(item.url) ? "default" : "ghost" })
@@ -252,15 +258,21 @@ const Sidebar = () => {
                     ))}
                 </nav>
             </div>
+
             <div className="pt-8 px-4">
                 <nav className="flex flex-col space-y-4">
-                    {bottomNavItems.map((item) =>
+                    {bottomNavItems.map((item, index) =>
                         item.component ? (
-                            <Link href={item.url ? item.url : ""} key={item.label}>
+                            <Link href={item.url ? item.url : ""} key={item.label || index}>
                                 <item.component>{item.label && <p className="text-sm">{item.label}</p>}</item.component>
                             </Link>
                         ) : (
-                            <Link href={item.url ? item.url : ""} key={item.label} target="_blank" rel="noopener noreferrer">
+                            <Link
+                                href={item.url ? item.url : ""}
+                                key={item.label || index}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
                                 {item.label && <p className="text-sm">{item.label}</p>}
                             </Link>
                         )
