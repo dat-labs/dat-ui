@@ -14,6 +14,7 @@ import SingleSelect from "./input-components/single-select";
 import TextArray from "./input-components/text-array";
 import EnumField from "./input-components/enum-field";
 import RadioButton from "./input-components/radio-button";
+import FileUpload from "./input-components/file-upload";
 
 /**
  * FormGenerator component to generate form fields based on the properties
@@ -30,6 +31,9 @@ export default function FormGenerator({
     errorText,
     tabChangeAlert,
     currentTab,
+    onUploadResponse,
+    existingFiles,
+    targetPath
 }: {
     properties: any;
     required_fields?: any;
@@ -39,7 +43,11 @@ export default function FormGenerator({
     errorText?: string | null;
     tabChangeAlert?: any;
     currentTab?: any;
+    onUploadResponse?: (responses: any) => void;
+    existingFiles?: string[];
+    targetPath?: string | null; 
 }) {
+    
     const form = useForm({ defaultValues: defaultData });
 
     const handleUnregister = useCallback((fieldName) => {
@@ -158,6 +166,29 @@ export default function FormGenerator({
         }
 
         const isRequired = checkrequired(field_name);
+
+        if (uiOpts?.file_upload) {
+            const allowedFileTypes = uiOpts?.allowed_file_types || [];
+
+            return (
+                <div key={field_name} className={clsx({ hidden: uiOpts?.hidden === true })}>
+                    <span className="text-md font-medium">{title}</span>
+                    <FileUpload
+                        field_name={field_name}
+                        required={isRequired}
+                        allowedFileTypes={allowedFileTypes}
+                        onUploadResponse={(responses) => {
+                            if (onUploadResponse) {
+                                onUploadResponse(responses);
+                            }
+                        }} 
+                        existingFiles={existingFiles} 
+                        handleUnregister={handleUnregister} 
+                        targetPath={targetPath}
+                    />
+                </div>
+            );
+        }
 
         return (
             <div
