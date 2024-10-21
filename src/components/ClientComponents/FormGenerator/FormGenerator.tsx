@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useCallback} from "react";
+import React, { useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -33,7 +33,7 @@ export default function FormGenerator({
     currentTab,
     onUploadResponse,
     existingFiles,
-    targetPath
+    targetPath,
 }: {
     properties: any;
     required_fields?: any;
@@ -45,15 +45,17 @@ export default function FormGenerator({
     currentTab?: any;
     onUploadResponse?: (responses: any) => void;
     existingFiles?: string[];
-    targetPath?: string | null; 
+    targetPath?: string | null;
 }) {
-    
     const form = useForm({ defaultValues: defaultData });
 
-    const handleUnregister = useCallback((fieldName) => {
-        form.unregister(fieldName);
-    }, [form]); 
-    
+    const handleUnregister = useCallback(
+        (fieldName) => {
+            form.unregister(fieldName);
+        },
+        [form]
+    );
+
     const checkrequired = (field_name: string) => {
         if (required_fields) {
             return required_fields?.includes(field_name);
@@ -98,10 +100,10 @@ export default function FormGenerator({
         let uiOpts = field["ui-opts"];
         let defaultValue = field.default;
 
-        const originalFieldName = field_name; 
-        field_name = parentKey ? `${parentKey}.${field_name}` : field_name; 
-        const watchFieldValue = form.watch(`${field_name}.${originalFieldName}`); 
-       
+        const originalFieldName = field_name;
+        field_name = parentKey ? `${parentKey}.${field_name}` : field_name;
+        const watchFieldValue = form.watch(`${field_name}.${originalFieldName}`);
+
         /**
          * Check if the field value has more properties to render and call renderFormField recursively
          * @param watchFieldValue
@@ -130,11 +132,7 @@ export default function FormGenerator({
                     if (sortedDepFields && sortedDepFields.length > 0) {
                         return (
                             <div className="flex flex-col space-y-4">
-                                <>
-                                    {sortedDepFields?.map(
-                                    (dep_field) => dep_field && renderFormField(dep_field, `${field_name}`)
-                                )}
-                                </>
+                                {sortedDepFields?.map((dep_field) => dep_field && renderFormField(dep_field, `${field_name}`))}
                             </div>
                         );
                     }
@@ -143,7 +141,7 @@ export default function FormGenerator({
             return null;
         };
 
-         /**
+        /**
          * render grouping of parameters. For example advanced settings section.
          * Can recursively render as many sections as needed
          */
@@ -160,7 +158,7 @@ export default function FormGenerator({
                     renderFormField={renderFormField}
                     order={order}
                     type={type}
-                    handleUnregister={handleUnregister} 
+                    handleUnregister={handleUnregister}
                 />
             );
         }
@@ -181,9 +179,9 @@ export default function FormGenerator({
                             if (onUploadResponse) {
                                 onUploadResponse(responses);
                             }
-                        }} 
-                        existingFiles={existingFiles} 
-                        handleUnregister={handleUnregister} 
+                        }}
+                        existingFiles={existingFiles}
+                        handleUnregister={handleUnregister}
                         targetPath={targetPath}
                     />
                 </div>
@@ -207,7 +205,13 @@ export default function FormGenerator({
 
                     {(type === "string" || uiOpts?.widget === "textbox") &&
                         (field.enum ? (
-                            <EnumField form={form} field_name={field_name} fieldEnum={field.enum} required={isRequired} handleUnregister={handleUnregister}                             />
+                            <EnumField
+                                form={form}
+                                field_name={field_name}
+                                fieldEnum={field.enum}
+                                required={isRequired}
+                                handleUnregister={handleUnregister}
+                            />
                         ) : (
                             <TextBox
                                 field={field}
@@ -216,7 +220,7 @@ export default function FormGenerator({
                                 defaultValue={defaultValue}
                                 uiOpts={uiOpts}
                                 required={isRequired}
-                                handleUnregister={handleUnregister} 
+                                handleUnregister={handleUnregister}
                             />
                         ))}
 
@@ -227,12 +231,18 @@ export default function FormGenerator({
                             minimum={minimum}
                             maximum={maximum}
                             defaultValue={defaultValue}
-                            handleUnregister={handleUnregister} 
+                            handleUnregister={handleUnregister}
                         />
                     )}
 
                     {uiOpts?.widget === "singleDropdown" && (
-                        <SingleSelect form={form} field_name={field_name} originalFieldName={originalFieldName} oneOf={oneOf} handleUnregister={handleUnregister}                         />
+                        <SingleSelect
+                            form={form}
+                            field_name={field_name}
+                            originalFieldName={originalFieldName}
+                            oneOf={oneOf}
+                            handleUnregister={handleUnregister}
+                        />
                     )}
 
                     {uiOpts?.widget === "radioButton" && (
@@ -242,7 +252,7 @@ export default function FormGenerator({
                                 field_name={field_name}
                                 originalFieldName={originalFieldName}
                                 oneOf={oneOf}
-                                handleUnregister={handleUnregister} 
+                                handleUnregister={handleUnregister}
                             />
                         </div>
                     )}
@@ -255,8 +265,8 @@ export default function FormGenerator({
                             description={description}
                             defaultValue={defaultValue}
                             required={isRequired}
-                            handleUnregister={handleUnregister}                       
-                              />
+                            handleUnregister={handleUnregister}
+                        />
                     )}
 
                     {form.formState.errors[field_name] && (
@@ -276,17 +286,18 @@ export default function FormGenerator({
     const sortedProperties = Object.values(properties).sort((a: any, b: any) => a.order - b.order);
 
     return (
-        <>
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmitForm)} className="flex flex-col space-y-4">
-                    {sortedProperties.map((field) => renderFormField(field))}
-                    <Button type="submit" disabled={form.formState.isSubmitting}>
-                        {form.formState.isSubmitting && <CircularLoader />}
-                        {submitButtonText || "Submit"}
-                    </Button>
-                </form>
-                {errorText && <ErrorAlert error={errorText} />}
-            </Form>
-        </>
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmitForm)} className="flex flex-col space-y-4">
+                {sortedProperties.map((field, index) => (
+                    <React.Fragment key={index}>{renderFormField(field)}</React.Fragment>
+                ))}
+
+                <Button type="submit" disabled={form.formState.isSubmitting}>
+                    {form.formState.isSubmitting && <CircularLoader />}
+                    {submitButtonText || "Submit"}
+                </Button>
+            </form>
+            {errorText && <ErrorAlert error={errorText} />}
+        </Form>
     );
 }

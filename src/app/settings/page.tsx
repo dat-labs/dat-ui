@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AccountSettings from "./accountSettings";
 import PageBreadcrumb from "../page-breadcrumb";
-import AddUsers from "./addUsers";
 import SettingsTable from "./members";
 import Members from "./members";
+import { useSearchParams } from "next/navigation";
+
 
 const navItems = [
     {
@@ -36,6 +37,15 @@ const navItems = [
 
 const Settings = () => {
     const [option, setOption] = useState(0);
+    const searchParams = useSearchParams();
+    
+    useEffect(() => {
+        const tab = searchParams.get('tab');
+        if (tab === 'members') {
+            const membersIndex = navItems.findIndex(item => item.label === "Members");
+            setOption(membersIndex);
+        }
+    }, [searchParams]);
 
     return (
         <>

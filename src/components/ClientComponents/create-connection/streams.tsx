@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import DataTable from "../data-table";
 import { Switch } from "@/components/ui/switch";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerTrigger, DrawerClose, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer"; // Import Drawer components
 import { Separator } from "@/components/ui/separator";
 import { FromDataContext } from ".";
 import StreamPanel from "./StreamPanel";
@@ -15,7 +15,7 @@ export default function Streams({ data }: { data: any }) {
     const [streamDoc, setStreamDoc] = useState(null);
     const { data: docData, statusCode: docStatus, makeApiCall } = useApiCall(getActorDocumentation);
     
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false); 
     const [activeRow, setActiveRow] = useState<any>(null);
     const [currentStep, setCurrentStep] = useState(0);
     const [isStepCompleted, setIsStepCompleted] = useState(false);
@@ -48,18 +48,18 @@ export default function Streams({ data }: { data: any }) {
     }, [docData]);
 
     const handleRowClick = (row: any) => {
-        handleDialogOpen(row);
+        handleDrawerOpen(row);
     };
 
-    const handleDialogOpen = (row: any) => {
+    const handleDrawerOpen = (row: any) => {
         setActiveRow(row);
-        setIsDialogOpen(true);
+        setIsDrawerOpen(true); 
         setCurrentStep(0);
         setIsStepCompleted(false); 
     };
 
-    const handleDialogClose = () => {
-        setIsDialogOpen(false);
+    const handleDrawerClose = () => {
+        setIsDrawerOpen(false);
         setActiveRow(null);
     };
 
@@ -78,8 +78,6 @@ export default function Streams({ data }: { data: any }) {
             [streamName]: { ...state.streams[streamName], configuration: values },
         });
     };
-
-    
 
     const columns = [
         {
@@ -114,10 +112,14 @@ export default function Streams({ data }: { data: any }) {
         <div>
             <DataTable actorType="Stream" columns={columns} data={data} clickHandler={handleRowClick} />
 
-            <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
-                {activeRow && (
-                    <DialogContent aria-describedby="configure-streams" className="size-10/12 flex flex-col max-w-none">
-                          <div className="flex items-center bg-secondary rounded border h-12 mx-4">
+            <Drawer open={isDrawerOpen} onOpenChange={handleDrawerClose}>
+                <DrawerContent>
+                    {activeRow && (
+                        <>
+                            <DrawerHeader>
+                              <DrawerTitle className="sr-only">Edit streams</DrawerTitle>
+                              <DrawerDescription className="sr-only">Edit chosen stream</DrawerDescription>
+                            <div className="flex items-center bg-secondary rounded border h-12 mx-4">
                             <Switch
                                 className="ml-5"
                                 id={`configured-${activeRow.getValue("name")}`}
@@ -138,88 +140,84 @@ export default function Streams({ data }: { data: any }) {
                                 </p>
                             </div>
                         </div>
-                        {/* Conditional Rendering Based on json_schema Check */}
-                        {activeRow?.original?.streamProperties?.properties?.json_schema?.default &&
-                        activeRow?.original?.streamProperties?.properties?.json_schema?.default[activeRow?.original?.name]?.properties ? (
-                            <>
-                               
-                                <div className="mx-4 mb-4">
-                                    <div className="flex justify-start gap-5">
-                                        {["Configuration", "Edit Schema"].map((stepTitle, index) => (
-                                            <div key={index} className="flex items-center">
-                                                <div
-                                                    className={`w-5 h-5 rounded-full ${
-                                                        index === currentStep
-                                                            ? "bg-primary text-primary-foreground"
-                                                            : index < currentStep
-                                                            ? "dark:bg-green-500 bg-green-400"
-                                                            : "bg-gray-300"
-                                                    } flex items-center justify-center`}
-                                                >
-                                                    {index < currentStep ? (
-                                                        <span className="text-sm font-bold">&#10003;</span>
-                                                    ) : (
-                                                        index + 1
+                            </DrawerHeader>
+                            {/* Conditional Rendering Based on json_schema Check */}
+                            {activeRow?.original?.streamProperties?.properties?.json_schema?.default &&
+                            activeRow?.original?.streamProperties?.properties?.json_schema?.default[activeRow?.original?.name]?.properties ? (
+                                <>
+                                    <div className="mx-4 mb-4 p-5">
+                                        <div className="flex justify-start gap-5">
+                                            {["Configuration", "Edit Schema"].map((stepTitle, index) => (
+                                                <div key={index} className="flex items-center">
+                                                    <div
+                                                        className={`w-5 h-5 rounded-full ${
+                                                            index === currentStep
+                                                                ? "bg-primary text-primary-foreground"
+                                                                : index < currentStep
+                                                                ? "dark:bg-green-500 bg-green-400"
+                                                                : "bg-gray-300"
+                                                        } flex items-center justify-center`}
+                                                    >
+                                                        {index < currentStep ? (
+                                                            <span className="text-sm font-bold">&#10003;</span>
+                                                        ) : (
+                                                            index + 1
+                                                        )}
+                                                    </div>
+                                                    <span className="ml-2 text-sm">{stepTitle}</span>
+                                                    {index < 1 && (
+                                                        <img
+                                                            width="15"
+                                                            height="10px"
+                                                            alt="separator icon"
+                                                            className="h-3 w-3 ml-4"
+                                                            src="https://cdn0.iconfinder.com/data/icons/mintab-outline-for-ios-4/30/toward-forward-more-than-angle-bracket-512.png"
+                                                        />
                                                     )}
                                                 </div>
-                                                <span className="ml-2 text-sm">{stepTitle}</span>
-                                                {index < 1 && (
-                                                    <img
-                                                        width="15"
-                                                        height="10px"
-                                                        alt="separator icon"
-                                                        className="h-3 w-3 ml-4"
-                                                        src="https://cdn0.iconfinder.com/data/icons/mintab-outline-for-ios-4/30/toward-forward-more-than-angle-bracket-512.png"
-                                                    />
-                                                )}
-                                            </div>
-                                        ))}
+                                            ))}
+                                        </div>
+                                        <Separator className="mt-3" />
                                     </div>
-                                    <Separator className="mt-3" />
-                                </div>
 
-                                <div className="h-full justify-start overflow-hidden mx-4">
-                                       
-                                    {currentStep === 0 ? (
-                                        <StreamPanel
-                                            srcDocs={docStatus === 200 ? streamDoc : ""}
-                                            handleDialogClose={handleDialogClose}
-                                            row={activeRow}
-                                            state={state}
-                                            handleNextStep={handleNextStep}
-                                            handleStreamConfigurationSave={handleStreamConfigurationSave}
-                                        />
-                                    ) : (
-                                        
-                                        <EditSchemaPanel
-                                            jsonSchema={
-                                                activeRow.original.streamProperties?.properties?.json_schema?.default[
-                                                    activeRow?.original?.name
-                                                ]?.properties
-                                            }
-                                            name={activeRow.getValue("name")}
-                                            handleStreamConfigurationSave={handleStreamConfigurationSave}
-                                            handlePreviousStep={handlePreviousStep}
-                                            handleDialogClose={handleDialogClose}
-                                        />
-                                    )}
-
-                                
-                                </div>
-
-                            </>
-                        ) : (
-                            <StreamPanel
-                                srcDocs={docStatus === 200 ? streamDoc : ""}
-                                handleDialogClose={handleDialogClose}
-                                row={activeRow}
-                                state={state}
-                                handleStreamConfigurationSave={handleStreamConfigurationSave}
-                            />
-                        )}
-                    </DialogContent>
-                )}
-            </Dialog>
+                                    <div className="h-full justify-start overflow-hidden mx-4">
+                                        {currentStep === 0 ? (
+                                            <StreamPanel
+                                                srcDocs={docStatus === 200 ? streamDoc : ""}
+                                                handleDrawerClose={handleDrawerClose} 
+                                                row={activeRow}
+                                                state={state}
+                                                handleNextStep={handleNextStep}
+                                                handleStreamConfigurationSave={handleStreamConfigurationSave}
+                                            />
+                                        ) : (
+                                            <EditSchemaPanel
+                                                jsonSchema={
+                                                    activeRow.original.streamProperties?.properties?.json_schema?.default[
+                                                        activeRow?.original?.name
+                                                    ]?.properties
+                                                }
+                                                name={activeRow.getValue("name")}
+                                                handleStreamConfigurationSave={handleStreamConfigurationSave}
+                                                handlePreviousStep={handlePreviousStep}
+                                                handleDrawerClose={handleDrawerClose} 
+                                            />
+                                        )}
+                                    </div>
+                                </>
+                            ) : (
+                                <StreamPanel
+                                    srcDocs={docStatus === 200 ? streamDoc : ""}
+                                    handleDrawerClose={handleDrawerClose} 
+                                    row={activeRow}
+                                    state={state}
+                                    handleStreamConfigurationSave={handleStreamConfigurationSave}
+                                />
+                            )}
+                        </>
+                    )}
+                </DrawerContent>
+            </Drawer>
         </div>
     );
 }

@@ -12,7 +12,7 @@ interface StreamPanelProps {
     row: any;
     handleStreamConfigurationSave: (values: any, streamName: string) => void;
     state: any;
-    handleDialogClose: any;
+    handleDrawerClose: any;
     handleNextStep?: () => void;
 }
 
@@ -20,7 +20,7 @@ const StreamPanel: React.FC<StreamPanelProps> = ({
     srcDocs,
     row,
     handleStreamConfigurationSave,
-    handleDialogClose,
+    handleDrawerClose,
     handleNextStep,
 }) => {
     const { state, updateState } = useContext(FromDataContext);
@@ -74,7 +74,7 @@ const StreamPanel: React.FC<StreamPanelProps> = ({
         ) {
             handleNextStep?.();
         } else {
-            handleDialogClose();
+            handleDrawerClose();
         }
     };
 

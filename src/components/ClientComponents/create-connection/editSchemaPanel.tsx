@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import DataTable from "../data-table";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -7,22 +7,34 @@ import { FromDataContext } from ".";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 function EditSchemaPanel({
     jsonSchema,
     name,
     handleStreamConfigurationSave,
     handlePreviousStep,
-    handleDialogClose
+    handleDrawerClose
 }: {
     jsonSchema: any;
     name: string;
     handleStreamConfigurationSave: (values: any, streamName: string) => void;
     handlePreviousStep: () => void;
-    handleDialogClose: any;
+    handleDrawerClose: any;
 }) {
     const { state } = useContext(FromDataContext);
     const [selectedSchemas, setSelectedSchemas] = useState([]);
+
+    useEffect(() => {
+        const currentConfig = state.streams[name]?.configuration?.json_schema;
+        if (!currentConfig || Object.keys(currentConfig).length === 0) {
+            const updatedConfiguration = {
+                ...state.streams[name]?.configuration,
+                json_schema: jsonSchema,
+            };
+            handleStreamConfigurationSave(updatedConfiguration, name);
+        }
+    }, [name, jsonSchema]); 
 
     const handleSwitchChange = (checked, fieldName, typeName) => {
         setSelectedSchemas((prevSelectedSchemas) => {
@@ -44,23 +56,25 @@ function EditSchemaPanel({
 
             if (!checked) {
                 delete newJsonSchema[fieldName];
-                if (state.streams[name]?.configuration?.cursor_field === fieldName) {
-                    state.streams[name].configuration.cursor_field = null;
-                }
+                    const updatedConfiguration = {
+                    ...state.streams[name].configuration,
+                    json_schema: newJsonSchema,
+                    cursor_field: state.streams[name]?.configuration?.cursor_field === fieldName 
+                        ? null 
+                        : state.streams[name]?.configuration?.cursor_field,
+                    upsert_keys: (state.streams[name]?.configuration?.upsert_keys || [])
+                        .filter(key => key !== fieldName)
+                };
+
+                handleStreamConfigurationSave(updatedConfiguration, name);
+            } else {
+                const updatedConfiguration = {
+                    ...state.streams[name].configuration,
+                    json_schema: newJsonSchema,
+                };
+                handleStreamConfigurationSave(updatedConfiguration, name);
             }
 
-            const updatedUpsertKeys = state.streams[name]?.configuration?.upsert_keys?.filter(
-                (key) => key !== fieldName
-            );
-
-            const updatedConfiguration = {
-                ...state.streams[name].configuration,
-                json_schema: newJsonSchema,
-                upsert_keys: updatedUpsertKeys, // Update upsert keys
-
-            };
-
-            handleStreamConfigurationSave(updatedConfiguration, name);
             return newSelectedSchemas;
         });
     };
@@ -216,14 +230,17 @@ function EditSchemaPanel({
             return;
         }
 
-        handleDialogClose(); 
+        handleDrawerClose(); 
     };
 
 
     const schemaArr = convertToArray(jsonSchema);
 
     return (
-        <div className="p-2">
+        <div className="h-full flex flex-col">
+
+        <ScrollArea className="h-full w-full">
+        <div className="p-2 ">
             <DataTable actorType="Field Name" columns={columns} data={schemaArr} inDialog={true} />
             
             {/* Buttons Section */}
@@ -235,6 +252,8 @@ function EditSchemaPanel({
                     Save and Close
                 </Button>
             </div>
+        </div>
+        </ScrollArea>
         </div>
     );
 }

@@ -192,9 +192,9 @@ const Sidebar = () => {
                                                             variant="outline"
                                                             onClick={(e) => e.stopPropagation()}
                                                         >
-                                                            <Link href="/settings">
+                                                            <Link href="/settings?tab=members">
                                                                 <PersonIcon className="size-4 mr-1" />
-                                                                <span>Manage Users</span>
+                                                                <span>Manage Members</span>
                                                             </Link>
                                                         </Button>
                                                     </div>
