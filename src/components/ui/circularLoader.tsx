@@ -4,7 +4,7 @@ export default function CircularLoader() {
     return (
         <svg
             aria-hidden="true"
-            className="w-4 h-4 mr-4 text-gray-200 animate-spin dark:text-gray-600 fill-slate-800"
+            className="w-4 h-4 text-gray-200 animate-spin dark:text-gray-600 fill-slate-800"
             viewBox="0 0 100 101"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
