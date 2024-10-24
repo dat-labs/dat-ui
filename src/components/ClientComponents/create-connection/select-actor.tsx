@@ -30,10 +30,12 @@ export default function SelectSource({ actorType }: { actorType: string }) {
 
     React.useEffect(() => {
         const fetchData = async () => {
-            await makeApiCall(actorType, curWorkspace.id);
+            if (curWorkspace && curWorkspace.id) {
+                await makeApiCall(actorType, curWorkspace.id);
+            }
         };
         fetchData();
-    }, [actorType]);
+    }, [actorType,curWorkspace]);
 
     useEffect(() => {
         if (data) {

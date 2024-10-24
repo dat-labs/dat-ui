@@ -125,15 +125,20 @@ const FormComponent = () => {
         setLoading(true); // Start loading
     try {
         const response = await checkActor(actor.id, session.user.workspace_id);
+        const errorData = await response.json();
         if (response.ok) {
             updateState("step", state.step + 1);
         } else {
-            toast.error("Error - " + response.statusText);
+            toast.error( errorData.detail, {
+                className: "toast-error"
+            });
         }
     } catch (error) {
-        toast.error("Error validating the actor.");
+        toast.error("Error validating the actor.",{
+            className: "toast-error"
+        });
     } finally {
-        setLoading(false); // Stop loading
+        setLoading(false);
     }
     };
 

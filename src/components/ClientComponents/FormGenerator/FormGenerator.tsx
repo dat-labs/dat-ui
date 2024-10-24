@@ -70,8 +70,17 @@ export default function FormGenerator({
      * @returns form submission
      */
     const onSubmitForm = async (data: any) => {
-        await onSubmit(data);
-        form.reset();
+        try {
+            const formState = form.getValues(); 
+            const result = await onSubmit(data);
+            if (result && result.success === true) {
+                form.reset();
+            } else {
+                form.reset(formState);
+            }
+        } catch (error) {
+           return error;
+        }
     };
 
     useEffect(() => {

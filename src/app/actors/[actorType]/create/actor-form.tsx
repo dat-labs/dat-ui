@@ -60,35 +60,50 @@ export default function ActorForm({
      * @returns Form submission
      */
     const handleCreateFormSubmit = async (data: any) => {
-        error && setError(null);
-    
-        const session = await getSession();
+        try {
+            error && setError(null);
 
-        let apiData = {
-            workspace_id: curWorkspace.id,
-            actor_id: selectedActor,
-            user_id: session?.user?.id,
-            name: data["dat_name"],
-            actor_type: actorType,
-            status: "active",
-            configuration: data,
-        };
-    
-        const res = await createInstanceApi(apiData, curWorkspace.id);
-        if (res.status !== 200) {
-            setError(res.responseData.detail);
-            toast.error(res.responseData.detail,{
-                className: "toast-error", 
-            }); 
-            return;
-        }
-        if (res.status === 200 && postFormSubmitActions) {
-            if (inCreateConnection) {
-                postFormSubmitActions(res.responseData);
-            } else {
-                postFormSubmitActions();
+            const session = await getSession();
+
+            let apiData = {
+                workspace_id: curWorkspace.id,
+                actor_id: selectedActor,
+                user_id: session?.user?.id,
+                name: data["dat_name"],
+                actor_type: actorType,
+                status: "active",
+                configuration: data,
+            };
+
+            const res = await createInstanceApi(apiData, curWorkspace.id);
+
+            if (res.status !== 200) {
+                setError(res.responseData.detail);
+                toast.error(res.responseData.detail, {
+                    className: "toast-error",
+                });
+                return { success: false, error: res.responseData.detail };
             }
-            toast.success(`${actorType} created successfully!`); 
+
+            if (res.status === 200) {
+                if (postFormSubmitActions) {
+                    if (inCreateConnection) {
+                        postFormSubmitActions(res.responseData);
+                    } else {
+                        postFormSubmitActions();
+                    }
+                }
+                toast.success(`${actorType} created successfully!`);
+                return { success: true };
+            }
+            return { success: false };
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+            setError(errorMessage);
+            toast.error(errorMessage, {
+                className: "toast-error",
+            });
+            return { success: false, error: errorMessage };
         }
     };
 
@@ -177,18 +192,24 @@ export default function ActorForm({
      * @returns Actor's saved data to be edited
      */
     const load = useCallback(async () => {
-        const data = await actorDataApi(actorId, curWorkspace.id);
-        const jsonData = await actorSpecResApi(data?.actor.id);
+        // Ensure curWorkspace.id exists before proceeding
+        if (!curWorkspace || !curWorkspace.id) return;
+        try {
+            const data = await actorDataApi(actorId, curWorkspace.id);
+            const jsonData = await actorSpecResApi(data?.actor.id);
 
-        const pattern = /_/gi;
-        const replacement = "-";
-        const actorName = jsonData.properties?.module_name?.const?.replace(pattern, replacement);
-        const docPath = `integrations/${actorType}s/${actorName}`;
+            const pattern = /_/gi;
+            const replacement = "-";
+            const actorName = jsonData.properties?.module_name?.const?.replace(pattern, replacement);
+            const docPath = `integrations/${actorType}s/${actorName}`;
 
-        await getDocApi(docPath);
-        setActorInstanceData(data);
-        setFormData(jsonData);
-    }, [actorType, actorId]);
+            await getDocApi(docPath);
+            setActorInstanceData(data);
+            setFormData(jsonData);
+        } catch (error) {
+            return error;
+        }
+    }, [actorType, actorId, curWorkspace]);
 
     /**
      * Calls the load function when in Edit Mode
@@ -211,10 +232,10 @@ export default function ActorForm({
             name: savedData["dat-name"],
             configuration: savedData,
         };
-        error && setError(null); 
-    
+        error && setError(null);
+
         const updateRes = await updateInstanceApi(actorId, apiData, curWorkspace.id);
-    
+
         if (updateRes.status === 200) {
             router.push(`/actors/${actorType}`);
             toast(`${actorType} updated successfully.`, {
@@ -222,8 +243,8 @@ export default function ActorForm({
             });
         } else {
             setError(updateRes?.responseData.detail);
-            toast(`${actorType} update failed.`, {
-                description: `${actorType} update failed.`,
+            toast(updateRes.responseData.detail, {
+                className: "toast-error",
             });
         }
     };
@@ -235,7 +256,10 @@ export default function ActorForm({
         }
     }, [docData, setActorDoc]);
 
-    const ActorIcon = importIcon(editMode ? actorInstanceData?.actor?.icon : actorInstanceIcon);
+    const ActorIcon =
+        actorInstanceData?.actor?.icon || actorInstanceIcon
+            ? importIcon(editMode ? actorInstanceData?.actor?.icon : actorInstanceIcon)
+            : null;
 
     return (
         <div className="w-full">
@@ -252,7 +276,7 @@ export default function ActorForm({
 
             {(editMode || step === 2) && (
                 <ResizablePanelGroup direction="horizontal" className="w-full h-screen">
-                    <ResizablePanel defaultSize={docStatus === 200 || docLoading ? 50 : 100} minSize={30}>
+                    <ResizablePanel id="form-panel" order={1}  defaultSize={docStatus === 200 || docLoading ? 50 : 100} minSize={30}>
                         <div className="flex flex-col h-[90vh]">
                             <div className="flex flex-row items-center border-b py-3 pl-4 space-x-2">
                                 {ActorIcon !== null ? (
@@ -312,7 +336,7 @@ export default function ActorForm({
                     )}
 
                     {(docStatus === 200 || docLoading) && (
-                        <ResizablePanel defaultSize={50} minSize={30}>
+                        <ResizablePanel id="doc-panel" order={2}  defaultSize={50} minSize={30}>
                             <ScrollArea className="h-[90vh] overflow-hidden">
                                 <DocWrapper
                                     doc={docLoading ? "loading" : actorDoc}
