@@ -56,6 +56,7 @@ const ActorListing = ({ actors, onChangeHandler, actorType, selectedActor }) => 
                         const IconComponent = importIcon(actor.icon);
                         return (
                             <Card
+                                key={actor.id} 
                                 onClick={() => onChangeHandler(actor)}
                                 className={clsx(
                                     "w-full cursor-pointer transition duration-400 bg-card-background hover:bg-accent",

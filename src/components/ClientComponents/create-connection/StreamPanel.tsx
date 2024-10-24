@@ -80,7 +80,7 @@ const StreamPanel: React.FC<StreamPanelProps> = ({
 
     return (
         <ResizablePanelGroup direction="horizontal" className="w-full h-full">
-            <ResizablePanel defaultSize={srcDocs ? 50 : 100} minSize={30} className="h-full">
+            <ResizablePanel id="form-panel"  order={1}    defaultSize={srcDocs ? 50 : 100} minSize={30} className="h-full">
                 <ScrollArea className="h-full overflow-auto">
                     <div className="w-11/12 mx-auto">
                         <Card className="mt-2 mb-12">
@@ -113,7 +113,7 @@ const StreamPanel: React.FC<StreamPanelProps> = ({
             {srcDocs && <ResizableHandle withHandle className="ml-2" />}
 
             {srcDocs && (
-                <ResizablePanel defaultSize={50} minSize={30} className="h-full">
+                <ResizablePanel  id="doc-panel"  order={2} defaultSize={50} minSize={30} className="h-full">
                     <ScrollArea className="h-full overflow-auto pb-4">
                         <DocWrapper doc={srcDocs ? srcDocs : "loading"} url="google.com" />
                     </ScrollArea>
