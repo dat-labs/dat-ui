@@ -237,7 +237,7 @@ function EditSchemaPanel({
     const schemaArr = convertToArray(jsonSchema);
 
     return (
-        <div className="h-full flex flex-col">
+        <div className="h-full flex flex-col px-5">
 
         <ScrollArea className="h-full w-full">
         <div className="p-2 ">
